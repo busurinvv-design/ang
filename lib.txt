@@ -1,0 +1,2418 @@
+(*============================================================*)
+(* OM KLIB LIBRARY - FUNCTIONS AND FUNCTION BLOCKS          *)
+(*============================================================*)
+
+
+(*=== DWord2Word ===*)
+(* Source: DWord2Word.isaxml *)
+
+  DWord2Word : WORD (* Constant *);
+  iDWord : DWORD (* Constant *);
+  iN : INT (* Constant *);
+  tDW : DWORD (* NonRetain *);
+
+FUNCTION DWord2Word
+
+tDW := iDWord;
+
+CASE iN OF
+	0:
+	DWord2Word := ANY_TO_WORD(tDW);
+	1:
+	DWord2Word := ANY_TO_WORD(SHR(ANY_TO_DINT(tDW), 16));
+END_CASE;
+END_FUNCTION
+
+(* -------------------- *)
+
+
+(*=== FB_EXCH_MDL_AI ===*)
+(* Source: FB_EXCH_MDL_AI.isaxml *)
+
+  inMdl : MK_ioModuleDiag (* Constant *);
+  inCh : WORD (* Constant *);
+  tI : DINT (* Constant *);
+  tR : DINT (* Constant *);
+  tDWord : DWORD (* Constant *);
+  i : DINT (* Constant *);
+  tCurrent : REAL (* Constant *);
+  tADC_MAX : REAL (* Constant *);
+  tADC_MIN : REAL (* Constant *);
+  tADC : REAL (* Constant *);
+  tCurrent_MAX : REAL (* Constant *);
+  tCurrent_MIN : REAL (* Constant *);
+  tUnderflow : REAL (* Constant *);
+  tOverflow : REAL (* Constant *);
+  tCurrent_Up : REAL (* Constant *);
+  tCurrent_Down : REAL (* Constant *);
+
+FUNCTION_BLOCK FB_EXCH_MDL_AI
+
+(* Transferring Analog Input Module diagnostic data to HMI *)
+(* gD - global directional flag: true = from HMI, false = to HMI *)
+(* gI - global modbus exchange array index *)
+
+tADC_MAX := 16383.0;
+tADC_MIN := 0.0;
+tCurrent_MAX := 24.82;
+tCurrent_MIN := 0.0;
+tCurrent_Up	:= 20.0;
+tCurrent_Down := 4.0;
+tUnderflow := 3.9;
+tOverflow := 20.1;
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	;
+ELSE
+	MB0_HR[tR].regs[tI] := ANY_TO_WORD(MdlErr(inMdl));
+END_IF;
+gI := gI + 1;
+
+FOR i := 0 TO 15 DO
+	tR := (gI - 1) / 1024;
+	tI := gI - tR * 1024;
+	IF gD THEN
+		;
+	ELSE
+		tADC := ANY_TO_REAL(inCh[i]);
+		tCurrent := (tCurrent_MAX - tCurrent_MIN) / (tADC_MAX - tADC_MIN) * (tADC - tADC_MIN) + tCurrent_MIN;
+		MB0_HR[tR].regs[tI] := Real2Word(tCurrent, 0);
+		MB0_HR[tR].regs[tI+1] := Real2Word(tCurrent, 1);
+	END_IF;
+	gI := gI + 2;
+END_FOR;
+END_FUNCTION_BLOCK
+
+(* -------------------- *)
+
+
+(*=== FB_EXCH_MDL_CPU ===*)
+(* Source: FB_EXCH_MDL_CPU.isaxml *)
+
+  inMdl : MK_ioModuleDiag (* Constant *);
+  isPri : BOOL (* Constant *);
+  isAct : BOOL (* Constant *);
+  tI : DINT (* Constant *);
+  tR : DINT (* Constant *);
+  tDWord : DWORD (* Constant *);
+  i : DINT (* Constant *);
+
+FUNCTION_BLOCK FB_EXCH_MDL_CPU
+
+(* Transferring CPU diagnostic data to HMI *)
+(* gD - global directional flag: true = from HMI, false = to HMI *)
+(* gI - global modbus exchange array index *)
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	;
+ELSE
+	MB0_HR[tR].regs[tI] := ANY_TO_WORD(MdlErr(inMdl));
+	MB0_HR[tR].regs[tI+1].0 := isAct;
+	MB0_HR[tR].regs[tI+1].1 := isPri;
+	MB0_HR[tR].regs[tI+1].2 := NOT isPri;
+END_IF;
+gI := gI + 2;
+END_FUNCTION_BLOCK
+
+(* -------------------- *)
+
+
+(*=== FB_EXCH_MDL_DI ===*)
+(* Source: FB_EXCH_MDL_DI.isaxml *)
+
+  inMdl : MK_ioModuleDiag (* Constant *);
+  inCh : MK_di32input (* Constant *);
+  tI : DINT (* Constant *);
+  tR : DINT (* Constant *);
+  tDWord : DWORD (* Constant *);
+  i : DINT (* Constant *);
+
+FUNCTION_BLOCK FB_EXCH_MDL_DI
+
+(* Transferring Discrete Input Module diagnostic data to HMI *)
+(* gD - global directional flag: true = from HMI, false = to HMI *)
+(* gI - global modbus exchange array index *)
+
+FOR i := 31 TO 0 BY -1 DO
+	tDWord := ANY_TO_DWORD(SHL(ANY_TO_DINT(tDWord),1));
+	tDWord := ANY_TO_DWORD(OR_MASK(ANY_TO_DINT(tDWord), ANY_TO_DINT(inCh[i].ch)));
+END_FOR;
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	;
+ELSE
+	MB0_HR[tR].regs[tI] := ANY_TO_WORD(MdlErr(inMdl));
+	MB0_HR[tR].regs[tI+1] := DWord2Word(tDWord, 0);
+	MB0_HR[tR].regs[tI+2] := DWord2Word(tDWord, 1);
+END_IF;
+gI := gI + 3;
+END_FUNCTION_BLOCK
+
+(* -------------------- *)
+
+
+(*=== FB_EXCH_MDL_DO ===*)
+(* Source: FB_EXCH_MDL_DO.isaxml *)
+
+  inMdl : MK_ioModuleDiag (* Constant *);
+  inCh : MK_do32output (* Constant *);
+  tI : DINT (* Constant *);
+  tR : DINT (* Constant *);
+  tDWord : DWORD (* Constant *);
+  i : DINT (* Constant *);
+
+FUNCTION_BLOCK FB_EXCH_MDL_DO
+
+(* Transferring Discrete Output Module diagnostic data to HMI *)
+(* gD - global directional flag: true = from HMI, false = to HMI *)
+(* gI - global modbus exchange array index *)
+
+FOR i := 31 TO 0 BY -1 DO
+	tDWord := ANY_TO_DWORD(SHL(ANY_TO_DINT(tDWord),1));
+	tDWord := ANY_TO_DWORD(OR_MASK(ANY_TO_DINT(tDWord), ANY_TO_DINT(inCh[i].ch)));
+END_FOR;
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	;
+ELSE
+	MB0_HR[tR].regs[tI] := ANY_TO_WORD(MdlErr(inMdl));
+	MB0_HR[tR].regs[tI+1] := DWord2Word(tDWord, 0);
+	MB0_HR[tR].regs[tI+2] := DWord2Word(tDWord, 1);
+END_IF;
+gI := gI + 3;
+END_FUNCTION_BLOCK
+
+(* -------------------- *)
+
+
+(*=== FB_EXCH_MDL_PSU ===*)
+(* Source: FB_EXCH_MDL_PSU.isaxml *)
+
+  inMdl : MK_ioModuleDiag (* Constant *);
+  inCh : MK_PSUdiag (* Constant *);
+  tI : DINT (* Constant *);
+  tR : DINT (* Constant *);
+  tDWord : DWORD (* Constant *);
+  i : DINT (* Constant *);
+
+FUNCTION_BLOCK FB_EXCH_MDL_PSU
+
+(* Transferring PSU diagnostic data to HMI *)
+(* gD - global directional flag: true = from HMI, false = to HMI *)
+(* gI - global modbus exchange array index *)
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	;
+ELSE
+	MB0_HR[tR].regs[tI] := ANY_TO_WORD(MdlErr(inMdl));
+	MB0_HR[tR].regs[tI+1] := Real2Word(inCh.voltage, 0);
+	MB0_HR[tR].regs[tI+2] := Real2Word(inCh.voltage, 1);
+END_IF;
+gI := gI + 3;
+END_FUNCTION_BLOCK
+
+(* -------------------- *)
+
+
+(*=== FB_MST_CFG ===*)
+(* Source: FB_MST_CFG.isaxml *)
+
+  enb : INT (* Constant *);
+  ip : STRING (* Constant *);
+  port : WORD (* Constant *);
+  id : BYTE (* Constant *);
+  func : BYTE (* Constant *);
+  regNo : WORD (* Constant *);
+  length : WORD (* Constant *);
+  offset : WORD (* Constant *);
+  timeout : WORD (* Constant *);
+  out : MK_ModbusMasterRequest (* Constant *);
+
+FUNCTION_BLOCK FB_MST_CFG
+out.enable						:= enb<>0;
+out.single_request				:= FALSE;
+out.on_modify_request			:= FALSE;
+out.do_single_req				:= FALSE;
+out.command.slave_tcp_address	:= ip;
+out.command.slave_tcp_port		:= port;
+out.command.slave_id			:= id;
+out.command.func_code			:= func;
+out.command.slave_data_addr		:= regNo;
+out.command.slave_data_length	:= length;
+out.command.offset				:= offset;
+out.command.timeout_ms			:= timeout;
+out.command.delay_before_ms		:= 1000;
+out.command.repeats				:= 0;
+out.command.skip_repeats_when_bad := 0;
+out.command.repeat_over_scan	:= TRUE;
+END_FUNCTION_BLOCK
+
+(* -------------------- *)
+
+
+(*=== FB_gACT ===*)
+(* Source: FB_gACT.isaxml *)
+
+  g : DINT (* Constant *);
+  oMotorHoursBCD : DINT (* Constant *);
+  DefaultMode : WORD (* Constant *);
+  Count : BYTE (* Constant *);
+  DoubleModeAlmDelay : WORD (* Constant *);
+
+FUNCTION_BLOCK FB_gACT
+
+(* If moving time not set, use default 10 seconds *)
+IF gACT[g].static.MTM=0 THEN
+	gACT[g].static.MTM := 10; (* seconds *)
+END_IF;
+DefaultMode := MODE_AUT;
+
+(* Processing OPRT *)
+CASE gACT[g].PRM.OPRT OF
+	OPRT_RESET_ALM:
+	gACT[g].PRM.ALM := 0;
+	gACT[g].static.cmd_on := FALSE;
+	gACT[g].static.cmd_off := FALSE;
+	;
+	OPRT_RESET_CNTS:
+	gACT[g].PRM.START_COUNTER := 0;
+	;
+	OPRT_RESET_HRS:
+	gACT[g].PRM.WORK_TIME := 0;
+	gACT[g].static.MH_ms := 0;
+	gACT[g].static.MH_seconds := 0;
+	gACT[g].static.MH_minutes := 0;
+	gACT[g].static.MH_hours := 0;
+	gACT[g].static.MH_days := 0;
+	;
+	OPRT_AUTO:
+	gACT[g].static.remote := MODE_AUT;
+	gACT[g].static.repair := FALSE;
+	;
+	OPRT_MANUAL:
+	gACT[g].static.remote := MODE_MAN;
+	gACT[g].static.repair := FALSE;
+	;
+	OPRT_REPAIR:
+	gACT[g].static.repair := TRUE;
+	;
+	OPRT_RESET_REPAIR:
+	gACT[g].static.repair := FALSE;
+	;
+	99: (* Disable Simmulation *)
+	gACT[g].static.simDisable := TRUE;
+	98: (* Enable Simulation *)
+	gACT[g].static.simDisable := FALSE;
+END_CASE;
+IF gACT[g].PRM.MODE=MODE_MAN THEN
+	CASE gACT[g].PRM.OPRT OF
+		OPRT_START:
+		gACT[g].static.cmd := TRUE;
+		gACT[g].static.cmd_req := TRUE;
+		gACT[g].PRM.ALM := ResetBit(gACT[g].PRM.ALM, ALM_FAIL_TO_START, TRUE);
+		;
+		OPRT_STOP:
+		gACT[g].static.cmd := FALSE;
+		gACT[g].static.cmd_req := TRUE;
+		gACT[g].PRM.ALM := ResetBit(gACT[g].PRM.ALM, ALM_FAIL_TO_STOP, TRUE);
+		;
+	END_CASE;
+END_IF;
+gACT[g].PRM.OPRT := 0;
+
+(* Processing MODE *)
+IF gACT[g].in.LOCAL AND gACT[g].in.REMOTE THEN
+	IF gACT[g].static.dbl_mode_tmr<DoubleModeAlmDelay THEN
+		gACT[g].static.dbl_mode_tmr := gACT[g].static.dbl_mode_tmr+CYCLE_TIME;
+	END_IF;
+ELSE
+	gACT[g].static.dbl_mode_tmr := 0;
+END_IF;
+IF gACT[g].static.remote=0 THEN gACT[g].static.remote := DefaultMode; END_IF;
+IF 			gACT[g].in.LOCAL AND NOT 	gACT[g].in.REMOTE THEN	gACT[g].static.mode := MODE_LOCAL;
+ELSIF 	NOT gACT[g].in.LOCAL AND 		gACT[g].in.REMOTE THEN	gACT[g].static.mode := gACT[g].static.remote;
+ELSIF 	NOT gACT[g].in.LOCAL AND NOT 	gACT[g].in.REMOTE THEN	gACT[g].static.mode := MODE_OFF;
+ELSIF 	gACT[g].static.dbl_mode_tmr>DoubleModeAlmDelay	  THEN	gACT[g].static.mode := MODE_DOUBLE;
+END_IF;
+IF gACT[g].static.repair THEN gACT[g].PRM.MODE := MODE_REPAIR; ELSE gACT[g].PRM.MODE := gACT[g].static.mode; END_IF;
+
+(* Processing automatic commands *)
+IF gACT[g].PRM.MODE=MODE_AUT THEN
+	IF gACT[g].in.A_ON AND NOT gACT[g].in.A_OFF AND NOT gACT[g].static.cmd_req AND NOT gACT[g].static.cmd_on THEN
+		gACT[g].static.cmd := TRUE;
+		gACT[g].static.cmd_req := TRUE;
+		gACT[g].PRM.A_CMD := OPRT_START;
+	ELSIF gACT[g].in.A_OFF AND NOT gACT[g].in.A_ON AND NOT gACT[g].static.cmd_req AND NOT gACT[g].static.cmd_off THEN
+		gACT[g].static.cmd := FALSE;
+		gACT[g].static.cmd_req := TRUE;
+		gACT[g].PRM.A_CMD := OPRT_STOP;
+	END_IF;
+END_IF;
+gACT[g].static.cmd_on := gACT[g].in.A_ON;
+gACT[g].static.cmd_off := gACT[g].in.A_OFF;
+
+(* Unexpected state change *)
+IF gACT[g].PRM.MODE<>MODE_LOCAL AND gACT[g].PRM.MODE<>MODE_REPAIR AND NOT gACT[g].static.cmd_req THEN
+	IF NOT gACT[g].static.pos.0 AND gACT[g].in.IS_ON THEN
+		gACT[g].PRM.ALM := ANY_TO_WORD(OR_MASK(ANY_TO_DINT(gACT[g].PRM.ALM), SHL(1, ALM_FRC_START)));
+	END_IF;
+	IF gACT[g].static.pos.0 AND NOT gACT[g].in.IS_ON THEN
+		gACT[g].PRM.ALM := ANY_TO_WORD(OR_MASK(ANY_TO_DINT(gACT[g].PRM.ALM), SHL(1, ALM_FRC_STOP)));
+	END_IF;
+END_IF;
+
+(* Command executed *)
+IF NOT (gACT[g].static.cmd XOR gACT[g].in.IS_ON) OR ReadBit(gACT[g].PRM.ALM, ALM_FAIL_TO_START) OR ReadBit(gACT[g].PRM.ALM, ALM_FAIL_TO_STOP) THEN
+	gACT[g].static.cmd_req := FALSE;
+END_IF;
+
+(* Counting number of launches *)
+IF NOT gACT[g].static.pos.0 AND gACT[g].in.IS_ON THEN
+	gACT[g].PRM.START_COUNTER := gACT[g].PRM.START_COUNTER + 1;
+END_IF;
+
+(* Processing state *)
+gACT[g].static.pos.0 := gACT[g].in.IS_ON;
+IF gACT[g].in.IS_ON THEN
+	gACT[g].PRM.STATE := STATE_RUNNING;
+	IF NOT gACT[g].static.cmd AND gACT[g].static.cmd_req THEN
+		gACT[g].PRM.STATE := STATE_STOPPING;
+	END_IF;
+ELSE
+	gACT[g].PRM.STATE := STATE_STOPPED;
+	IF gACT[g].static.cmd AND gACT[g].static.cmd_req THEN
+		gACT[g].PRM.STATE := STATE_STARTING;
+	END_IF;
+END_IF;
+
+(* Counting MTM *)
+IF (gACT[g].PRM.STATE=STATE_STOPPING OR gACT[g].PRM.STATE=STATE_STARTING) AND gACT[g].PRM.ALM=0 THEN
+	 gACT[g].static.moving_time := gACT[g].static.moving_time + CYCLE_TIME;
+ELSE
+	gACT[g].static.moving_time := 0;
+END_IF;
+
+(* Motor hours *)
+Count := 2;
+IF gACT[g].in.IS_ON THEN
+	gACT[g].static.MH_ms := gACT[g].static.MH_ms + CYCLE_TIME;
+	IF gACT[g].static.MH_ms >= 1000 THEN 
+		gACT[g].static.MH_ms := gACT[g].static.MH_ms - 1000;
+		gACT[g].static.MH_seconds := gACT[g].static.MH_seconds + 1;
+		IF Count=16#0 THEN gACT[g].PRM.WORK_TIME := gACT[g].PRM.WORK_TIME + 1; END_IF;
+	END_IF;
+	IF gACT[g].static.MH_seconds >= 60 THEN
+		gACT[g].static.MH_seconds := gACT[g].static.MH_seconds - 60;
+		gACT[g].static.MH_minutes := gACT[g].static.MH_minutes + 1;
+		IF Count=16#1 THEN gACT[g].PRM.WORK_TIME := gACT[g].PRM.WORK_TIME + 1; END_IF;
+	END_IF;
+	IF gACT[g].static.MH_minutes >= 60 THEN
+		gACT[g].static.MH_minutes := gACT[g].static.MH_minutes - 60;
+		gACT[g].static.MH_hours := gACT[g].static.MH_hours + 1;
+		IF Count=16#2 THEN gACT[g].PRM.WORK_TIME := gACT[g].PRM.WORK_TIME + 1; END_IF;
+	END_IF;
+	IF gACT[g].static.MH_hours >= 24 THEN
+		gACT[g].static.MH_hours := gACT[g].static.MH_hours - 24;
+		gACT[g].static.MH_days := gACT[g].static.MH_days + 1;
+		IF Count=16#3 THEN gACT[g].PRM.WORK_TIME := gACT[g].PRM.WORK_TIME + 1; END_IF;
+	END_IF;
+END_IF;
+gACT[g].static.MH_BCD := Int2Bcd(gACT[g].static.MH_seconds);
+gACT[g].static.MH_BCD := OR_MASK(gACT[g].static.MH_BCD, SHL(Int2Bcd(gACT[g].static.MH_minutes), 8));
+gACT[g].static.MH_BCD := OR_MASK(gACT[g].static.MH_BCD, SHL(Int2Bcd(gACT[g].static.MH_hours), 16));
+gACT[g].static.MH_BCD := OR_MASK(gACT[g].static.MH_BCD, SHL(Int2Bcd(gACT[g].static.MH_days), 24));
+oMotorHoursBCD := gACT[g].static.MH_BCD;
+
+(* Processing outputs *)
+gACT[g].out.TO_ON := (gACT[g].PRM.STATE=STATE_RUNNING OR gACT[g].PRM.STATE=STATE_STARTING) AND gACT[g].PRM.MODE<>MODE_REPAIR;
+
+(* Processing Alarms *)
+gACT[g].PRM.ALM := SetBit(		gACT[g].PRM.ALM, ALM_FAIL_TO_START,	(gACT[g].static.moving_time >= (gACT[g].static.MTM*1000)) AND gACT[g].static.cmd);
+gACT[g].PRM.ALM := SetBit(		gACT[g].PRM.ALM, ALM_FAIL_TO_STOP, 	(gACT[g].static.moving_time >= (gACT[g].static.MTM*1000)) AND NOT gACT[g].static.cmd);
+gACT[g].PRM.ALM := WriteBit(	gACT[g].PRM.ALM, ALM_DOUBLE_MODE, 	gACT[g].PRM.MODE=MODE_DOUBLE);
+gACT[g].PRM.ALM := WriteBit(	gACT[g].PRM.ALM, ALM_DOUBLE_STATE, 	gACT[g].PRM.STATE=STATE_DOUBLE);
+gACT[g].PRM.ALM := WriteBit(	gACT[g].PRM.ALM, ALM_EXT_FLT, 		gACT[g].in.FLT);
+IF gACT[g].PRM.MODE=MODE_REPAIR THEN gACT[g].PRM.ALM := 0; END_IF;
+END_FUNCTION_BLOCK
+
+(* -------------------- *)
+
+
+(*=== FB_gACT_SIM ===*)
+(* Source: FB_gACT_SIM.isaxml *)
+
+  g : DINT (* Constant *);
+  oPos : WORD (* Constant *);
+  PosMax : INT (* Constant *);
+  PosMin : INT (* Constant *);
+  Speed : INT (* Constant *);
+
+FUNCTION_BLOCK FB_gACT_SIM
+
+PosMax := 100;
+PosMin := 0;
+Speed := 8;
+
+IF gACT[g].static.simDisable THEN
+	oPos := ANY_TO_WORD(gACT[g].static.pos_sim);
+	RETURN;
+END_IF;
+
+gACT[g].in.REMOTE := TRUE;
+
+IF gACT[g].out.TO_ON THEN
+	gACT[g].static.pos_sim := gACT[g].static.pos_sim + Speed;
+ELSE
+	gACT[g].static.pos_sim := gACT[g].static.pos_sim - Speed;
+END_IF;
+
+
+IF gACT[g].static.pos_sim>=PosMax THEN
+	gACT[g].static.pos_sim := PosMax;
+	gACT[g].in.IS_ON := TRUE;
+ELSIF gACT[g].static.pos_sim<=PosMin THEN
+	gACT[g].static.pos_sim := PosMin;
+	gACT[g].in.IS_ON := FALSE;
+END_IF;
+
+oPos := ANY_TO_WORD(gACT[g].static.pos_sim);
+END_FUNCTION_BLOCK
+
+(* -------------------- *)
+
+
+(*=== FB_gAI ===*)
+(* Source: FB_gAI.isaxml *)
+
+  g : DINT (* Constant *);
+  tCurrent : REAL (* Constant *);
+  tADC_MAX : REAL (* Constant *);
+  tADC_MIN : REAL (* Constant *);
+  tADC : REAL (* Constant *);
+  tCurrent_MAX : REAL (* Constant *);
+  tCurrent_MIN : REAL (* Constant *);
+  tUnderflow : REAL (* Constant *);
+  tOverflow : REAL (* Constant *);
+  tCurrent_Up : REAL (* Constant *);
+  tCurrent_Down : REAL (* Constant *);
+  tHyst : REAL (* Constant *);
+  tHH_enb : BOOL (* Constant *);
+  tH_enb : BOOL (* Constant *);
+  tL_enb : BOOL (* Constant *);
+  tLL_enb : BOOL (* Constant *);
+
+FUNCTION_BLOCK FB_gAI
+
+(*
+Module: MK-513-016, MK-513-016A
+ADC		|	Current
+0		|	0.0 (min)
+2640	|	4.0
+13200	|	20.0
+16383	|	24.82 (max)
+*)
+
+tADC := ANY_TO_REAL(gAI[g].IN);
+tADC_MAX := 16383.0;
+tADC_MIN := 0.0;
+tCurrent_MAX := 24.82;
+tCurrent_MIN := 0.0;
+tCurrent_Up	:= 20.0;
+tCurrent_Down := 4.0;
+tUnderflow := 3.9;
+tOverflow := 20.1;
+
+tHH_enb	:= gAI[g].TUNE.MASK.3;
+tH_enb	:= gAI[g].TUNE.MASK.2;
+tL_enb	:= gAI[g].TUNE.MASK.1;
+tLL_enb	:= gAI[g].TUNE.MASK.0;
+
+(* Current, mA *)
+tCurrent := (tCurrent_MAX - tCurrent_MIN) / (tADC_MAX - tADC_MIN) * (tADC - tADC_MIN) + tCurrent_MIN;
+
+(* QLT=0 - OK *)
+gAI[g].PRM.STATE.2 := tCurrent > tOverflow;
+gAI[g].PRM.STATE.1 := tCurrent < tUnderflow;
+gAI[g].PRM.STATE.0 := gAI[g].MDL OR gAI[g].PRM.STATE.1 OR gAI[g].PRM.STATE.2;
+
+(* PV, engineering units *)
+IF gAI[g].TUNE.UP=0.0 AND gAI[g].TUNE.DN=0.0 THEN gAI[g].TUNE.UP := 100.0; END_IF;
+gAI[g].PRM.PV := (gAI[g].TUNE.UP - gAI[g].TUNE.DN) / (tCurrent_Up - tCurrent_Down) * (tCurrent - tCurrent_Down) + gAI[g].TUNE.DN;
+
+(* Hysteresis, in % *)
+IF gAI[g].TUNE.HYST=0.0 THEN
+	tHyst := 0.0;
+ELSE
+	tHyst := ANY_TO_REAL(gAI[g].TUNE.UP - gAI[g].TUNE.DN) / 100.0 * gAI[g].TUNE.HYST;
+END_IF;
+
+IF NOT gAI[g].PRM.STATE.0 THEN
+	(* Applying Alarms *)
+	IF 	  gAI[g].PRM.PV < (gAI[g].TUNE.AL - tHyst) THEN gAI[g].PRM.LL_ACT := TRUE;
+	ELSIF gAI[g].PRM.PV > (gAI[g].TUNE.AL + tHyst) THEN gAI[g].PRM.LL_ACT := FALSE;
+	END_IF;
+	IF 	  gAI[g].PRM.PV < (gAI[g].TUNE.WL - tHyst) THEN gAI[g].PRM.L_ACT := TRUE;
+	ELSIF gAI[g].PRM.PV > (gAI[g].TUNE.WL + tHyst) THEN gAI[g].PRM.L_ACT := FALSE;
+	END_IF;
+	IF 	  gAI[g].PRM.PV > (gAI[g].TUNE.AH + tHyst) THEN gAI[g].PRM.HH_ACT := TRUE;
+	ELSIF gAI[g].PRM.PV < (gAI[g].TUNE.AH - tHyst) THEN gAI[g].PRM.HH_ACT := FALSE;
+	END_IF;
+	IF 	  gAI[g].PRM.PV > (gAI[g].TUNE.WH + tHyst) THEN gAI[g].PRM.H_ACT := TRUE;
+	ELSIF gAI[g].PRM.PV < (gAI[g].TUNE.WH - tHyst) THEN gAI[g].PRM.H_ACT := FALSE;
+	END_IF;
+END_IF;
+IF NOT tLL_enb 			 			THEN gAI[g].PRM.LL_ACT := FALSE; END_IF;
+IF NOT tL_enb OR gAI[g].PRM.LL_ACT 	THEN gAI[g].PRM.L_ACT := FALSE; END_IF;
+IF NOT tHH_enb 			 			THEN gAI[g].PRM.HH_ACT := FALSE; END_IF;
+IF NOT tH_enb OR gAI[g].PRM.HH_ACT 	THEN gAI[g].PRM.H_ACT := FALSE; END_IF;
+
+
+gAI[g].PRM.STATE.11 := gAI[g].PRM.HH_ACT;
+gAI[g].PRM.STATE.10 := gAI[g].PRM.H_ACT;
+gAI[g].PRM.STATE.9 := gAI[g].PRM.L_ACT;
+gAI[g].PRM.STATE.8 := gAI[g].PRM.LL_ACT;
+END_FUNCTION_BLOCK
+
+(* -------------------- *)
+
+
+(*=== FB_gCOBA_DIS ===*)
+(* Source: FB_gCOBA_DIS.isaxml *)
+
+  iReqStatus : INT (* Статус запроса *) (* Constant *);
+  iDisable : BOOL (* Constant *);
+  iBit : DINT (* Номер канала - 1 *) (* Constant *);
+  iStatus : WORD (* Статус канала *) (* Constant *);
+  g : DINT (* Constant *);
+  o40002 : WORD (* Constant *);
+  _40002 : WORD (* Constant *);
+
+FUNCTION_BLOCK FB_gCOBA_DIS
+
+(* COBA BX4024 *)
+
+(* Power off channels *)
+IF iDisable THEN
+	o40002 := 0;
+	RETURN;
+END_IF;
+
+
+(* Power on channels *)
+_40002 := 16#FFF;
+
+(* Device not responsive *)
+gDI[g].MDL := iReqStatus<>0 AND iReqStatus<>100;
+
+(* Signals state *)
+gDI[g].IN := ((iStatus=2) OR (iStatus=3)) AND NOT gDI[g].MDL;
+
+(* Signals alarms *)
+(* Open circuit *)
+gDI[g].PRM.STATE := WriteBit(gDI[g].PRM.STATE, ALM_OPEN_CIRCUIT, iStatus=4 AND NOT gDI[g].MDL);
+(* Short circuit *)
+gDI[g].PRM.STATE := WriteBit(gDI[g].PRM.STATE, ALM_SHORT_CIRCUIT, iStatus=5 AND NOT gDI[g].MDL);
+
+
+o40002 := _40002;
+
+(*
+Address 40002 – read/write – 16-bit register for enabling/disabling channels (loops), where:
+Bit 0: 1 – channel No. 1 enabled (power supplied to the loop), 0 – channel No. 1 disabled;
+Bit 1: 1 – channel No. 2 enabled (power supplied to the loop), 0 – channel No. 2 disabled;
+Bit 2: 1 – channel No. 3 enabled (power supplied to the loop), 0 – channel No. 3 disabled;
+Bit 3: 1 – channel No. 4 enabled (power supplied to the loop), 0 – channel No. 4 disabled;
+Bit 4: 1 – channel No. 5 enabled (power supplied to the loop), 0 – channel No. 5 disabled;
+Bit 5: 1 – channel No. 6 enabled (power supplied to the loop), 0 – channel No. 6 disabled;
+Addresses 40003...40008 – read – 16-bit channel status registers for channels Nos. 1 through 6, containing the channel status code (unsigned integer). The registers can take the following values:
+0 – channel disabled (LED off);
+1 – normal (green LED lit);
+2 – one device triggered (red LED blinking);
+3 – device triggered (red LED lit);
+4 – short circuit (yellow LED blinking);
+5 – open circuit (yellow LED lit).
+*)
+
+(*
+Адрес 40002 – чтение/запись - 16 разрядный регистр
+включения/выключения каналов (шлейфов),
+где:
+Бит 0: 1 – канал №1 включен (питание на шлейф подано), 0 – канал
+№1 отключен;
+Бит 1: 1 – канал №2 включен (питание на шлейф подано), 0 – канал
+№2 отключен;
+Бит 2: 1 – канал №3 включен (питание на шлейф подано), 0 – канал
+№3 отключен;
+Бит 3: 1 – канал №4 включен (питание на шлейф подано), 0 – канал
+№4 отключен;
+Бит 4: 1 – канал №5 включен (питание на шлейф подано), 0 – канал
+№5 отключен;
+Бит 5: 1 – канал №6 включен (питание на шлейф подано), 0 – канал
+№6 отключен;
+Адреса 40003...40008 – чтение – 16 разрядные регистры статуса
+каналов №№1...6, содержат код статуса канала (без знаковое число).
+Регистры могут принимать следующие значения:
+0 - канал выключен (светодиод не горит);
+1 - норма (горит зеленый светодиод);
+2 - сработало одно устройство (мигает красный светодиод);
+3 - сработало устройство (горит красный светодиод);
+4 - короткое замыкание (мигает желтый светодиод);
+5 - обрыв (горит желтый светодиод).
+*)
+END_FUNCTION_BLOCK
+
+(* -------------------- *)
+
+
+(*=== FB_gCOBA_VLV ===*)
+(* Source: FB_gCOBA_VLV.isaxml *)
+
+  iDisable : BOOL (* Constant *);
+  i40004 : WORD (* статус канала 1 *) (* Constant *);
+  i40005 : WORD (* статус канала 2 *) (* Constant *);
+  i40006 : WORD (* статус канала 3 *) (* Constant *);
+  i40007 : WORD (* статус канала 4 *) (* Constant *);
+  g : DINT (* Constant *);
+  iReqStatus : INT (* Constant *);
+  o40002 : WORD (* Constant *);
+  o40003 : WORD (* Constant *);
+  tConErr : BOOL (* Constant *);
+
+FUNCTION_BLOCK FB_gCOBA_VLV
+
+(* COBA BB1024 *)
+
+(* Power off channels *)
+IF iDisable THEN
+	o40002 := 0;
+	o40003 := 0;
+	RETURN;
+END_IF;
+
+(* Power on input channels *)
+o40002.0 := TRUE;
+o40002.1 := TRUE;
+
+(* Connection Status *)
+tConErr := iReqStatus<>0 AND iReqStatus<>100;
+
+(* Valve state *)
+gVLV[g].in.IS_ON := i40004=7 AND NOT tConErr;
+gVLV[g].in.IS_OFF := i40004=8 AND NOT tConErr;
+gVLV[g].in.FLT := ((i40005=7) OR (i40005=8)) AND NOT tConErr;
+
+(* Alarms *)
+(* Open circuit *)
+gVLV[g].PRM.ALM := WriteBit(gVLV[g].PRM.ALM, ALM_VLV_CMD_OC, i40006=1 OR i40007=1);
+gVLV[g].PRM.ALM := WriteBit(gVLV[g].PRM.ALM, ALM_VLV_STS_OC, i40004=1 OR i40005=1);
+(* Short circuit *)
+gVLV[g].PRM.ALM := WriteBit(gVLV[g].PRM.ALM, ALM_VLV_CMD_SC, i40006=3 OR i40007=3);
+gVLV[g].PRM.ALM := WriteBit(gVLV[g].PRM.ALM, ALM_VLV_STS_SC, i40004=3 OR i40005=3);
+(* Device not responsive *)
+gVLV[g].PRM.ALM := WriteBit(gVLV[g].PRM.ALM, ALM_NO_RESPONSE, tConErr);
+
+(* Valve commands *)
+o40003.2 := gVLV[g].out.TO_ON;
+o40003.3 := gVLV[g].out.TO_OFF;
+
+(*
+Map of addresses carrying device status information.
+Address 40001 – read – contains the device address (unsigned integer).
+Address 40002 – read/write – 16-bit register for enabling/disabling channel diagnostic mode, where:
+Bit 0: 1 – channel No. 1 enabled (power supplied to the loop), 0 – channel No. 1 disabled;
+Bit 1: 1 – channel No. 2 enabled (power supplied to the loop), 0 – channel No. 2 disabled;
+Bit 2: 1 – channel No. 3 diagnostics enabled, 0 – channel No. 3 disabled;
+Bit 3: 1 – channel No. 4 diagnostics enabled, 0 – channel No. 4 disabled.
+Address 40003 – read/write – 16-bit register for enabling/disabling channel load, where:
+Bit 2: 1 – channel No. 3 load enabled (power supplied), 0 – channel No. 3 disabled;
+Bit 3: 1 – channel No. 4 load enabled (power supplied), 0 – channel No. 4 disabled.
+Addresses 40004, 40005 – read – 16-bit channel status registers for channels Nos. 1 and 2, containing the channel status code (unsigned integer). The registers can take the following values:
+0 – channel disabled (LED off);
+1 – open circuit (yellow LED lit);
+2 – normal (green LED lit);
+3 – short circuit (yellow LED lit);
+7 – one device triggered (red LED blinking);
+8 – device triggered (red LED lit).
+Addresses 40006, 40007 – read – 16-bit channel status registers for channels Nos. 3 and 4, containing the channel status code (unsigned integer). The registers can take the following values:
+0 – channel disabled (LED off);
+1 – Diagnostics – open circuit (yellow LED lit);
+2 – Diagnostics – normal (green LED lit);
+3 – Diagnostics – short circuit (yellow LED lit);
+8 – Load enabled – normal (red LED lit).
+Addresses 40010...40013 – read – 16-bit ADC code registers for channels Nos. 1 through 4, respectively.
+*)
+
+(*
+Карта адресов, несущих информацию о состоянии устройства.
+Адрес 40001 - чтение - содержит адрес устройства (без знаковое число).
+Адрес 40002 - чтение/запись -16 разрядный регистр включения/выключения режима диагностики каналов, где:
+Бит 0: 1 - канал №1 включен (питание на шлейф подано), 0 - канал №1 отключен;
+Бит 1:1- канал №2 включен (питание на шлейф подано), 0 - канал №2 отключен;
+Бит 2: 1 - канал №3 диагностика включена, 0 - канал №3 отключен;
+Бит 3: 1 - канал №4 диагностика включена, 0 - канал №4 отключен.
+Адрес 40003 - чтение/запись -16 разрядный регистр включения/выключения нагрузки каналов, где: Бит 2: 1 - канал №3 нагрузка включена (питание подано), 0 - канал №3 отключена;
+Бит 3: 1 - канал №4 нагрузка включена (питание подано), 0 - канал №4 отключена.
+Адреса 40004, 40005 - чтение - 16 разрядные регистры статуса каналов
+№№1,2, содержат код статуса канала (без знаковое число). Регистры могут принимать следующие значения:
+0	- канал выключен (светодиод не горит);
+1	- обрыв (горит желтый светодиод);
+2	- норма (горит зеленый светодиод);
+3	- короткое замыкание (горит желтый светодиод);
+7	- сработало одно устройство (мигает красный светодиод);
+8	- сработало устройство (горит красный светодиод).
+Адреса 40006, 40007 - чтение - 16 разрядные регистры статуса каналов
+№№3, 4, содержат код статуса канала (без знаковое число). Регистры могут принимать следующие значения:
+0	- канал выключен (светодиод не горит);
+1	- Диагностика - обрыв (горит желтый светодиод);
+2	- Диагностика - норма (горит зеленый светодиод);
+3	- Диагностика - короткое замыкание (горит желтый светодиод);
+8 - Нагрузка включена - норма (горит красный светодиод);
+Адреса 40010...40013 - чтение - 16 разрядные регистры кода АЦП каналов №№1...4 соответственно.
+*)
+END_FUNCTION_BLOCK
+
+(* -------------------- *)
+
+
+(*=== FB_gDI ===*)
+(* Source: FB_gDI.isaxml *)
+
+  g : DINT (* Constant *);
+  qlt : BOOL (* Constant *);
+  in : BOOL (* Constant *);
+
+FUNCTION_BLOCK FB_gDI
+
+qlt := gDI[g].MDL OR gDI[g].PRM.STATE.15 OR gDI[g].PRM.STATE.14 OR gDI[g].PRM.STATE.13;
+gDI[g].PRM.STATE.0	:= qlt; (* QLT=0 - OK *)
+
+in := gDI[g].IN;
+IF gDI[g].TUNE.DEBOUNCE<>0 THEN
+	in := FALSE;
+	IF gDI[g].IN THEN
+		If gDI[g].TUNE.Timer<gDI[g].TUNE.DEBOUNCE THEN
+			gDI[g].TUNE.Timer := gDI[g].TUNE.Timer + CYCLE_TIME;
+		ELSE
+			in := TRUE;
+		END_IF;
+	ELSE
+		gDI[g].TUNE.Timer := 0;
+	END_IF;
+END_IF;
+
+gDI[g].PRM.PV.0 := (in XOR gDI[g].TUNE.INV) AND NOT qlt;
+END_FUNCTION_BLOCK
+
+(* -------------------- *)
+
+
+(*=== FB_gDO ===*)
+(* Source: FB_gDO.isaxml *)
+
+  g : DINT (* Constant *);
+
+FUNCTION_BLOCK FB_gDO
+
+gDO[g].PRM.STATE.0 	:= gDO[g].MDL; (* QLT=0 - OK *)
+
+gDO[g].OUT := gDO[g].PRM.PV.0 XOR gDO[g].TUNE.INV;
+END_FUNCTION_BLOCK
+
+(* -------------------- *)
+
+
+(*=== FB_gEXCH_AI ===*)
+(* Source: FB_gEXCH_AI.isaxml *)
+
+  g : DINT (* Constant *);
+  tI : DINT (* Constant *);
+  tR : DINT (* Constant *);
+
+FUNCTION_BLOCK FB_gEXCH_AI
+
+(* Transferring standard AI data to/from HMI *)
+(* gD - global directional flag: true = from HMI, false = to HMI *)
+(* gI - global modbus exchange array index *)
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	gAI[g].PRM.PV := Words2Real(MB0_HR[tR].regs[tI], MB0_HR[tR].regs[tI+1]);
+ELSE
+	MB0_HR[tR].regs[tI] :=Real2Word(gAI[g].PRM.PV, 0);
+	MB0_HR[tR].regs[tI+1] := Real2Word(gAI[g].PRM.PV, 1);
+END_IF;
+gI := gI + 2;
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	gAI[g].PRM.STATE := MB0_HR[tR].regs[tI];
+ELSE
+	MB0_HR[tR].regs[tI] := gAI[g].PRM.STATE;
+END_IF;
+gI := gI + 1;
+END_FUNCTION_BLOCK
+
+(* -------------------- *)
+
+
+(*=== FB_gEXCH_AI_TUNE ===*)
+(* Source: FB_gEXCH_AI_TUNE.isaxml *)
+
+  g : DINT (* Constant *);
+  tI : DINT (* Constant *);
+  tR : DINT (* Constant *);
+
+FUNCTION_BLOCK FB_gEXCH_AI_TUNE
+
+(* Transferring standard AI data with tuning parameters to/from HMI *)
+(* gD - global directional flag: true = from HMI, false = to HMI *)
+(* gI - global modbus exchange array index *)
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	gAI[g].PRM.PV := Words2Real(MB0_HR[tR].regs[tI], MB0_HR[tR].regs[tI+1]);
+ELSE
+	MB0_HR[tR].regs[tI] := Real2Word(gAI[g].PRM.PV, 0);
+	MB0_HR[tR].regs[tI+1] := Real2Word(gAI[g].PRM.PV, 1);
+END_IF;
+gI := gI + 2;
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	gAI[g].PRM.STATE := MB0_HR[tR].regs[tI];
+ELSE
+	MB0_HR[tR].regs[tI] := gAI[g].PRM.STATE;
+END_IF;
+gI := gI + 1;
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	gAI[g].TUNE.MASK := MB0_HR[tR].regs[tI];
+ELSE
+	MB0_HR[tR].regs[tI] := gAI[g].TUNE.MASK;
+END_IF;
+gI := gI + 1;
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	gAI[g].TUNE.UP := Words2Real(MB0_HR[tR].regs[tI], MB0_HR[tR].regs[tI+1]);
+ELSE
+	MB0_HR[tR].regs[tI] := Real2Word(gAI[g].TUNE.UP , 0);
+	MB0_HR[tR].regs[tI+1] := Real2Word(gAI[g].TUNE.UP, 1);
+END_IF;
+gI := gI + 2;
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	gAI[g].TUNE.DN := Words2Real(MB0_HR[tR].regs[tI], MB0_HR[tR].regs[tI+1]);
+ELSE
+	MB0_HR[tR].regs[tI] := Real2Word(gAI[g].TUNE.DN, 0);
+	MB0_HR[tR].regs[tI+1] := Real2Word(gAI[g].TUNE.DN, 1);
+END_IF;
+gI := gI + 2;
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	gAI[g].TUNE.AH := Words2Real(MB0_HR[tR].regs[tI], MB0_HR[tR].regs[tI+1]);
+ELSE
+	MB0_HR[tR].regs[tI] := Real2Word(gAI[g].TUNE.AH, 0);
+	MB0_HR[tR].regs[tI+1] := Real2Word(gAI[g].TUNE.AH, 1);
+END_IF;
+gI := gI + 2;
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	gAI[g].TUNE.WH := Words2Real(MB0_HR[tR].regs[tI], MB0_HR[tR].regs[tI+1]);
+ELSE
+	MB0_HR[tR].regs[tI] := Real2Word(gAI[g].TUNE.WH, 0);
+	MB0_HR[tR].regs[tI+1] := Real2Word(gAI[g].TUNE.WH, 1);
+END_IF;
+gI := gI + 2;
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	gAI[g].TUNE.WL := Words2Real(MB0_HR[tR].regs[tI], MB0_HR[tR].regs[tI+1]);
+ELSE
+	MB0_HR[tR].regs[tI] := Real2Word(gAI[g].TUNE.WL, 0);
+	MB0_HR[tR].regs[tI+1] := Real2Word(gAI[g].TUNE.WL, 1);
+END_IF;
+gI := gI + 2;
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	gAI[g].TUNE.AL := Words2Real(MB0_HR[tR].regs[tI], MB0_HR[tR].regs[tI+1]);
+ELSE
+	MB0_HR[tR].regs[tI] := Real2Word(gAI[g].TUNE.AL, 0);
+	MB0_HR[tR].regs[tI+1] := Real2Word(gAI[g].TUNE.AL, 1);
+END_IF;
+gI := gI + 2;
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	gAI[g].TUNE.HYST := Words2Real(MB0_HR[tR].regs[tI], MB0_HR[tR].regs[tI+1]);
+ELSE
+	MB0_HR[tR].regs[tI] := Real2Word(gAI[g].TUNE.HYST, 0);
+	MB0_HR[tR].regs[tI+1] := Real2Word(gAI[g].TUNE.HYST, 1);
+END_IF;
+gI := gI + 2;
+END_FUNCTION_BLOCK
+
+(* -------------------- *)
+
+
+(*=== FB_gEXCH_DI ===*)
+(* Source: FB_gEXCH_DI.isaxml *)
+
+  g : DINT (* Constant *);
+  tI : DINT (* Constant *);
+  tR : DINT (* Constant *);
+
+FUNCTION_BLOCK FB_gEXCH_DI
+
+(* Transferring standard DI data to/from HMI *)
+(* gD - global directional flag: true = from HMI, false = to HMI *)
+(* gI - global modbus exchange array index *)
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	gDI[g].PRM.PV := MB0_HR[tR].regs[tI];
+ELSE
+	MB0_HR[tR].regs[tI] := gDI[g].PRM.PV;
+END_IF;
+gI := gI + 1;
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	gDI[g].PRM.STATE := MB0_HR[tR].regs[tI];
+ELSE
+	MB0_HR[tR].regs[tI] := gDI[g].PRM.STATE;
+END_IF;
+gI := gI + 1;
+
+END_FUNCTION_BLOCK
+
+(* -------------------- *)
+
+
+(*=== FB_gEXCH_DO ===*)
+(* Source: FB_gEXCH_DO.isaxml *)
+
+  g : DINT (* Constant *);
+  tI : DINT (* Constant *);
+  tR : DINT (* Constant *);
+
+FUNCTION_BLOCK FB_gEXCH_DO
+
+(* Transferring standard DO data to/from HMI *)
+(* gD - global directional flag: true = from HMI, false = to HMI *)
+(* gI - global modbus exchange array index *)
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	gDO[g].PRM.PV := MB0_HR[tR].regs[tI];
+ELSE
+	MB0_HR[tR].regs[tI] := gDO[g].PRM.PV;
+END_IF;
+gI := gI + 1;
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	gDO[g].PRM.STATE := MB0_HR[tR].regs[tI];
+ELSE
+	MB0_HR[tR].regs[tI] := gDO[g].PRM.STATE;
+END_IF;
+gI := gI + 1;
+END_FUNCTION_BLOCK
+
+(* -------------------- *)
+
+
+(*=== FB_gEXCH_FS ===*)
+(* Source: FB_gEXCH_FS.isaxml *)
+
+  g : DINT (* Constant *);
+  tI : DINT (* Constant *);
+  tR : DINT (* Constant *);
+
+FUNCTION_BLOCK FB_gEXCH_FS
+
+(* Transferring standard Fire System data to/from HMI *)
+(* gD - global directional flag: true = from HMI, false = to HMI *)
+(* gI - global modbus exchange array index *)
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	gFS[g].PRM.STATE := MB0_HR[tR].regs[tI];
+ELSE
+	MB0_HR[tR].regs[tI] := gFS[g].PRM.STATE;
+END_IF;
+gI := gI + 1;
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	gFS[g].PRM.READY := MB0_HR[tR].regs[tI];
+ELSE
+	MB0_HR[tR].regs[tI] := gFS[g].PRM.READY;
+END_IF;
+gI := gI + 1;
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	gFS[g].PRM.MODE := MB0_HR[tR].regs[tI];
+ELSE
+	MB0_HR[tR].regs[tI] := gFS[g].PRM.MODE;
+END_IF;
+gI := gI + 1;
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	gFS[g].PRM.OPRT := MB0_HR[tR].regs[tI];
+ELSE
+	MB0_HR[tR].regs[tI] := gFS[g].PRM.OPRT;
+END_IF;
+gI := gI + 1;
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	gFS[g].PRM.ALM := MB0_HR[tR].regs[tI];
+ELSE
+	MB0_HR[tR].regs[tI] := gFS[g].PRM.ALM;
+END_IF;
+gI := gI + 1;
+END_FUNCTION_BLOCK
+
+(* -------------------- *)
+
+
+(*=== FB_gEXCH_FS_FIRE ===*)
+(* Source: FB_gEXCH_FS_FIRE.isaxml *)
+
+  g : DINT (* Constant *);
+  tI : DINT (* Constant *);
+  tR : DINT (* Constant *);
+
+FUNCTION_BLOCK FB_gEXCH_FS_FIRE
+
+(* Transferring Fire System control signals to adjacent PLCs *)
+(* gD - global directional flag: true = from HMI, false = to HMI *)
+(* gI - global modbus exchange array index *)
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	;
+ELSE
+	MB0_HR[tR].regs[tI] := gFS[g].PRM.FIRE;
+END_IF;
+gI := gI + 1;
+END_FUNCTION_BLOCK
+
+(* -------------------- *)
+
+
+(*=== FB_gEXCH_FS_PCC ===*)
+(* Source: FB_gEXCH_FS_PCC.isaxml *)
+
+  g : DINT (* Constant *);
+  tI : DINT (* Constant *);
+  tR : DINT (* Constant *);
+
+FUNCTION_BLOCK FB_gEXCH_FS_PCC
+
+(* Transferring Fire System Pump Control Cabinet data from PCC PLCs *)
+(* gD - global directional flag: true = from HMI, false = to HMI *)
+(* gI - global modbus exchange array index *)
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	gFS[g].PRM.PCC := MB0_HR[tR].regs[tI];
+ELSE
+	;
+END_IF;
+gI := gI + 1;
+END_FUNCTION_BLOCK
+
+(* -------------------- *)
+
+
+(*=== FB_gEXCH_FS_VLV ===*)
+(* Source: FB_gEXCH_FS_VLV.isaxml *)
+
+  g : DINT (* Constant *);
+  tI : DINT (* Constant *);
+  tR : DINT (* Constant *);
+
+FUNCTION_BLOCK FB_gEXCH_FS_VLV
+
+(* Transferring Fire System valves data from valve PLCs *)
+(* gD - global directional flag: true = from HMI, false = to HMI *)
+(* gI - global modbus exchange array index *)
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	gFS[g].PRM.VLVS := MB0_HR[tR].regs[tI];
+ELSE
+	;
+END_IF;
+gI := gI + 1;
+END_FUNCTION_BLOCK
+
+(* -------------------- *)
+
+
+(*=== FB_gEXCH_PCC ===*)
+(* Source: FB_gEXCH_PCC.isaxml *)
+
+  g : DINT (* Constant *);
+  tI : DINT (* Constant *);
+  tR : DINT (* Constant *);
+
+FUNCTION_BLOCK FB_gEXCH_PCC
+
+(* Transferring Pump Control Cabinet data to/from HMI *)
+(* gD - global directional flag: true = from HMI, false = to HMI *)
+(* gI - global modbus exchange array index *)
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	gPCC[g].PRM.OPRT := MB0_HR[tR].regs[tI];
+ELSE
+	MB0_HR[tR].regs[tI] := gPCC[g].PRM.OPRT;
+END_IF;
+gI := gI + 1;
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	gPCC[g].PRM.MODE := MB0_HR[tR].regs[tI];
+ELSE
+	MB0_HR[tR].regs[tI] := gPCC[g].PRM.MODE;
+END_IF;
+gI := gI + 1;
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	gPCC[g].PRM.ALM := MB0_HR[tR].regs[tI];
+ELSE
+	MB0_HR[tR].regs[tI] := gPCC[g].PRM.ALM;
+END_IF;
+gI := gI + 1;
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	gPCC[g].PRM.AOPRT := MB0_HR[tR].regs[tI];
+ELSE
+	MB0_HR[tR].regs[tI] := gPCC[g].PRM.AOPRT;
+END_IF;
+gI := gI + 1;
+END_FUNCTION_BLOCK
+
+(* -------------------- *)
+
+
+(*=== FB_gEXCH_PMP ===*)
+(* Source: FB_gEXCH_PMP.isaxml *)
+
+  g : DINT (* Constant *);
+  tI : DINT (* Constant *);
+  tR : DINT (* Constant *);
+
+FUNCTION_BLOCK FB_gEXCH_PMP
+
+(* Transferring standard pump/actuator data to/from HMI *)
+(* gD - global directional flag: true = from HMI, false = to HMI *)
+(* gI - global modbus exchange array index *)
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	gACT[g].PRM.OPRT := MB0_HR[tR].regs[tI];
+ELSE
+	MB0_HR[tR].regs[tI] := gACT[g].PRM.OPRT;
+END_IF;
+gI := gI + 1;
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	gACT[g].PRM.STATE := MB0_HR[tR].regs[tI];
+ELSE
+	MB0_HR[tR].regs[tI] := gACT[g].PRM.STATE;
+END_IF;
+gI := gI + 1;
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	gACT[g].PRM.MODE := MB0_HR[tR].regs[tI];
+ELSE
+	MB0_HR[tR].regs[tI] := gACT[g].PRM.MODE;
+END_IF;
+gI := gI + 1;
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	gACT[g].PRM.ALM := MB0_HR[tR].regs[tI];
+ELSE
+	MB0_HR[tR].regs[tI] := gACT[g].PRM.ALM;
+END_IF;
+gI := gI + 1;
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	gACT[g].PRM.A_CMD := MB0_HR[tR].regs[tI];
+ELSE
+	MB0_HR[tR].regs[tI] := gACT[g].PRM.A_CMD;
+END_IF;
+gI := gI + 1;
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	gACT[g].PRM.START_COUNTER := Words2UDInt(MB0_HR[tR].regs[tI], MB0_HR[tR].regs[tI+1]);
+ELSE
+	MB0_HR[tR].regs[tI] := UDInt2Word(gACT[g].PRM.START_COUNTER, 0);
+	MB0_HR[tR].regs[tI+1] := UDInt2Word(gACT[g].PRM.START_COUNTER, 1);
+END_IF;
+gI := gI + 2;
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	gACT[g].PRM.WORK_TIME := Words2UDInt(MB0_HR[tR].regs[tI], MB0_HR[tR].regs[tI+1]);
+ELSE
+	MB0_HR[tR].regs[tI] := UDInt2Word(gACT[g].PRM.WORK_TIME, 0);
+	MB0_HR[tR].regs[tI+1] := UDInt2Word(gACT[g].PRM.WORK_TIME, 1);
+END_IF;
+gI := gI + 2;
+END_FUNCTION_BLOCK
+
+(* -------------------- *)
+
+
+(*=== FB_gEXCH_VLV ===*)
+(* Source: FB_gEXCH_VLV.isaxml *)
+
+  g : DINT (* Constant *);
+  tI : DINT (* Constant *);
+  tR : DINT (* Constant *);
+
+FUNCTION_BLOCK FB_gEXCH_VLV
+
+(* Transferring standard valve data to/from HMI *)
+(* gD - global directional flag: true = from HMI, false = to HMI *)
+(* gI - global modbus exchange array index *)
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	gVLV[g].PRM.OPRT := MB0_HR[tR].regs[tI];
+ELSE
+	MB0_HR[tR].regs[tI] := gVLV[g].PRM.OPRT;
+END_IF;
+gI := gI + 1;
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	gVLV[g].PRM.STATE := MB0_HR[tR].regs[tI];
+ELSE
+	MB0_HR[tR].regs[tI] := gVLV[g].PRM.STATE;
+END_IF;
+gI := gI + 1;
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	gVLV[g].PRM.MODE := MB0_HR[tR].regs[tI];
+ELSE
+	MB0_HR[tR].regs[tI] := gVLV[g].PRM.MODE;
+END_IF;
+gI := gI + 1;
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	gVLV[g].PRM.ALM := MB0_HR[tR].regs[tI];
+ELSE
+	MB0_HR[tR].regs[tI] := gVLV[g].PRM.ALM;
+END_IF;
+gI := gI + 1;
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	gVLV[g].PRM.A_CMD := MB0_HR[tR].regs[tI];
+ELSE
+	MB0_HR[tR].regs[tI] := gVLV[g].PRM.A_CMD;
+END_IF;
+gI := gI + 1;
+END_FUNCTION_BLOCK
+
+(* -------------------- *)
+
+
+(*=== FB_gEXCH_WORD ===*)
+(* Source: FB_gEXCH_WORD.isaxml *)
+
+  w : WORD (* Constant *);
+  tI : DINT (* Constant *);
+  tR : DINT (* Constant *);
+
+FUNCTION_BLOCK FB_gEXCH_WORD
+
+tR := (gI - 1) / 1024;
+tI := gI - tR * 1024;
+IF gD THEN
+	;
+ELSE
+	MB0_HR[tR].regs[tI] := w;
+END_IF;
+gI := gI + 1;
+END_FUNCTION_BLOCK
+
+(* -------------------- *)
+
+
+(*=== FB_gFIRE ===*)
+(* Source: FB_gFIRE.isaxml *)
+
+  g : DINT (* Constant *);
+  fire : DINT (* Constant *);
+  i : DINT (* Constant *);
+
+FUNCTION_BLOCK FB_gFIRE
+
+(* Fire System control *)
+(* PCC - Pump Control Cabinet *)
+
+IF NOT First THEN
+	gFS[1].PRM.STATE := 1;
+	gFS[1].PRM.READY := 1;
+	gFS[1].PRM.MODE := 1;
+	gFS[1].PRM.OPRT := 0;
+	gFS[1].PRM.ALM := 0;
+END_IF;
+
+(* Readiness *)
+IF FALSE
+	OR gFS[g].PRM.VLVS.0 
+	OR gFS[g].PRM.VLVS.1 
+	OR gFS[g].PRM.PCC.0 
+	OR gFS[g].PRM.PCC.1 
+	OR gFS[g].PRM.PCC.2 
+	OR gFS[g].PRM.PCC.3
+	OR gFS[g].PRM.PCC.4
+	OR gFS[g].PRM.PCC.5
+	OR gFS[g].PRM.MODE<>FIRE_MD_AUT 
+	THEN
+	gFS[g].PRM.READY := 2;
+ELSE
+	gFS[g].PRM.READY := 1;
+END_IF;
+
+(* ALM *)
+gFS[1].PRM.ALM.0 := gFS[g].PRM.VLVS.0 OR gFS[g].PRM.PCC.0;
+gFS[1].PRM.ALM.1 := gFS[g].PRM.VLVS.1 OR gFS[g].PRM.PCC.1;
+gFS[1].PRM.ALM.2 := gFS[g].PRM.PCC.15;
+gFS[1].PRM.ALM.3 := gFS[g].PRM.PCC.2;
+gFS[1].PRM.ALM.4 := gFS[g].PRM.PCC.3;
+gFS[1].PRM.ALM.5 := gFS[g].PRM.PCC.4;
+gFS[1].PRM.ALM.6 := gDI[fire].PRM.PV>0 AND (NOT gFS[g].PRM.VLVS.14 OR NOT gFS[g].PRM.PCC.14);
+
+
+(* Default mode OFF *)
+IF gFS[g].PRM.MODE=0 THEN gFS[g].PRM.MODE := FIRE_MD_OFF; END_IF;
+
+(* OPRT *)
+CASE gFS[g].PRM.OPRT OF
+	FIRE_OP_AUT:
+	gFS[g].PRM.MODE := FIRE_MD_AUT;
+	;
+	FIRE_OP_OFF:
+	gFS[g].PRM.MODE := FIRE_MD_OFF;
+	;
+	FIRE_OP_START:
+	gFS[g].PRM.STATE := FIRE_ST_STARTING;
+	;
+	FIRE_OP_STOP:
+	gFS[g].PRM.MODE := FIRE_MD_OFF;
+	gFS[g].PRM.STATE := FIRE_ST_STOPPING;
+	;
+END_CASE;
+
+CASE gFS[g].PRM.STATE OF
+	FIRE_ST_WAITING:
+	IF gDI[fire].PRM.PV<>0 AND NOT gFS[g].static.FIRE AND gFS[g].PRM.MODE=FIRE_MD_AUT THEN
+		gFS[g].PRM.STATE := FIRE_ST_STARTING;
+	END_IF;
+	;
+	FIRE_ST_STARTING:
+	(* Valves opened		 Pumps running		  Foam running *)
+	IF gFS[g].PRM.VLVS.8 AND gFS[g].PRM.PCC.8 AND gFS[g].PRM.PCC.9 THEN
+		gFS[g].PRM.STATE := FIRE_ST_EXTINGUISH;
+	END_IF;
+	;
+	FIRE_ST_EXTINGUISH:
+	IF gFS[g].static.FIRE AND gDI[fire].PRM.PV=0 THEN
+		gFS[g].PRM.STATE := FIRE_ST_STOPPING;
+	END_IF;
+	;
+	FIRE_ST_STOPPING:
+	(* Valves closed			 Pumps stopped			  Foam stopped *)
+	IF gFS[g].PRM.VLVS.9 AND NOT gFS[g].PRM.PCC.8 AND NOT gFS[g].PRM.PCC.9 THEN
+		gFS[g].PRM.STATE := FIRE_ST_WAITING;
+	END_IF;
+	;
+END_CASE;
+(* Fire Alarm Sensor *)
+gFS[g].PRM.FIRE.15 := gDI[fire].PRM.PV>0;
+gFS[g].static.FIRE := gDI[fire].PRM.PV>0;
+(* Fire extinguishing in progress flag *)
+gFS[g].PRM.FIRE.0 := gFS[g].PRM.STATE=FIRE_ST_STARTING OR gFS[g].PRM.STATE=FIRE_ST_EXTINGUISH;
+
+(* Fire Signal Feedback Timer *)
+IF gDI[fire].PRM.PV>0 THEN
+	IF gFS[g].static.Timer<5000 AND gFS[1].PRM.ALM.6 THEN
+		gFS[g].static.Timer := gFS[g].static.Timer + CYCLE_TIME;
+		gFS[1].PRM.ALM.6 := FALSE;
+	ELSE
+		;
+	END_IF;
+ELSE
+	gFS[g].static.Timer := 0;
+END_IF;
+
+(* Minimum level in fire tanks *)
+IF gFS[g].PRM.PCC.15 AND gFS[g].PRM.STATE<>FIRE_ST_WAITING THEN gFS[g].PRM.STATE := FIRE_ST_STOPPING; END_IF;
+END_FUNCTION_BLOCK
+
+(* -------------------- *)
+
+
+(*=== FB_gFIRE_PCC ===*)
+(* Source: FB_gFIRE_PCC.isaxml *)
+
+  pcc1 : DINT (* Constant *);
+  pcc2 : DINT (* Constant *);
+  pmp10 : DINT (* Constant *);
+  pmp11 : DINT (* Constant *);
+  pmp20 : DINT (* Constant *);
+  pmp21 : DINT (* Constant *);
+  g : DINT (* Constant *);
+  foam : DINT (* Constant *);
+  pccNotReady : DINT (* Constant *);
+  pmpNotReady : DINT (* Constant *);
+  foamNotReady : DINT (* Constant *);
+  pccAlm : DINT (* Constant *);
+  pmpAlm : DINT (* Constant *);
+  foamAlm : DINT (* Constant *);
+  i : DINT (* Constant *);
+  pmpRun : DINT (* Constant *);
+  pmpStop : DINT (* Constant *);
+  foamRun : DINT (* Constant *);
+  foamStop : DINT (* Constant *);
+  pmpReq : DINT (* Constant *);
+  foamReq : DINT (* Constant *);
+
+FUNCTION_BLOCK FB_gFIRE_PCC
+
+(* Calculating dedicated pumps and foam extinguish unit readiness and state *)
+
+pccNotReady := 0;
+pccAlm := 0;
+IF pcc1<>0 THEN 
+	IF gPCC[pcc1].PRM.MODE<>2 THEN pccNotReady := pccNotReady+1; END_IF; 
+	IF gPCC[pcc1].PRM.ALM<>0 THEN pccAlm := pccAlm+1; END_IF; 
+END_IF;
+IF pcc2<>0 THEN 
+	IF gPCC[pcc2].PRM.MODE<>2 THEN pccNotReady := pccNotReady+1; END_IF; 
+	IF gPCC[pcc2].PRM.ALM<>0 THEN pccAlm := pccAlm+1; END_IF; 
+END_IF;
+
+pmpNotReady := 0;
+pmpAlm := 0;
+pmpReq := 0;
+IF pmp10<>0 THEN IF gACT[pmp10].PRM.STATE<>1 THEN pmpNotReady := pmpNotReady+1; END_IF; IF gACT[pmp10].PRM.ALM<>0 THEN pmpAlm := pmpAlm+1; END_IF; END_IF;
+IF pmp11<>0 THEN IF gACT[pmp11].PRM.STATE<>1 THEN pmpNotReady := pmpNotReady+1; END_IF; IF gACT[pmp11].PRM.ALM<>0 THEN pmpAlm := pmpAlm+1; END_IF; END_IF;
+IF pmp20<>0 THEN IF gACT[pmp20].PRM.STATE<>1 THEN pmpNotReady := pmpNotReady+1; END_IF; IF gACT[pmp20].PRM.ALM<>0 THEN pmpAlm := pmpAlm+1; END_IF; END_IF;
+IF pmp21<>0 THEN IF gACT[pmp21].PRM.STATE<>1 THEN pmpNotReady := pmpNotReady+1; END_IF; IF gACT[pmp21].PRM.ALM<>0 THEN pmpAlm := pmpAlm+1; END_IF; END_IF;
+
+foamNotReady := 0;
+foamAlm := 0;
+IF foam<>0 THEN IF gACT[foam].PRM.MODE=MODE_AUT THEN foamNotReady := foamNotReady+1; END_IF; IF gACT[foam].PRM.ALM<>0 THEN foamAlm := foamAlm+1; END_IF; END_IF;
+
+(* No auto *)
+gFS[g].PRM.PCC.0 := pccNotReady>0 OR gACT[7].PRM.MODE<>MODE_AUT;
+
+(* Fault *)
+gFS[g].PRM.PCC.1 := pccAlm>0 OR pmpAlm>0 OR foamAlm>0;
+
+(* Pump not ready *)
+gFS[g].PRM.PCC.2 := pmpNotReady>0;
+
+(* Pump fault *)
+gFS[g].PRM.PCC.3 := pmpAlm>0;
+
+(* Foam fault *)
+gFS[g].PRM.PCC.4 := foamAlm>0;
+
+(* Fire Signal Feedback *)
+gFS[g].PRM.PCC.14 := gFS[g].PRM.FIRE.15;
+
+(* Min lvl *)
+gFS[g].PRM.PCC.15 := gDI[4].PRM.PV>0 AND gDI[7].PRM.PV>0;
+
+(* Pump readiness *)
+pmpReq := 0;
+IF pmp10<>0 AND pmp11<>0 THEN
+	pmpReq := pmpReq+1;
+END_IF;
+IF pmp20<>0 AND pmp21<>0 THEN
+	pmpReq := pmpReq+1;
+END_IF;
+
+
+pmpRun := 0;
+IF pmp10<>0 AND pmp11<>0 AND (gACT[pmp10].PRM.STATE=2 OR gACT[pmp11].PRM.STATE=2) THEN pmpRun := pmpRun+1; END_IF;
+IF pmp20<>0 AND pmp21<>0 AND (gACT[pmp20].PRM.STATE=2 OR gACT[pmp21].PRM.STATE=2) THEN pmpRun := pmpRun+1; END_IF;
+
+(* Pumps running *)
+gFS[g].PRM.PCC.8 := pmpRun>0 OR pmpReq=0;
+(* Foam running *)
+gFS[g].PRM.PCC.9 := gACT[foam].PRM.STATE=STATE_RUNNING OR foam=0;
+
+END_FUNCTION_BLOCK
+
+(* -------------------- *)
+
+
+(*=== FB_gFIRE_VLV ===*)
+(* Source: FB_gFIRE_VLV.isaxml *)
+
+  v : DINT (* Constant *);
+  g : DINT (* Constant *);
+  vr : DINT (* Constant *);
+  i : DINT (* Constant *);
+  vlvReq : DINT (* Constant *);
+  vlvNotAut : DINT (* Constant *);
+  vlvAlm : DINT (* Constant *);
+  vlvOpn : DINT (* Constant *);
+  vlvCls : DINT (* Constant *);
+
+FUNCTION_BLOCK FB_gFIRE_VLV
+
+(* Calculating dedicated valves readiness and state - opened/closed *)
+
+vlvReq := 0;
+vlvNotAut := 0;
+vlvAlm := 0;
+FOR i := 1 TO 10 DO
+	IF v[i]<>0 THEN
+		vlvReq := vlvReq + 1;
+		IF gVLV[v[i]].PRM.MODE<>MODE_AUT THEN vlvNotAut := vlvNotAut+1; END_IF;
+		IF gVLV[v[i]].PRM.ALM<>0 THEN vlvAlm := vlvAlm+1; END_IF;
+	ELSE
+		EXIT;
+	END_IF;
+END_FOR;
+FOR i := 1 TO 2 DO
+	IF vr[i*2-1]<>0 AND vr[i*2-0]<>0 THEN 
+		vlvReq := vlvReq+1;
+		IF gVLV[vr[i*2-1]].PRM.MODE<>MODE_AUT OR gVLV[vr[i*2-0]].PRM.MODE<>MODE_AUT THEN vlvNotAut := vlvNotAut+1; END_IF; 
+	END_IF;
+END_FOR;
+
+(* No auto *)
+gFS[g].PRM.VLVS.0 := vlvNotAut>0;
+
+(* Fault *)
+gFS[g].PRM.VLVS.1 := vlvAlm>0;
+
+(* Fire *)
+IF gFS[g].PRM.FIRE>0 THEN
+	vlvCls := 0;
+	vlvOpn := vlvReq;
+	FOR i := 1 TO 10 DO
+		IF v[i]<>0 THEN
+			IF gVLV[v[i]].PRM.STATE=STATE_OPENED THEN vlvOpn := vlvOpn-1; END_IF;
+		ELSE
+			EXIT;
+		END_IF;
+	END_FOR;
+	FOR i := 1 TO 2 DO
+		IF vr[i*2-1]<>0 AND vr[i*2-0]<>0 THEN 
+			IF gVLV[vr[i*2-1]].PRM.STATE=STATE_OPENED OR gVLV[vr[i*2-0]].PRM.STATE=STATE_OPENED THEN vlvOpn := vlvOpn-1; END_IF; 
+		END_IF;
+	END_FOR;
+ELSE
+	vlvOpn := 0;
+	vlvCls := vlvReq;
+	FOR i := 1 TO 10 DO
+		IF v[i]<>0 THEN
+			IF gVLV[v[i]].PRM.STATE=STATE_CLOSED THEN vlvOpn := vlvCls-1; END_IF;
+		ELSE
+			EXIT;
+		END_IF;
+	END_FOR;
+	FOR i := 1 TO 2 DO
+		IF vr[i*2-1]<>0 AND vr[i*2-0]<>0 THEN 
+			IF gVLV[vr[i*2-1]].PRM.STATE=STATE_CLOSED OR gVLV[vr[i*2-0]].PRM.STATE=STATE_CLOSED THEN vlvCls := vlvCls-1; END_IF; 
+		END_IF;
+	END_FOR;
+END_IF;
+(* Valves opened *)
+gFS[g].PRM.VLVS.8 := vlvOpn=0;
+(* Valves closed *)
+gFS[g].PRM.VLVS.9 := vlvCls=0;
+(* Fire Signal Feedback *)
+gFS[g].PRM.VLVS.14 := gFS[g].PRM.FIRE.15;
+
+
+END_FUNCTION_BLOCK
+
+(* -------------------- *)
+
+
+(*=== FB_gPCC ===*)
+(* Source: FB_gPCC.isaxml *)
+
+  iAlm_01 : BOOL (* Constant *);
+  iAlm_02 : BOOL (* Constant *);
+  iAlm_03 : BOOL (* Constant *);
+  iAlm_04 : BOOL (* Constant *);
+  iAlm_05 : BOOL (* Constant *);
+  iAlm_06 : BOOL (* Constant *);
+  iAlm_07 : BOOL (* Constant *);
+  iAlm_08 : BOOL (* Constant *);
+  iAlm_09 : BOOL (* Constant *);
+  iAlm_10 : BOOL (* Constant *);
+  iAlm_11 : BOOL (* Constant *);
+  iAlm_12 : BOOL (* Constant *);
+  iAlm_00 : BOOL (* Constant *);
+  g : DINT (* Constant *);
+  iState : WORD (* Constant *);
+  iMode : BOOL (* 1-main, 0-reserve *) (* Constant *);
+  m : DINT (* 1-CMN, 2-PMP, 3-VLV *) (* Constant *);
+  iAlm_15 : BOOL (* Constant *);
+  oStart : BOOL (* Constant *);
+  oReset : BOOL (* Constant *);
+
+FUNCTION_BLOCK FB_gPCC
+(* Pump Control Cabinet *)
+(* Gathering modbus data from Pump Control Cabinet *)
+(* ШУПН *)
+
+CASE m OF
+	1: (* PCC *)
+	gPCC[g].PRM.MODE := iState;
+	gPCC[g].PRM.ALM.00 := iAlm_00;
+	gPCC[g].PRM.ALM.01 := iAlm_01;
+	gPCC[g].PRM.ALM.02 := iAlm_02;
+	gPCC[g].PRM.ALM.03 := iAlm_03;
+	gPCC[g].PRM.ALM.04 := iAlm_04;
+	gPCC[g].PRM.ALM.05 := iAlm_05;
+	gPCC[g].PRM.ALM.06 := iAlm_06;
+	gPCC[g].PRM.ALM.07 := iAlm_07;
+	gPCC[g].PRM.ALM.08 := iAlm_08;
+	gPCC[g].PRM.ALM.09 := iAlm_09;
+	gPCC[g].PRM.ALM.10 := iAlm_10;
+	gPCC[g].PRM.ALM.11 := iAlm_11;
+	gPCC[g].PRM.ALM.12 := iAlm_12;
+	gPCC[g].PRM.ALM.15 := iAlm_15;
+	IF (gPCC[g].sStart OR gPCC[g].sReset) AND gPCC[g].PRM.OPRT<>0 THEN 
+		gPCC[g].PRM.OPRT := 0;
+	ELSIF gPCC[g].PRM.OPRT=0 THEN
+		gPCC[g].sStart := FALSE;
+		gPCC[g].sReset := FALSE;
+	ELSIF gPCC[g].PRM.OPRT=1 THEN
+		gPCC[g].sStart := TRUE;
+		gPCC[g].PRM.AOPRT := gPCC[g].PRM.OPRT;
+	ELSIF gPCC[g].PRM.OPRT=2 THEN
+		gPCC[g].sReset := TRUE;
+		gPCC[g].PRM.AOPRT := gPCC[g].PRM.OPRT;
+	END_IF;
+	oStart := gPCC[g].sStart;
+	oReset := gPCC[g].sReset;
+	2: (* PMP *)
+	gACT[g].PRM.MODE := ANY_TO_WORD(iMode)+1;
+	gACT[g].PRM.STATE := iState;
+	gACT[g].PRM.ALM.00 := iAlm_00;
+	gACT[g].PRM.ALM.01 := iAlm_01;
+	gACT[g].PRM.ALM.02 := iAlm_02;
+	gACT[g].PRM.ALM.03 := iAlm_03;
+	gACT[g].PRM.ALM.04 := iAlm_04;
+	gACT[g].PRM.ALM.05 := iAlm_05;
+	gACT[g].PRM.ALM.06 := iAlm_06;
+	gACT[g].PRM.ALM.07 := iAlm_07;
+	gACT[g].PRM.ALM.08 := iAlm_08;
+	gACT[g].PRM.ALM.09 := iAlm_09;
+	gACT[g].PRM.ALM.10 := iAlm_10;
+	gACT[g].PRM.ALM.11 := iAlm_11;
+	gACT[g].PRM.ALM.12 := iAlm_12;
+	3: (* VLV *)
+	gVLV[g].PRM.STATE := iState;
+	gVLV[g].PRM.ALM.00 := iAlm_00;
+	gVLV[g].PRM.ALM.01 := iAlm_01;
+	gVLV[g].PRM.ALM.02 := iAlm_02;
+	gVLV[g].PRM.ALM.03 := iAlm_03;
+	gVLV[g].PRM.ALM.04 := iAlm_04;
+	gVLV[g].PRM.ALM.05 := iAlm_05;
+	gVLV[g].PRM.ALM.06 := iAlm_06;
+	gVLV[g].PRM.ALM.07 := iAlm_07;
+	gVLV[g].PRM.ALM.08 := iAlm_08;
+	gVLV[g].PRM.ALM.09 := iAlm_09;
+	gVLV[g].PRM.ALM.10 := iAlm_10;
+	gVLV[g].PRM.ALM.11 := iAlm_11;
+	gVLV[g].PRM.ALM.12 := iAlm_12;
+END_CASE;
+
+END_FUNCTION_BLOCK
+
+(* -------------------- *)
+
+
+(*=== FB_gVLV_DIS ===*)
+(* Source: FB_gVLV_DIS.isaxml *)
+
+  g : DINT (* Constant *);
+  DefaultMode : WORD (* Constant *);
+  DoubleModeAlmDelay : WORD (* Constant *);
+
+FUNCTION_BLOCK FB_gVLV_DIS
+
+(* If moving time not set, use default 10 seconds *)
+IF gVLV[g].static.MTM=0 THEN
+	gVLV[g].static.MTM := 10; (* seconds *)
+END_IF;
+DefaultMode := MODE_AUT;
+DoubleModeAlmDelay := 2000; (* ms *)
+
+(* Processing OPRT *)
+CASE gVLV[g].PRM.OPRT OF
+	OPRT_RESET_ALM:
+	gVLV[g].PRM.ALM := 0;
+	;
+	OPRT_RESET_CNTS:
+	(**)
+	;
+	OPRT_RESET_HRS:
+	(**)
+	(**)
+	(**)
+	(**)
+	(**)
+	(**)
+	;
+	OPRT_AUTO:
+	gVLV[g].static.remote := MODE_AUT;
+	gVLV[g].static.repair := FALSE;
+	;
+	OPRT_MANUAL:
+	gVLV[g].static.remote := MODE_MAN;
+	gVLV[g].static.repair := FALSE;
+	;
+	OPRT_REPAIR:
+	gVLV[g].static.repair := TRUE;
+	;
+	OPRT_RESET_REPAIR:
+	gVLV[g].static.repair := FALSE;
+	;
+	99: (* Disable Simmulation *)
+	gVLV[g].static.simDisable := TRUE;
+	98: (* Enable Simulation *)
+	gVLV[g].static.simDisable := FALSE;
+END_CASE;
+IF gVLV[g].PRM.MODE=MODE_MAN THEN
+	CASE gVLV[g].PRM.OPRT OF
+		OPRT_OPEN:
+		gVLV[g].static.cmd := OPRT_OPEN;
+		gVLV[g].PRM.ALM := ResetBit(gVLV[g].PRM.ALM, ALM_FAIL_TO_OPEN, TRUE);
+		;
+		OPRT_CLOSE:
+		gVLV[g].static.cmd := OPRT_CLOSE;
+		gVLV[g].PRM.ALM := ResetBit(gVLV[g].PRM.ALM, ALM_FAIL_TO_CLOSE, TRUE);
+		;
+		OPRT_HALT:
+		gVLV[g].static.cmd := OPRT_HALT;
+		;
+	END_CASE;
+END_IF;
+gVLV[g].PRM.OPRT := 0;
+
+(* Processing MODE *)
+IF gVLV[g].in.LOCAL AND gVLV[g].in.REMOTE THEN
+	IF gVLV[g].static.dbl_mode_tmr<DoubleModeAlmDelay THEN
+		gVLV[g].static.dbl_mode_tmr := gVLV[g].static.dbl_mode_tmr+CYCLE_TIME;
+	END_IF;
+ELSE
+	gVLV[g].static.dbl_mode_tmr := 0;
+END_IF;
+IF gVLV[g].static.remote=0 THEN gVLV[g].static.remote := DefaultMode; END_IF;
+IF 			gVLV[g].in.LOCAL AND NOT 	gVLV[g].in.REMOTE THEN	gVLV[g].static.mode := MODE_LOCAL;
+ELSIF 	NOT gVLV[g].in.LOCAL AND 		gVLV[g].in.REMOTE THEN	gVLV[g].static.mode := gVLV[g].static.remote;
+ELSIF 	NOT gVLV[g].in.LOCAL AND NOT 	gVLV[g].in.REMOTE THEN	gVLV[g].static.mode := MODE_OFF;
+ELSIF 	gVLV[g].static.dbl_mode_tmr>DoubleModeAlmDelay	  THEN	gVLV[g].static.mode := MODE_DOUBLE;
+END_IF;
+IF gVLV[g].static.repair THEN gVLV[g].PRM.MODE := MODE_REPAIR; ELSE gVLV[g].PRM.MODE := gVLV[g].static.mode; END_IF;
+
+(* Processing automatic commands *)
+IF gVLV[g].PRM.MODE=MODE_AUT THEN
+	IF gVLV[g].in.A_ON AND NOT gVLV[g].in.A_OFF THEN
+		gVLV[g].static.cmd := OPRT_OPEN;
+	ELSIF gVLV[g].in.A_OFF AND NOT gVLV[g].in.A_ON THEN
+		gVLV[g].static.cmd := OPRT_CLOSE;
+	ELSE
+		gVLV[g].static.cmd := 0;
+	END_IF;
+	gVLV[g].PRM.A_CMD := gVLV[g].static.cmd;
+ELSE
+	gVLV[g].PRM.A_CMD := 0;
+END_IF;
+
+(* Unexpected state change *)
+IF gVLV[g].PRM.MODE<>MODE_LOCAL AND gVLV[g].PRM.MODE<>MODE_REPAIR AND gVLV[g].static.cmd=0 THEN
+	IF First THEN
+		IF NOT gVLV[g].static.pos.0 AND gVLV[g].in.IS_ON THEN
+			gVLV[g].PRM.ALM := ANY_TO_WORD(OR_MASK(ANY_TO_DINT(gVLV[g].PRM.ALM), SHL(1, ALM_FRC_OPEN)));
+		END_IF;
+		IF NOT gVLV[g].static.pos.1 AND gVLV[g].in.IS_OFF THEN
+			gVLV[g].PRM.ALM := ANY_TO_WORD(OR_MASK(ANY_TO_DINT(gVLV[g].PRM.ALM), SHL(1, ALM_FRC_CLOSE)));
+		END_IF;
+	END_IF;
+END_IF;
+
+(* Processing limit switches *)
+gVLV[g].static.pos.0 := gVLV[g].in.IS_ON;
+gVLV[g].static.pos.1 := gVLV[g].in.IS_OFF;
+CASE gVLV[g].static.pos OF
+	16#0:
+	CASE gVLV[g].static.cmd OF
+		0:				gVLV[g].PRM.STATE := STATE_BETWEEN;
+		OPRT_OPEN:		gVLV[g].PRM.STATE := STATE_OPENING;
+		OPRT_CLOSE:		gVLV[g].PRM.STATE := STATE_CLOSING;
+	END_CASE;
+	16#1:
+	CASE gVLV[g].static.cmd OF
+		0, OPRT_OPEN: 	gVLV[g].PRM.STATE := STATE_OPENED;
+		OPRT_CLOSE: 	gVLV[g].PRM.STATE := STATE_CLOSING;
+	END_CASE;	
+	16#2:
+	CASE gVLV[g].static.cmd OF
+		0, OPRT_CLOSE: 	gVLV[g].PRM.STATE := STATE_CLOSED;
+		OPRT_OPEN: 		gVLV[g].PRM.STATE := STATE_OPENING;
+	END_CASE;
+	16#3:
+	gVLV[g].PRM.STATE := STATE_DOUBLE;
+END_CASE;
+
+(* Counting Moving time *)
+IF (gVLV[g].PRM.STATE=STATE_CLOSING OR gVLV[g].PRM.STATE=STATE_OPENING) AND gVLV[g].PRM.ALM=0 THEN
+	gVLV[g].static.moving_time := gVLV[g].static.moving_time + CYCLE_TIME;
+ELSE
+	gVLV[g].static.moving_time := 0;
+END_IF;
+
+(* Resetting Command *)
+IF gVLV[g].PRM.ALM <> 0
+	OR gVLV[g].PRM.MODE<>MODE_AUT AND gVLV[g].PRM.MODE<>MODE_MAN
+	OR gVLV[g].PRM.STATE=STATE_OPENED AND gVLV[g].static.cmd=OPRT_OPEN
+	OR gVLV[g].PRM.STATE=STATE_CLOSED AND gVLV[g].static.cmd=OPRT_CLOSE
+	OR gVLV[g].PRM.STATE=STATE_DOUBLE
+	THEN
+	gVLV[g].static.cmd := 0;
+END_IF;
+
+(* Processing outputs *)
+gVLV[g].out.TO_ON := gVLV[g].static.cmd=OPRT_OPEN AND gVLV[g].static.cmd<>OPRT_HALT;
+gVLV[g].out.TO_OFF := gVLV[g].static.cmd=OPRT_CLOSE AND gVLV[g].static.cmd<>OPRT_HALT;
+
+(* Processing Alarms *)
+gVLV[g].PRM.ALM := SetBit(		gVLV[g].PRM.ALM, ALM_FAIL_TO_OPEN, 	(gVLV[g].static.moving_time >= (gVLV[g].static.MTM*1000)) AND gVLV[g].static.cmd=OPRT_OPEN);
+gVLV[g].PRM.ALM := SetBit(		gVLV[g].PRM.ALM, ALM_FAIL_TO_CLOSE,	(gVLV[g].static.moving_time >= (gVLV[g].static.MTM*1000)) AND gVLV[g].static.cmd=OPRT_CLOSE);
+gVLV[g].PRM.ALM := WriteBit(	gVLV[g].PRM.ALM, ALM_DOUBLE_MODE, 	gVLV[g].PRM.MODE=MODE_DOUBLE);
+gVLV[g].PRM.ALM := WriteBit(	gVLV[g].PRM.ALM, ALM_DOUBLE_STATE, 	gVLV[g].PRM.STATE=STATE_DOUBLE);
+gVLV[g].PRM.ALM := WriteBit(	gVLV[g].PRM.ALM, ALM_EXT_FLT, 		gVLV[g].in.FLT);
+IF gVLV[g].PRM.MODE=MODE_REPAIR THEN gVLV[g].PRM.ALM := 0; END_IF;
+END_FUNCTION_BLOCK
+
+(* -------------------- *)
+
+
+(*=== FB_gVLV_DIS_SIM ===*)
+(* Source: FB_gVLV_DIS_SIM.isaxml *)
+
+  g : DINT (* Constant *);
+  oPos : WORD (* Constant *);
+  PosMax : INT (* Constant *);
+  PosMin : INT (* Constant *);
+  Speed : INT (* Constant *);
+
+FUNCTION_BLOCK FB_gVLV_DIS_SIM
+
+PosMax := 100;
+PosMin := 0;
+Speed := 8;
+
+IF gVLV[g].static.simDisable THEN
+	oPos := ANY_TO_WORD(gVLV[g].static.pos_sim);
+	RETURN;
+END_IF;
+
+gVLV[g].in.REMOTE := TRUE;
+
+IF gVLV[g].out.TO_ON THEN
+	gVLV[g].static.pos_sim := gVLV[g].static.pos_sim + Speed;
+END_IF;
+IF gVLV[g].out.TO_OFF THEN
+	gVLV[g].static.pos_sim := gVLV[g].static.pos_sim - Speed;
+END_IF;
+
+IF gVLV[g].static.pos_sim>=PosMax THEN
+	gVLV[g].static.pos_sim := PosMax;
+END_IF;
+IF gVLV[g].static.pos_sim<=PosMin THEN
+	gVLV[g].static.pos_sim := PosMin;
+END_IF;
+
+gVLV[g].in.IS_ON := gVLV[g].static.pos_sim>=PosMax;
+gVLV[g].in.IS_OFF := gVLV[g].static.pos_sim<=PosMin;
+
+oPos := ANY_TO_WORD(gVLV[g].static.pos_sim);
+END_FUNCTION_BLOCK
+
+(* -------------------- *)
+
+
+(*=== Int2Bcd ===*)
+(* Source: Int2Bcd.isaxml *)
+
+  Int2Bcd : DINT (* Constant *);
+  In : INT (* Constant *);
+
+FUNCTION Int2Bcd
+Int2Bcd := ANY_TO_DINT(In + (In / 10 * 6));
+END_FUNCTION
+
+(* -------------------- *)
+
+
+(*=== MdlErr ===*)
+(* Source: MdlErr.isaxml *)
+
+  MdlErr : BOOL (* Constant *);
+  Mdl : MK_ioModuleDiag (* Constant *);
+
+FUNCTION MdlErr
+
+MdlErr := Mdl.state<>0 OR NOT Mdl.isPresent OR NOT Mdl.isCompatible;
+END_FUNCTION
+
+(* -------------------- *)
+
+
+(*=== PmpAut ===*)
+(* Source: PmpAut.isaxml *)
+
+  PmpAut : BOOL (* Constant *);
+  p : DINT (* Constant *);
+  fs : DINT (* Constant *);
+  i : DINT (* NonRetain *);
+  fire : DINT (* NonRetain *);
+  foamAlm : DINT (* NonRetain *);
+  levelAlm : DINT (* NonRetain *);
+
+FUNCTION PmpAut
+
+(* Assigning automatic control command to slave devices *)
+
+fire := 0;
+foamAlm := 0;
+levelAlm := 0;
+FOR i := 1 TO 7 DO
+	IF gFS[fs[i]].PRM.FIRE<>0 THEN fire := fire+1; END_IF;
+	IF gFS[fs[i]].PRM.PCC.4 THEN foamAlm := foamAlm+1; END_IF;
+	IF gFS[fs[i]].PRM.PCC.15 THEN levelAlm := levelAlm+1; END_IF;
+END_FOR;
+CASE p OF
+	1, 2:
+	gPCC[1].sStart := fire>0 AND levelAlm=0;
+	3, 4:
+	gPCC[2].sStart := fire>0 AND levelAlm=0 AND foamAlm=0;
+	5, 6:
+	gPCC[3].sStart := fire>0 AND levelAlm=0;
+	7:
+	gACT[7].in.A_ON := fire>0;
+	gACT[7].in.A_OFF := fire=0;
+END_CASE;
+
+PmpAut := FALSE;
+END_FUNCTION
+
+(* -------------------- *)
+
+
+(*=== ReadBit ===*)
+(* Source: ReadBit.isaxml *)
+
+  ReadBit : BOOL (* Constant *);
+  iW : WORD (* Status Word *) (* Constant *);
+  iB : DINT (* Bit Index *) (* Constant *);
+
+FUNCTION ReadBit
+ReadBit := AND_MASK(ANY_TO_DINT(iW), SHL(1, iB)) <> 0;
+END_FUNCTION
+
+(* -------------------- *)
+
+
+(*=== Real2Word ===*)
+(* Source: Real2Word.isaxml *)
+
+  Real2Word : WORD (* Constant *);
+  iR : REAL (* Constant *);
+  iN : INT (* Constant *);
+  SignBit : DWORD (* NonRetain *);
+  Exponent : DWORD (* NonRetain *);
+  Mantissa : DWORD (* NonRetain *);
+  i : INT (* NonRetain *);
+  TempReal : REAL (* NonRetain *);
+  AbsValue : REAL (* NonRetain *);
+  IntPart : DWORD (* NonRetain *);
+  FracPart : REAL (* NonRetain *);
+  ExponentVal : INT (* NonRetain *);
+  tDW : DWORD (* NonRetain *);
+
+FUNCTION Real2Word
+
+(** Converting a real value into a word **)
+
+(* Handle special case: zero *)
+IF iR = 0.0 THEN
+    Real2Word := 0;
+    RETURN;
+(* Extract sign bit (bit 31) *)
+ELSIF iR < 0.0 THEN
+    SignBit := 16#80000000;  (* Set bit 31 *)
+    AbsValue := -iR;
+ELSE
+    SignBit := 0;
+    AbsValue := iR;
+END_IF;
+
+(* Binary search to find exponent (number of times to divide by 2 to get into [1,2)) *)
+TempReal := AbsValue;
+ExponentVal := 0;
+FOR i := 0 TO 127 DO
+	IF TempReal >= 2.0 THEN
+		TempReal := TempReal / 2.0;
+		ExponentVal := ExponentVal + 1;
+	ELSIF TempReal < 1.0 THEN
+		TempReal := TempReal * 2.0;
+		ExponentVal := ExponentVal - 1;
+	ELSE
+		EXIT;
+	END_IF;
+END_FOR;
+
+(* Adjust exponent (add bias 127) *)
+ExponentVal := ExponentVal + 127;
+Exponent := ANY_TO_DWORD(ExponentVal);
+Exponent := ANY_TO_DWORD(SHL(ANY_TO_DINT(Exponent), 23));  (* Shift exponent to bits 23-30 *)
+
+(* Extract mantissa (fractional part) - 23 bits *)
+TempReal := TempReal - 1.0;  (* Remove leading 1 *)
+Mantissa := 0;
+
+FOR i := 0 TO 22 DO
+    Mantissa := ANY_TO_DWORD(SHL(ANY_TO_DINT(Mantissa), 1));
+    TempReal := TempReal * 2.0;
+    IF TempReal >= 1.0 THEN
+        Mantissa := ANY_TO_DWORD(OR_MASK(ANY_TO_DINT(Mantissa), 1));
+        TempReal := TempReal - 1.0;
+    END_IF;
+END_FOR;
+
+(* Combine sign, exponent, and mantissa *)
+tDW := ANY_TO_DWORD(OR_MASK(ANY_TO_DINT(SignBit), ANY_TO_DINT(Exponent)));
+tDW := ANY_TO_DWORD(OR_MASK(ANY_TO_DINT(tDW), ANY_TO_DINT(Mantissa)));
+
+CASE iN OF
+	0:
+	Real2Word := ANY_TO_WORD(tDW);
+	1:
+	Real2Word := ANY_TO_WORD(SHR(ANY_TO_DINT(tDW), 16));
+END_CASE;
+
+
+
+
+END_FUNCTION
+
+(* -------------------- *)
+
+
+(*=== ResetBit ===*)
+(* Source: ResetBit.isaxml *)
+
+  ResetBit : WORD (* Constant *);
+  iW : WORD (* Status Word *) (* Constant *);
+  iB : DINT (* Bit Index *) (* Constant *);
+  iC : BOOL (* Condition *) (* Constant *);
+
+FUNCTION ResetBit
+IF iC THEN
+	ResetBit := ANY_TO_WORD(AND_MASK(ANY_TO_DINT(iW), ROL(16#FFFF-1, iB)));
+ELSE
+	ResetBit := iW;
+END_IF;
+END_FUNCTION
+
+(* -------------------- *)
+
+
+(*=== Resource1 ===*)
+(* Source: Resource1.isaxml *)
+
+(* No body code found *)
+
+(* -------------------- *)
+
+
+(*=== SetBit ===*)
+(* Source: SetBit.isaxml *)
+
+  SetBit : WORD (* Constant *);
+  iW : WORD (* Status Word *) (* Constant *);
+  iB : DINT (* Bit Index *) (* Constant *);
+  iC : BOOL (* Condition *) (* Constant *);
+
+FUNCTION SetBit
+IF iC THEN
+	SetBit := ANY_TO_WORD(OR_MASK(ANY_TO_DINT(iW), SHL(1, iB)));
+ELSE
+	SetBit := iW;
+END_IF;
+END_FUNCTION
+
+(* -------------------- *)
+
+
+(*=== UDInt2Word ===*)
+(* Source: UDInt2Word.isaxml *)
+
+  UDInt2Word : WORD (* Constant *);
+  iUDInt : UDINT (* Constant *);
+  iN : INT (* Constant *);
+  tDW : DWORD (* NonRetain *);
+
+FUNCTION UDInt2Word
+
+tDW := ANY_TO_DWORD(iUDInt);
+
+CASE iN OF
+	0:
+	UDInt2Word := ANY_TO_WORD(tDW);
+	1:
+	UDInt2Word := ANY_TO_WORD(SHR(ANY_TO_DINT(iUDInt), 16));
+END_CASE;
+END_FUNCTION
+
+(* -------------------- *)
+
+
+(*=== VlvAut ===*)
+(* Source: VlvAut.isaxml *)
+
+  VlvAut : BOOL (* Constant *);
+  v : DINT (* Constant *);
+  fs1 : DINT (* Constant *);
+  fs2 : DINT (* Constant *);
+
+FUNCTION VlvAut
+
+(* Assigning automatic control command to slave devices *)
+
+IF fs1<>0 AND fs2<>0 THEN
+	gVLV[v].in.A_ON  := gFS[fs1].PRM.FIRE<>0 OR  gFS[fs2].PRM.FIRE<>0;
+	gVLV[v].in.A_OFF := gFS[fs1].PRM.FIRE=0 AND gFS[fs2].PRM.FIRE=0;
+ELSIF fs1<>0 THEN
+	gVLV[v].in.A_ON  := gFS[fs1].PRM.FIRE<>0;
+	gVLV[v].in.A_OFF := gFS[fs1].PRM.FIRE=0;
+ELSIF fs2<>0 THEN
+	gVLV[v].in.A_ON  := gFS[fs2].PRM.FIRE<>0;
+	gVLV[v].in.A_OFF := gFS[fs2].PRM.FIRE=0;
+ELSE
+	gVLV[v].in.A_ON  := FALSE;
+	gVLV[v].in.A_OFF := FALSE;
+END_IF;
+
+VlvAut := FALSE;
+END_FUNCTION
+
+(* -------------------- *)
+
+
+(*=== Words2DWord ===*)
+(* Source: Words2DWord.isaxml *)
+
+  Words2DWord : DWORD (* Constant *);
+  iW0 : WORD (* Constant *);
+  iW1 : WORD (* Constant *);
+  tDW : DWORD (* NonRetain *);
+
+FUNCTION Words2DWord
+
+tDW := ANY_TO_DWORD(SHL(ANY_TO_DINT(iW1), 16));
+tDW := ANY_TO_DWORD(OR_MASK(ANY_TO_DINT(tDW), ANY_TO_DINT(iW0)));
+
+Words2DWord := tDW;
+END_FUNCTION
+
+(* -------------------- *)
+
+
+(*=== Words2Real ===*)
+(* Source: Words2Real.isaxml *)
+
+  Words2Real : REAL (* Constant *);
+  iW0 : WORD (* Constant *);
+  iW1 : WORD (* Constant *);
+  SignBit : DWORD (* NonRetain *);
+  Exponent : DWORD (* NonRetain *);
+  Mantissa : DWORD (* NonRetain *);
+  i : DINT (* NonRetain *);
+  Result : REAL (* NonRetain *);
+  ExponentVal : DINT (* NonRetain *);
+  MantissaVal : REAL (* NonRetain *);
+  BitMask : DWORD (* NonRetain *);
+  tDW : DWORD (* NonRetain *);
+
+FUNCTION Words2Real
+
+(** Converting 2 words into a real value **)
+
+(* Extract components *)
+tDW := ANY_TO_DWORD(SHL(ANY_TO_DINT(iW1), 16));
+tDW := ANY_TO_DWORD(OR_MASK(ANY_TO_DINT(tDW), ANY_TO_DINT(iW0)));
+SignBit := ANY_TO_DWORD(AND_MASK(ANY_TO_DINT(tDW), ANY_TO_DINT(16#80000000)));      (* Bit 31 *)
+Exponent := ANY_TO_DWORD(AND_MASK(ANY_TO_DINT(tDW), ANY_TO_DINT(16#7F800000)));     (* Bits 23-30 *)
+Mantissa := ANY_TO_DWORD(AND_MASK(ANY_TO_DINT(tDW), ANY_TO_DINT(16#007FFFFF)));     (* Bits 0-22 *)
+
+(* Handle zero *)
+IF (Exponent = 0) AND (Mantissa = 0) THEN
+    Words2Real := 0.0;
+    RETURN;
+END_IF;
+
+(* Extract exponent value (remove bias 127) *)
+ExponentVal := SHR(ANY_TO_DINT(Exponent), 23);
+ExponentVal := ExponentVal - 127;
+
+(* Alternative approach: build mantissa by summing fractions *)
+MantissaVal := 1.0;
+FOR i := 0 TO 22 DO
+    IF AND_MASK(ANY_TO_DINT(Mantissa), (SHL(1, 22 - i))) <> 0 THEN
+        MantissaVal := MantissaVal + (1.0 / ANY_TO_REAL(SHL(2, i)));
+    END_IF;
+END_FOR;
+
+(* Apply exponent (multiply by 2^exponent) *)
+Result := MantissaVal;
+IF ExponentVal > 0 THEN
+    FOR i := 1 TO ExponentVal DO
+        Result := Result * 2.0;
+    END_FOR;
+ELSIF ExponentVal < 0 THEN
+    FOR i := 1 TO (-ExponentVal) DO
+        Result := Result / 2.0;
+    END_FOR;
+END_IF;
+
+(* Apply sign *)
+IF SignBit <> 0 THEN
+    Result := -Result;
+END_IF;
+
+Words2Real := Result;
+END_FUNCTION
+
+(* -------------------- *)
+
+
+(*=== Words2UDInt ===*)
+(* Source: Words2UDInt.isaxml *)
+
+  Words2UDInt : UDINT (* Constant *);
+  iW0 : WORD (* Constant *);
+  iW1 : WORD (* Constant *);
+  tDW : DWORD (* NonRetain *);
+
+FUNCTION Words2UDInt
+
+tDW := ANY_TO_DWORD(SHL(ANY_TO_DINT(iW1), 16));
+tDW := ANY_TO_DWORD(OR_MASK(ANY_TO_DINT(tDW), ANY_TO_DINT(iW0)));
+
+Words2UDINT := ANY_TO_UDINT(tDW);
+END_FUNCTION
+
+(* -------------------- *)
+
+
+(*=== WriteBit ===*)
+(* Source: WriteBit.isaxml *)
+
+  WriteBit : WORD (* Constant *);
+  iW : WORD (* Status Word *) (* Constant *);
+  iB : DINT (* Bit Index *) (* Constant *);
+  iC : BOOL (* Condition *) (* Constant *);
+
+FUNCTION WriteBit
+IF iC THEN
+	WriteBit := ANY_TO_WORD(OR_MASK(ANY_TO_DINT(iW), SHL(1, iB)));
+ELSE
+	WriteBit := ANY_TO_WORD(AND_MASK(ANY_TO_DINT(iW), ROL(16#FFFFFFFF-1, iB)));
+END_IF;
+END_FUNCTION
+
+(* -------------------- *)
+
+

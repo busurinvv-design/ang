@@ -1,0 +1,5051 @@
+(*============================================================*)
+(* AGGREGATED PLC ROUTINES - ALL VARIABLE DECLARATIONS SKIPPED *)
+(*============================================================*)
+
+
+(*=== APT111 ===*)
+
+(* FUNCTION BLOCK: FB_HMI_EXCH *)
+
+FUNCTION_BLOCK FB_HMI_EXCH
+
+gI := 1;
+IF First THEN gD := NOT gD; END_IF;
+(* Valves *)
+FOR i := 1 TO 48 DO
+	exchV(i);
+	(* Задвижка Э-1..Э-48 *)
+END_FOR;
+(* Discretes *)
+FOR i := 2 TO 1 BY -1 DO
+	exchD(i);
+	(* Состояние двери АПТ 1.1.1 *)
+	(* Наличие питания на вводе *)
+END_FOR;
+(* Connection *)
+w := CON111_5;		exchWord(w);
+w := CON111_112;	exchWord(w);
+(* Diagnostics *)
+CPU_pri[1] := __SYSVA_FO_ISPRIMARY;
+CPU_act[1] := __SYSVA_FO_ISACTIVE;
+CPU_pri[2] := NOT __SYSVA_FO_ISPRIMARY;
+CPU_act[2] := NOT __SYSVA_FO_ISACTIVE;
+exchMdlPSU(	inMdl := _111_G2_1_MDL,	inCh := _111_G2_1_PSU);
+exchMdlPSU(	inMdl := _111_G2_2_MDL,	inCh := _111_G2_2_PSU);
+exchMdlCPU(	inMdl := _111_A1_1_MDL,	isPri := CPU_pri[1],	isAct := CPU_act[1]);
+exchMdlCPU(	inMdl := _111_A1_2_MDL,	isPri := CPU_pri[2],	isAct := CPU_act[2]);
+exchMdlDI(	inMdl := _111_A2_MDl,	inCh := _111_A2_DI);
+exchMdlDI(	inMdl := _111_A3_MDl,	inCh := _111_A3_DI);
+exchMdlDO(	inMdl := _111_A4_MDl,	inCh := _111_A4_DO);
+exchMdlDO(	inMdl := _111_A5_MDl,	inCh := _111_A5_DO);
+exchMdlDI(	inMdl := _111_A6_MDl,	inCh := _111_A6_DI);
+exchMdlDI(	inMdl := _111_A7_MDl,	inCh := _111_A7_DI);
+exchMdlDO(	inMdl := _111_A8_MDl,	inCh := _111_A8_DO);
+exchMdlDO(	inMdl := _111_A9_MDl,	inCh := _111_A9_DO);
+END_FUNCTION_BLOCK
+(* -------------------- *)
+
+
+(* ROUTINE 01: _111_LinkInput *)
+
+PROGRAM _111_LinkInput
+
+(* A2 *)
+_dis					:= _111_A2_DI[00].input;	(*  *)
+_dis					:= _111_A2_DI[01].input;	(*  *)
+_dis					:= _111_A2_DI[02].input;	(*  *)
+_dis					:= _111_A2_DI[03].input;	(*  *)
+_dis					:= _111_A2_DI[04].input;	(*  *)
+_dis					:= _111_A2_DI[05].input;	(*  *)
+_dis					:= _111_A2_DI[06].input;	(*  *)
+_dis					:= _111_A2_DI[07].input;	(*  *)
+_dis					:= _111_A2_DI[08].input;	(*  *)
+_dis					:= _111_A2_DI[09].input;	(*  *)
+_dis					:= _111_A2_DI[10].input;	(*  *)
+_dis					:= _111_A2_DI[11].input;	(*  *)
+_dis					:= _111_A2_DI[12].input;	(*  *)
+_dis					:= _111_A2_DI[13].input;	(*  *)
+_dis					:= _111_A2_DI[14].input;	(*  *)
+_dis					:= _111_A2_DI[15].input;	(*  *)
+gVLV[01].in.LOCAL		:= _111_A2_DI[16].input;	(* Задвижка Э-001. Местный режим управления *)
+gVLV[01].in.REMOTE		:= _111_A2_DI[17].input;	(* Задвижка Э-001. Дистанционный режим управления *)
+gVLV[02].in.LOCAL		:= _111_A2_DI[18].input;	(* Задвижка Э-002. Местный режим управления *)
+gVLV[02].in.REMOTE		:= _111_A2_DI[19].input;	(* Задвижка Э-002. Дистанционный режим управления *)
+gVLV[03].in.LOCAL		:= _111_A2_DI[20].input;	(* Задвижка Э-003. Местный режим управления *)
+gVLV[03].in.REMOTE		:= _111_A2_DI[21].input;	(* Задвижка Э-003. Дистанционный режим управления *)
+gVLV[04].in.LOCAL		:= _111_A2_DI[22].input;	(* Задвижка Э-004. Местный режим управления *)
+gVLV[04].in.REMOTE		:= _111_A2_DI[23].input;	(* Задвижка Э-004. Дистанционный режим управления *)
+gVLV[05].in.LOCAL		:= _111_A2_DI[24].input;	(* Задвижка Э-005. Местный режим управления *)
+gVLV[05].in.REMOTE		:= _111_A2_DI[25].input;	(* Задвижка Э-005. Дистанционный режим управления *)
+gVLV[06].in.LOCAL		:= _111_A2_DI[26].input;	(* Задвижка Э-006. Местный режим управления *)
+gVLV[06].in.REMOTE		:= _111_A2_DI[27].input;	(* Задвижка Э-006. Дистанционный режим управления *)
+gVLV[07].in.LOCAL		:= _111_A2_DI[28].input;	(* Задвижка Э-007. Местный режим управления *)
+gVLV[07].in.REMOTE		:= _111_A2_DI[29].input;	(* Задвижка Э-007. Дистанционный режим управления *)
+gVLV[08].in.LOCAL		:= _111_A2_DI[30].input;	(* Задвижка Э-008. Местный режим управления *)
+gVLV[08].in.REMOTE		:= _111_A2_DI[31].input;	(* Задвижка Э-008. Дистанционный режим управления *)
+(* A3 *)
+gVLV[09].in.LOCAL		:= _111_A3_DI[00].input;	(* Задвижка Э-009. Местный режим управления *)
+gVLV[09].in.REMOTE		:= _111_A3_DI[01].input;	(* Задвижка Э-009. Дистанционный режим управления *)
+gVLV[10].in.LOCAL		:= _111_A3_DI[02].input;	(* Задвижка Э-010. Местный режим управления *)
+gVLV[10].in.REMOTE		:= _111_A3_DI[03].input;	(* Задвижка Э-010. Дистанционный режим управления *)
+gVLV[11].in.LOCAL		:= _111_A3_DI[04].input;	(* Задвижка Э-011. Местный режим управления *)
+gVLV[11].in.REMOTE		:= _111_A3_DI[05].input;	(* Задвижка Э-011. Дистанционный режим управления *)
+gVLV[12].in.LOCAL		:= _111_A3_DI[06].input;	(* Задвижка Э-012. Местный режим управления *)
+gVLV[12].in.REMOTE		:= _111_A3_DI[07].input;	(* Задвижка Э-012. Дистанционный режим управления *)
+gVLV[13].in.LOCAL		:= _111_A3_DI[08].input;	(* Задвижка Э-013. Местный режим управления *)
+gVLV[13].in.REMOTE		:= _111_A3_DI[09].input;	(* Задвижка Э-013. Дистанционный режим управления *)
+gVLV[14].in.LOCAL		:= _111_A3_DI[10].input;	(* Задвижка Э-014. Местный режим управления *)
+gVLV[14].in.REMOTE		:= _111_A3_DI[11].input;	(* Задвижка Э-014. Дистанционный режим управления *)
+gVLV[15].in.LOCAL		:= _111_A3_DI[12].input;	(* Задвижка Э-015. Местный режим управления *)
+gVLV[15].in.REMOTE		:= _111_A3_DI[13].input;	(* Задвижка Э-015. Дистанционный режим управления *)
+gVLV[16].in.LOCAL		:= _111_A3_DI[14].input;	(* Задвижка Э-016. Местный режим управления *)
+gVLV[16].in.REMOTE		:= _111_A3_DI[15].input;	(* Задвижка Э-016. Дистанционный режим управления *)
+gVLV[17].in.LOCAL		:= _111_A3_DI[16].input;	(* Задвижка Э-017. Местный режим управления *)
+gVLV[17].in.REMOTE		:= _111_A3_DI[17].input;	(* Задвижка Э-017. Дистанционный режим управления *)
+gVLV[18].in.LOCAL		:= _111_A3_DI[18].input;	(* Задвижка Э-018. Местный режим управления *)
+gVLV[18].in.REMOTE		:= _111_A3_DI[19].input;	(* Задвижка Э-018. Дистанционный режим управления *)
+gVLV[19].in.LOCAL		:= _111_A3_DI[20].input;	(* Задвижка Э-019. Местный режим управления *)
+gVLV[19].in.REMOTE		:= _111_A3_DI[21].input;	(* Задвижка Э-019. Дистанционный режим управления *)
+gVLV[20].in.LOCAL		:= _111_A3_DI[22].input;	(* Задвижка Э-020. Местный режим управления *)
+gVLV[20].in.REMOTE		:= _111_A3_DI[23].input;	(* Задвижка Э-020. Дистанционный режим управления *)
+gVLV[21].in.LOCAL		:= _111_A3_DI[24].input;	(* Задвижка Э-021. Местный режим управления *)
+gVLV[21].in.REMOTE		:= _111_A3_DI[25].input;	(* Задвижка Э-021. Дистанционный режим управления *)
+gVLV[22].in.LOCAL		:= _111_A3_DI[26].input;	(* Задвижка Э-022. Местный режим управления *)
+gVLV[22].in.REMOTE		:= _111_A3_DI[27].input;	(* Задвижка Э-022. Дистанционный режим управления *)
+gVLV[23].in.LOCAL		:= _111_A3_DI[28].input;	(* Задвижка Э-023. Местный режим управления *)
+gVLV[23].in.REMOTE		:= _111_A3_DI[29].input;	(* Задвижка Э-023. Дистанционный режим управления *)
+gVLV[24].in.LOCAL		:= _111_A3_DI[30].input;	(* Задвижка Э-024. Местный режим управления *)
+gVLV[24].in.REMOTE		:= _111_A3_DI[31].input;	(* Задвижка Э-024. Дистанционный режим управления *)
+(* A6 *)
+gVLV[25].in.LOCAL		:= _111_A6_DI[00].input;	(* Задвижка Э-025. Местный режим управления *)
+gVLV[25].in.REMOTE		:= _111_A6_DI[01].input;	(* Задвижка Э-025. Дистанционный режим управления *)
+gVLV[26].in.LOCAL		:= _111_A6_DI[02].input;	(* Задвижка Э-026. Местный режим управления *)
+gVLV[26].in.REMOTE		:= _111_A6_DI[03].input;	(* Задвижка Э-026. Дистанционный режим управления *)
+gVLV[27].in.LOCAL		:= _111_A6_DI[04].input;	(* Задвижка Э-027. Местный режим управления *)
+gVLV[27].in.REMOTE		:= _111_A6_DI[05].input;	(* Задвижка Э-027. Дистанционный режим управления *)
+gVLV[28].in.LOCAL		:= _111_A6_DI[06].input;	(* Задвижка Э-028. Местный режим управления *)
+gVLV[28].in.REMOTE		:= _111_A6_DI[07].input;	(* Задвижка Э-028. Дистанционный режим управления *)
+gVLV[29].in.LOCAL		:= _111_A6_DI[08].input;	(* Задвижка Э-029. Местный режим управления *)
+gVLV[29].in.REMOTE		:= _111_A6_DI[09].input;	(* Задвижка Э-029. Дистанционный режим управления *)
+gVLV[30].in.LOCAL		:= _111_A6_DI[10].input;	(* Задвижка Э-030. Местный режим управления *)
+gVLV[30].in.REMOTE		:= _111_A6_DI[11].input;	(* Задвижка Э-030. Дистанционный режим управления *)
+gVLV[31].in.LOCAL		:= _111_A6_DI[12].input;	(* Задвижка Э-031. Местный режим управления *)
+gVLV[31].in.REMOTE		:= _111_A6_DI[13].input;	(* Задвижка Э-031. Дистанционный режим управления *)
+gVLV[32].in.LOCAL		:= _111_A6_DI[14].input;	(* Задвижка Э-032. Местный режим управления *)
+gVLV[32].in.REMOTE		:= _111_A6_DI[15].input;	(* Задвижка Э-032. Дистанционный режим управления *)
+gVLV[33].in.LOCAL		:= _111_A6_DI[16].input;	(* Задвижка Э-033. Местный режим управления *)
+gVLV[33].in.REMOTE		:= _111_A6_DI[17].input;	(* Задвижка Э-033. Дистанционный режим управления *)
+gVLV[34].in.LOCAL		:= _111_A6_DI[18].input;	(* Задвижка Э-034. Местный режим управления *)
+gVLV[34].in.REMOTE		:= _111_A6_DI[19].input;	(* Задвижка Э-034. Дистанционный режим управления *)
+gVLV[35].in.LOCAL		:= _111_A6_DI[20].input;	(* Задвижка Э-035. Местный режим управления *)
+gVLV[35].in.REMOTE		:= _111_A6_DI[21].input;	(* Задвижка Э-035. Дистанционный режим управления *)
+gVLV[36].in.LOCAL		:= _111_A6_DI[22].input;	(* Задвижка Э-036. Местный режим управления *)
+gVLV[36].in.REMOTE		:= _111_A6_DI[23].input;	(* Задвижка Э-036. Дистанционный режим управления *)
+gVLV[37].in.LOCAL		:= _111_A6_DI[24].input;	(* Задвижка Э-037. Местный режим управления *)
+gVLV[37].in.REMOTE		:= _111_A6_DI[25].input;	(* Задвижка Э-037. Дистанционный режим управления *)
+gVLV[38].in.LOCAL		:= _111_A6_DI[26].input;	(* Задвижка Э-038. Местный режим управления *)
+gVLV[38].in.REMOTE		:= _111_A6_DI[27].input;	(* Задвижка Э-038. Дистанционный режим управления *)
+gVLV[39].in.LOCAL		:= _111_A6_DI[28].input;	(* Задвижка Э-039. Местный режим управления *)
+gVLV[39].in.REMOTE		:= _111_A6_DI[29].input;	(* Задвижка Э-039. Дистанционный режим управления *)
+gVLV[40].in.LOCAL		:= _111_A6_DI[30].input;	(* Задвижка Э-040. Местный режим управления *)
+gVLV[40].in.REMOTE		:= _111_A6_DI[31].input;	(* Задвижка Э-040. Дистанционный режим управления *)
+(* A7 *)
+_mdl := MdlErr(_111_A7_MDL);
+gVLV[41].in.LOCAL		:= _111_A7_DI[00].input;	(* Задвижка Э-041. Местный режим управления *)
+gVLV[41].in.REMOTE		:= _111_A7_DI[01].input;	(* Задвижка Э-041. Дистанционный режим управления *)
+gVLV[42].in.LOCAL		:= _111_A7_DI[02].input;	(* Задвижка Э-042. Местный режим управления *)
+gVLV[42].in.REMOTE		:= _111_A7_DI[03].input;	(* Задвижка Э-042. Дистанционный режим управления *)
+gVLV[43].in.LOCAL		:= _111_A7_DI[04].input;	(* Задвижка Э-043. Местный режим управления *)
+gVLV[43].in.REMOTE		:= _111_A7_DI[05].input;	(* Задвижка Э-043. Дистанционный режим управления *)
+gVLV[44].in.LOCAL		:= _111_A7_DI[06].input;	(* Задвижка Э-044. Местный режим управления *)
+gVLV[44].in.REMOTE		:= _111_A7_DI[07].input;	(* Задвижка Э-044. Дистанционный режим управления *)
+gVLV[45].in.LOCAL		:= _111_A7_DI[08].input;	(* Задвижка Э-045. Местный режим управления *)
+gVLV[45].in.REMOTE		:= _111_A7_DI[09].input;	(* Задвижка Э-045. Дистанционный режим управления *)
+gVLV[46].in.LOCAL		:= _111_A7_DI[10].input;	(* Задвижка Э-046. Местный режим управления *)
+gVLV[46].in.REMOTE		:= _111_A7_DI[11].input;	(* Задвижка Э-046. Дистанционный режим управления *)
+gVLV[47].in.LOCAL		:= _111_A7_DI[12].input;	(* Задвижка Э-047. Местный режим управления *)
+gVLV[47].in.REMOTE		:= _111_A7_DI[13].input;	(* Задвижка Э-047. Дистанционный режим управления *)
+gVLV[48].in.LOCAL		:= _111_A7_DI[14].input;	(* Задвижка Э-048. Местный режим управления *)
+gVLV[48].in.REMOTE		:= _111_A7_DI[15].input;	(* Задвижка Э-048. Дистанционный режим управления *)
+gDI[1].IN 				:= _111_A7_DI[16].input;	gDI[1].MDL := _mdl; (* Состояние двери АПТ 1.1.1 *)
+gDI[2].IN 				:= _111_A7_DI[17].input;	gDI[2].MDL := _mdl; (* Наличие питания на вводе 1 *)
+_dis					:= _111_A7_DI[18].input;	(*  *)
+_dis					:= _111_A7_DI[19].input;	(*  *)
+_dis					:= _111_A7_DI[20].input;	(*  *)
+_dis					:= _111_A7_DI[21].input;	(*  *)
+_dis					:= _111_A7_DI[22].input;	(*  *)
+_dis					:= _111_A7_DI[23].input;	(*  *)
+_dis					:= _111_A7_DI[24].input;	(*  *)
+_dis					:= _111_A7_DI[25].input;	(*  *)
+_dis					:= _111_A7_DI[26].input;	(*  *)
+_dis					:= _111_A7_DI[27].input;	(*  *)
+_dis					:= _111_A7_DI[28].input;	(*  *)
+_dis					:= _111_A7_DI[29].input;	(*  *)
+_dis					:= _111_A7_DI[30].input;	(*  *)
+_dis					:= _111_A7_DI[31].input;	(*  *)
+
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 02: _111_HMI_in *)
+
+PROGRAM _111_HMI_in
+
+(* Transfering from HMI *)
+hmiExch();
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 03: _111_Inst *)
+
+PROGRAM _111_Inst
+
+(* Valves *)
+FOR i := 1 TO 48 DO
+	_gVLV(i);
+	(* Задвижка Э-1..Э-48 *)
+END_FOR;
+
+(* Discretes *)
+FOR i := 1 TO 2 DO
+	_gDI(i);
+	(* Состояние двери АПТ 1.1.1 *)
+	(* Наличие питания на вводе *)
+END_FOR;
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 04: _111_Automatic *)
+
+PROGRAM _111_Automatic
+
+(* Пожар на резервуаре 1/1 *)
+i := 1;
+v[1] := 1;
+v[2] := 2;
+v[3] := 3;
+v[4] := 4;
+v[5] := 43;
+v[6] := 46;
+v[7] := 7;
+v[8] := 8;
+v[9] := 0;
+v[10] := 0;
+vr[1] := 5;
+vr[2] := 6;
+vr[3] := 48;
+vr[4] := 47;
+vlv(g := i,	v := v,	vr := vr); i:=i+1;
+(* Пожар на резервуаре 1/2 *)
+v[1] := 7;
+v[2] := 8;
+v[3] := 9;
+v[4] := 10;
+v[5] := 3;
+v[6] := 4;
+v[7] := 13;
+v[8] := 14;
+v[9] := 40;
+v[10] := 37;
+vr[1] := 11;
+vr[2] := 12;
+vr[3] := 42;
+vr[4] := 41;
+vlv(g := i,	v := v,	vr := vr); i:=i+1;
+(* Пожар на резервуаре 1/3 *)
+v[1] := 13;
+v[2] := 14;
+v[3] := 15;
+v[4] := 16;
+v[5] := 9;
+v[6] := 10;
+v[7] := 19;
+v[8] := 20;
+v[9] := 34;
+v[10] := 31;
+vr[1] := 17;
+vr[2] := 18;
+vr[3] := 36;
+vr[4] := 35;
+vlv(g := i,	v := v,	vr := vr); i:=i+1;
+(* Пожар на резервуаре 1/4 *)
+v[1] := 19;
+v[2] := 20;
+v[3] := 21;
+v[4] := 22;
+v[5] := 15;
+v[6] := 16;
+v[7] := 28;
+v[8] := 25;
+v[9] := 0;
+v[10] := 0;
+vr[1] := 23;
+vr[2] := 24;
+vr[3] := 30;
+vr[4] := 29;
+vlv(g := i,	v := v,	vr := vr); i:=i+1;
+(* Пожар на резервуаре 1/5 *)
+v[1] := 43;
+v[2] := 44;
+v[3] := 45;
+v[4] := 46;
+v[5] := 1;
+v[6] := 4;
+v[7] := 39;
+v[8] := 40;
+v[9] := 0;
+v[10] := 0;
+vr[1] := 6;
+vr[2] := 5;
+vr[3] := 47;
+vr[4] := 48;
+vlv(g := i,	v := v,	vr := vr); i:=i+1;
+(* Пожар на резервуаре 1/6 *)
+v[1] := 37;
+v[2] := 38;
+v[3] := 39;
+v[4] := 40;
+v[5] := 43;
+v[6] := 44;
+v[7] := 33;
+v[8] := 34;
+v[9] := 7;
+v[10] := 10;
+vr[1] := 12;
+vr[2] := 11;
+vr[3] := 41;
+vr[4] := 42;
+vlv(g := i,	v := v,	vr := vr); i:=i+1;
+(* Пожар на резервуаре 1/7 *)
+v[1] := 31;
+v[2] := 32;
+v[3] := 33;
+v[4] := 34;
+v[5] := 37;
+v[6] := 38;
+v[7] := 27;
+v[8] := 28;
+v[9] := 13;
+v[10] := 16;
+vr[1] := 18;
+vr[2] := 17;
+vr[3] := 35;
+vr[4] := 36;
+vlv(g := i,	v := v,	vr := vr); i:=i+1;
+(* Пожар на резервуаре 1/8 *)
+v[1] := 25;
+v[2] := 26;
+v[3] := 27;
+v[4] := 28;
+v[5] := 31;
+v[6] := 32;
+v[7] := 19;
+v[8] := 22;
+v[9] := 0;
+v[10] := 0;
+vr[1] := 24;
+vr[2] := 23;
+vr[3] := 29;
+vr[4] := 30;
+vlv(g := i,	v := v,	vr := vr); i:=i+1;
+(* Автоматическое управление задвижками *)
+b := VlvAut(v := 1, fs1 := 1, fs2 := 0);
+b := VlvAut(v := 2, fs1 := 1, fs2 := 0);
+b := VlvAut(v := 3, fs1 := 1, fs2 := 0);
+b := VlvAut(v := 4, fs1 := 1, fs2 := 0);
+b := VlvAut(v := 5, fs1 := 1, fs2 := 5);
+b := VlvAut(v := 6, fs1 := 1, fs2 := 5);
+b := VlvAut(v := 7, fs1 := 2, fs2 := 0);
+b := VlvAut(v := 8, fs1 := 2, fs2 := 0);
+b := VlvAut(v := 9, fs1 := 2, fs2 := 0);
+b := VlvAut(v := 10, fs1 := 2, fs2 := 0);
+b := VlvAut(v := 11, fs1 := 2, fs2 := 6);
+b := VlvAut(v := 12, fs1 := 2, fs2 := 6);
+b := VlvAut(v := 13, fs1 := 3, fs2 := 0);
+b := VlvAut(v := 14, fs1 := 3, fs2 := 0);
+b := VlvAut(v := 15, fs1 := 3, fs2 := 0);
+b := VlvAut(v := 16, fs1 := 3, fs2 := 0);
+b := VlvAut(v := 17, fs1 := 3, fs2 := 7);
+b := VlvAut(v := 18, fs1 := 3, fs2 := 7);
+b := VlvAut(v := 19, fs1 := 4, fs2 := 0);
+b := VlvAut(v := 20, fs1 := 4, fs2 := 0);
+b := VlvAut(v := 21, fs1 := 4, fs2 := 0);
+b := VlvAut(v := 22, fs1 := 4, fs2 := 0);
+b := VlvAut(v := 23, fs1 := 4, fs2 := 8);
+b := VlvAut(v := 24, fs1 := 4, fs2 := 8);
+b := VlvAut(v := 25, fs1 := 8, fs2 := 0);
+b := VlvAut(v := 26, fs1 := 8, fs2 := 0);
+b := VlvAut(v := 27, fs1 := 8, fs2 := 0);
+b := VlvAut(v := 28, fs1 := 8, fs2 := 0);
+b := VlvAut(v := 29, fs1 := 8, fs2 := 4);
+b := VlvAut(v := 30, fs1 := 8, fs2 := 4);
+b := VlvAut(v := 31, fs1 := 7, fs2 := 0);
+b := VlvAut(v := 32, fs1 := 7, fs2 := 0);
+b := VlvAut(v := 33, fs1 := 7, fs2 := 0);
+b := VlvAut(v := 34, fs1 := 7, fs2 := 0);
+b := VlvAut(v := 35, fs1 := 7, fs2 := 3);
+b := VlvAut(v := 36, fs1 := 7, fs2 := 3);
+b := VlvAut(v := 37, fs1 := 6, fs2 := 0);
+b := VlvAut(v := 38, fs1 := 6, fs2 := 0);
+b := VlvAut(v := 39, fs1 := 6, fs2 := 0);
+b := VlvAut(v := 40, fs1 := 6, fs2 := 0);
+b := VlvAut(v := 41, fs1 := 6, fs2 := 2);
+b := VlvAut(v := 42, fs1 := 6, fs2 := 2);
+b := VlvAut(v := 43, fs1 := 5, fs2 := 0);
+b := VlvAut(v := 44, fs1 := 5, fs2 := 0);
+b := VlvAut(v := 45, fs1 := 5, fs2 := 0);
+b := VlvAut(v := 46, fs1 := 5, fs2 := 0);
+b := VlvAut(v := 47, fs1 := 5, fs2 := 1);
+b := VlvAut(v := 48, fs1 := 5, fs2 := 1);
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 05: _111_RTU_Master *)
+
+PROGRAM _111_RTU_Master
+
+(* First Cycle *)
+IF NOT First OR sInit THEN
+	sInit := FALSE;
+	
+	(* 48 identical valves on 2 ports; 24 valves on each port; 2 requests for each valve: read, write; 48 requests on each port *)
+	(* available: 8 request groups on each port, 16 requests in each group *)
+	sMaxReqs := 16;
+	sMaxCtrls := (24 * 2) / sMaxReqs; (* 24 = Number of Modbus Devices *)
+	(* Preparing configs for requests *)
+	FOR i := 1 TO 24 DO
+		(* reading *)
+		cfg_SID[i*2 - 1] := ANY_TO_BYTE(i);
+		cfg_FUN[i*2 - 1] := 3;
+		cfg_ADR[i*2 - 1] := 4; (* 40004; *)
+		cfg_LEN[i*2 - 1] := 4;
+		(* writing *)
+		cfg_SID[i*2 - 0] := ANY_TO_BYTE(i);
+		cfg_FUN[i*2 - 0] := 16;
+		cfg_ADR[i*2 - 0] := 2; (* 40002; *)
+		cfg_LEN[i*2 - 0] := 2;
+	END_FOR;
+	sOffset := 0;
+	sReqNo := 1;
+	sCtrlNo := 0;
+	(* Configuring requests *)
+	FOR i := 1 TO 48 DO
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].enable := TRUE;
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].single_request := FALSE;
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].on_modify_request := FALSE;
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].do_single_req := FALSE;
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].command.timeout_ms := 1000;
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].command.repeat_over_scan := TRUE;
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].command.slave_id 			:= cfg_SID[i];
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].command.func_code 		:= cfg_FUN[i];
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].command.slave_data_addr	:= cfg_ADR[i];
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].command.slave_data_length	:= cfg_LEN[i];
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].command.offset := sOffset;
+		sOffset := sOffset + cfg_LEN[i];
+		sReqNo := sReqNo + 1;
+		IF sReqNo > sMaxReqs THEN 
+			sReqNo := 1;
+			sCtrlNo := sCtrlNo + 1;
+			IF sCtrlNo > sMaxCtrls THEN 
+				sCtrlNo := 0;
+			END_IF;
+		END_IF;
+	END_FOR;
+	_Ctrl_2 := _Ctrl_1;
+	_Control_1 := 1;
+	_Control_2 := 1;
+END_IF;
+
+(* Every Cycle *)
+sCtrlNo := 0;
+sReqNo := 1;
+FOR i := 1 TO 24 DO
+	(* 24 valves on Port 1 *)
+	j:=i;
+	sCOBA(
+		iReqStatus	:= _Diag_1[sCtrlNo].RequestsAndStats[sReqNo].status_request,
+		i40004 	:= _HR_1[0].regs[(i-1)*6 + 1],
+		i40005 	:= _HR_1[0].regs[(i-1)*6 + 2],
+		i40006 	:= _HR_1[0].regs[(i-1)*6 + 3],
+		i40007 	:= _HR_1[0].regs[(i-1)*6 + 4],
+		g		:= j,
+		o40002	=> _HR_1[0].regs[(i-1)*6 + 5],
+		o40003	=> _HR_1[0].regs[(i-1)*6 + 6]
+	);
+	(* 24 valves on Port 2 *)
+	j:=i+24;
+	sCOBA(
+		iReqStatus	:= _Diag_2[sCtrlNo].RequestsAndStats[sReqNo].status_request,
+		i40004 	:= _HR_2[0].regs[(i-1)*6 + 1],
+		i40005 	:= _HR_2[0].regs[(i-1)*6 + 2],
+		i40006 	:= _HR_2[0].regs[(i-1)*6 + 3],
+		i40007 	:= _HR_2[0].regs[(i-1)*6 + 4],
+		g		:= j,
+		o40002	=> _HR_2[0].regs[(i-1)*6 + 5],
+		o40003	=> _HR_2[0].regs[(i-1)*6 + 6]
+	);
+	sReqNo := sReqNo + 1;
+	IF sReqNo > sMaxReqs THEN 
+		sReqNo := 1;
+		sCtrlNo := sCtrlNo + 1;
+		IF sCtrlNo > sMaxCtrls THEN 
+			sCtrlNo := 0;
+		END_IF;
+	END_IF;
+END_FOR;
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 06: _111_TCP_Master *)
+
+PROGRAM _111_TCP_Master
+
+(* First Cycle *)
+IF NOT First THEN
+	_Control := 1;
+	(*	En	IP					Port	ID	Func	RegNo			Len		Offset in _HR	Timeout	*)
+	rq01(1,	'192.168.0.6'	,	502	,	1,	3	,	1			,	1	,	2000			,	1000);	_Ctrl[0].Requests[ 1] := rq01.out;	(* АПТ 5 основной *)
+	rq02(0,	'192.168.1.6'	,	502	,	1,	3	,	1			,	1	,	2000			,	1000);	_Ctrl[0].Requests[ 2] := rq02.out;	(* АПТ 5 резервный *)
+	rq03(1,	'192.168.0.2'	,	502	,	1,	3	,	1			,	1	,	2000			,	1000);	_Ctrl[0].Requests[ 3] := rq03.out;	(* АПТ 1.1.2 основной *)
+	rq04(0,	'192.168.1.2'	,	502	,	1,	3	,	1			,	1	,	2000			,	1000);	_Ctrl[0].Requests[ 4] := rq04.out;	(* АПТ 1.1.2 резервный *)
+	rq05(1,	'192.168.0.5'	,	502	,	1,	3	,	1001		,	43	,	0				,	1000);	_Ctrl[0].Requests[ 5] := rq05.out;	(* АПТ 2.3 основной *)
+	rq06(0,	'192.168.1.5'	,	502	,	1,	3	,	1001		,	43	,	0				,	1000);	_Ctrl[0].Requests[ 6] := rq06.out;	(* АПТ 2.3 резервный *)
+	rq07(1,	'192.168.0.5'	,	502	,	1,	16	,	1101+8*0	,	8	,	100				,	1000);	_Ctrl[0].Requests[ 7] := rq07.out;	(* АПТ 2.3 основной *)
+	rq08(0,	'192.168.1.5'	,	502	,	1,	16	,	1101+8*0	,	8	,	100				,	1000);	_Ctrl[0].Requests[ 8] := rq08.out;	(* АПТ 2.3 резервный *)
+END_IF;
+
+sCtrlNo := 0;
+(* 5 *)
+sReqNo := 1;
+IF _Ctrl[sCtrlNo].Requests[sReqNo].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>100 THEN
+		CON111_5 := 0;
+		IF Timer[sReqNo]<3000 THEN
+			Timer[sReqNo] := Timer[sReqNo] + CYCLE_TIME;
+		ELSE
+			_Ctrl[sCtrlNo].Requests[sReqNo].enable := FALSE;
+			_Ctrl[sCtrlNo].Requests[sReqNo+1].enable := TRUE;
+			Timer[sReqNo] := 0;
+		END_IF;
+	ELSE
+		CON111_5 := 1;
+	END_IF;
+END_IF;
+IF _Ctrl[sCtrlNo].Requests[sReqNo+1].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo+1].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo+1].status_request<>100 THEN
+		CON111_5 := 0;
+		IF Timer[sReqNo+1]<3000 THEN
+			Timer[sReqNo+1] := Timer[sReqNo+1] + CYCLE_TIME;
+		ELSE
+			_Ctrl[sCtrlNo].Requests[sReqNo+1].enable := FALSE;
+			_Ctrl[sCtrlNo].Requests[sReqNo].enable := TRUE;
+			Timer[sReqNo+1] := 0;
+		END_IF;
+	ELSE
+		CON111_5 := 1;
+	END_IF;
+END_IF;
+(* 112 *)
+sReqNo := 3;
+IF _Ctrl[sCtrlNo].Requests[sReqNo].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>100 THEN
+		CON111_112 := 0;
+		IF Timer[sReqNo]<3000 THEN
+			Timer[sReqNo] := Timer[sReqNo] + CYCLE_TIME;
+		ELSE
+			_Ctrl[sCtrlNo].Requests[sReqNo].enable := FALSE;
+			_Ctrl[sCtrlNo].Requests[sReqNo+1].enable := TRUE;
+			Timer[sReqNo] := 0;
+		END_IF;
+	ELSE
+		CON111_112 := 1;
+	END_IF;
+END_IF;
+IF _Ctrl[sCtrlNo].Requests[sReqNo+1].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo+1].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo+1].status_request<>100 THEN
+		CON111_112 := 0;
+		IF Timer[sReqNo+1]<3000 THEN
+			Timer[sReqNo+1] := Timer[sReqNo+1] + CYCLE_TIME;
+		ELSE
+			_Ctrl[sCtrlNo].Requests[sReqNo+1].enable := FALSE;
+			_Ctrl[sCtrlNo].Requests[sReqNo].enable := TRUE;
+			Timer[sReqNo+1] := 0;
+		END_IF;
+	ELSE
+		CON111_112 := 1;
+	END_IF;
+END_IF;
+(* 23 read *)
+sReqNo := 5;
+IF _Ctrl[sCtrlNo].Requests[sReqNo].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>100 THEN
+		;
+		IF Timer[sReqNo]<3000 THEN
+			Timer[sReqNo] := Timer[sReqNo] + CYCLE_TIME;
+		ELSE
+			_Ctrl[sCtrlNo].Requests[sReqNo].enable := FALSE;
+			_Ctrl[sCtrlNo].Requests[sReqNo+1].enable := TRUE;
+			Timer[sReqNo] := 0;
+		END_IF;
+	ELSE
+		;
+	END_IF;
+END_IF;
+IF _Ctrl[sCtrlNo].Requests[sReqNo+1].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo+1].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo+1].status_request<>100 THEN
+		;
+		IF Timer[sReqNo+1]<3000 THEN
+			Timer[sReqNo+1] := Timer[sReqNo+1] + CYCLE_TIME;
+		ELSE
+			_Ctrl[sCtrlNo].Requests[sReqNo+1].enable := FALSE;
+			_Ctrl[sCtrlNo].Requests[sReqNo].enable := TRUE;
+			Timer[sReqNo+1] := 0;
+		END_IF;
+	ELSE
+		;
+	END_IF;
+END_IF;
+(* 23 write *)
+sReqNo := 7;
+IF _Ctrl[sCtrlNo].Requests[sReqNo].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>100 THEN
+		;
+		IF Timer[sReqNo]<3000 THEN
+			Timer[sReqNo] := Timer[sReqNo] + CYCLE_TIME;
+		ELSE
+			_Ctrl[sCtrlNo].Requests[sReqNo].enable := FALSE;
+			_Ctrl[sCtrlNo].Requests[sReqNo+1].enable := TRUE;
+			Timer[sReqNo] := 0;
+		END_IF;
+	ELSE
+		;
+	END_IF;
+END_IF;
+IF _Ctrl[sCtrlNo].Requests[sReqNo+1].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo+1].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo+1].status_request<>100 THEN
+		;
+		IF Timer[sReqNo+1]<3000 THEN
+			Timer[sReqNo+1] := Timer[sReqNo+1] + CYCLE_TIME;
+		ELSE
+			_Ctrl[sCtrlNo].Requests[sReqNo+1].enable := FALSE;
+			_Ctrl[sCtrlNo].Requests[sReqNo].enable := TRUE;
+			Timer[sReqNo+1] := 0;
+		END_IF;
+	ELSE
+		;
+	END_IF;
+END_IF;
+
+
+(* Пожар резервуаров 1/1..1/8 *)
+FOR i := 1 TO 8 DO
+	gFS[i].PRM.FIRE := _HR[0].regs[i];
+END_FOR;
+(* Состояние клапанов *)
+FOR i := 1 TO 8 DO
+	_HR[0].regs[i + 100] := gFS[i].PRM.VLVS;
+END_FOR;
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 07: _111_HMI_out *)
+
+PROGRAM _111_HMI_out
+
+(* Transfering to HMI *)
+hmiExch();
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 08: _111_LinkOutput *)
+
+PROGRAM _111_LinkOutput
+
+(* A4 *)
+_111_A4_DO[00].output := gVLV[01].in.IS_ON;		(* Задвижка Э-001. Индикация на шкафу. Открыта *)
+_111_A4_DO[01].output := gVLV[01].in.IS_OFF;	(* Задвижка Э-001. Индикация на шкафу. Закрыта *)
+_111_A4_DO[02].output := gVLV[02].in.IS_ON;		(* Задвижка Э-002. Индикация на шкафу. Открыта *)
+_111_A4_DO[03].output := gVLV[02].in.IS_OFF;	(* Задвижка Э-002. Индикация на шкафу. Закрыта *)
+_111_A4_DO[04].output := gVLV[03].in.IS_ON;		(* Задвижка Э-003. Индикация на шкафу. Открыта *)
+_111_A4_DO[05].output := gVLV[03].in.IS_OFF;	(* Задвижка Э-003. Индикация на шкафу. Закрыта *)
+_111_A4_DO[06].output := gVLV[04].in.IS_ON;		(* Задвижка Э-004. Индикация на шкафу. Открыта *)
+_111_A4_DO[07].output := gVLV[04].in.IS_OFF;	(* Задвижка Э-004. Индикация на шкафу. Закрыта *)
+_111_A4_DO[08].output := gVLV[05].in.IS_ON;		(* Задвижка Э-005. Индикация на шкафу. Открыта *)
+_111_A4_DO[09].output := gVLV[05].in.IS_OFF;	(* Задвижка Э-005. Индикация на шкафу. Закрыта *)
+_111_A4_DO[10].output := gVLV[06].in.IS_ON;		(* Задвижка Э-006. Индикация на шкафу. Открыта *)
+_111_A4_DO[11].output := gVLV[06].in.IS_OFF;	(* Задвижка Э-006. Индикация на шкафу. Закрыта *)
+_111_A4_DO[12].output := gVLV[07].in.IS_ON;		(* Задвижка Э-007. Индикация на шкафу. Открыта *)
+_111_A4_DO[13].output := gVLV[07].in.IS_OFF;	(* Задвижка Э-007. Индикация на шкафу. Закрыта *)
+_111_A4_DO[14].output := gVLV[08].in.IS_ON;		(* Задвижка Э-008. Индикация на шкафу. Открыта *)
+_111_A4_DO[15].output := gVLV[08].in.IS_OFF;	(* Задвижка Э-008. Индикация на шкафу. Закрыта *)
+_111_A4_DO[16].output := gVLV[09].in.IS_ON;		(* Задвижка Э-009. Индикация на шкафу. Открыта *)
+_111_A4_DO[17].output := gVLV[09].in.IS_OFF;	(* Задвижка Э-009. Индикация на шкафу. Закрыта *)
+_111_A4_DO[18].output := gVLV[10].in.IS_ON;		(* Задвижка Э-010. Индикация на шкафу. Открыта *)
+_111_A4_DO[19].output := gVLV[10].in.IS_OFF;	(* Задвижка Э-010. Индикация на шкафу. Закрыта *)
+_111_A4_DO[20].output := gVLV[11].in.IS_ON;		(* Задвижка Э-011. Индикация на шкафу. Открыта *)
+_111_A4_DO[21].output := gVLV[11].in.IS_OFF;	(* Задвижка Э-011. Индикация на шкафу. Закрыта *)
+_111_A4_DO[22].output := gVLV[12].in.IS_ON;		(* Задвижка Э-012. Индикация на шкафу. Открыта *)
+_111_A4_DO[23].output := gVLV[12].in.IS_OFF;	(* Задвижка Э-012. Индикация на шкафу. Закрыта *)
+_111_A4_DO[24].output := gVLV[13].in.IS_ON;		(* Задвижка Э-013. Индикация на шкафу. Открыта *)
+_111_A4_DO[25].output := gVLV[13].in.IS_OFF;	(* Задвижка Э-013. Индикация на шкафу. Закрыта *)
+_111_A4_DO[26].output := gVLV[14].in.IS_ON;		(* Задвижка Э-014. Индикация на шкафу. Открыта *)
+_111_A4_DO[27].output := gVLV[14].in.IS_OFF;	(* Задвижка Э-014. Индикация на шкафу. Закрыта *)
+_111_A4_DO[28].output := gVLV[15].in.IS_ON;		(* Задвижка Э-015. Индикация на шкафу. Открыта *)
+_111_A4_DO[29].output := gVLV[15].in.IS_OFF;	(* Задвижка Э-015. Индикация на шкафу. Закрыта *)
+_111_A4_DO[30].output := gVLV[16].in.IS_ON;		(* Задвижка Э-016. Индикация на шкафу. Открыта *)
+_111_A4_DO[31].output := gVLV[16].in.IS_OFF;	(* Задвижка Э-016. Индикация на шкафу. Закрыта *)
+(* A5 *)
+_111_A5_DO[00].output := gVLV[17].in.IS_ON;		(* Задвижка Э-017. Индикация на шкафу. Открыта *)
+_111_A5_DO[01].output := gVLV[17].in.IS_OFF;	(* Задвижка Э-017. Индикация на шкафу. Закрыта *)
+_111_A5_DO[02].output := gVLV[18].in.IS_ON;		(* Задвижка Э-018. Индикация на шкафу. Открыта *)
+_111_A5_DO[03].output := gVLV[18].in.IS_OFF;	(* Задвижка Э-018. Индикация на шкафу. Закрыта *)
+_111_A5_DO[04].output := gVLV[19].in.IS_ON;		(* Задвижка Э-019. Индикация на шкафу. Открыта *)
+_111_A5_DO[05].output := gVLV[19].in.IS_OFF;	(* Задвижка Э-019. Индикация на шкафу. Закрыта *)
+_111_A5_DO[06].output := gVLV[20].in.IS_ON;		(* Задвижка Э-020. Индикация на шкафу. Открыта *)
+_111_A5_DO[07].output := gVLV[20].in.IS_OFF;	(* Задвижка Э-020. Индикация на шкафу. Закрыта *)
+_111_A5_DO[08].output := gVLV[21].in.IS_ON;		(* Задвижка Э-021. Индикация на шкафу. Открыта *)
+_111_A5_DO[09].output := gVLV[21].in.IS_OFF;	(* Задвижка Э-021. Индикация на шкафу. Закрыта *)
+_111_A5_DO[10].output := gVLV[22].in.IS_ON;		(* Задвижка Э-022. Индикация на шкафу. Открыта *)
+_111_A5_DO[11].output := gVLV[22].in.IS_OFF;	(* Задвижка Э-022. Индикация на шкафу. Закрыта *)
+_111_A5_DO[12].output := gVLV[23].in.IS_ON;		(* Задвижка Э-023. Индикация на шкафу. Открыта *)
+_111_A5_DO[13].output := gVLV[23].in.IS_OFF;	(* Задвижка Э-023. Индикация на шкафу. Закрыта *)
+_111_A5_DO[14].output := gVLV[24].in.IS_ON;		(* Задвижка Э-024. Индикация на шкафу. Открыта *)
+_111_A5_DO[15].output := gVLV[24].in.IS_OFF;	(* Задвижка Э-024. Индикация на шкафу. Закрыта *)
+_111_A5_DO[16].output := gVLV[25].in.IS_ON;		(* Задвижка Э-025. Индикация на шкафу. Открыта *)
+_111_A5_DO[17].output := gVLV[25].in.IS_OFF;	(* Задвижка Э-025. Индикация на шкафу. Закрыта *)
+_111_A5_DO[18].output := gVLV[26].in.IS_ON;		(* Задвижка Э-026. Индикация на шкафу. Открыта *)
+_111_A5_DO[19].output := gVLV[26].in.IS_OFF;	(* Задвижка Э-026. Индикация на шкафу. Закрыта *)
+_111_A5_DO[20].output := gVLV[27].in.IS_ON;		(* Задвижка Э-027. Индикация на шкафу. Открыта *)
+_111_A5_DO[21].output := gVLV[27].in.IS_OFF;	(* Задвижка Э-027. Индикация на шкафу. Закрыта *)
+_111_A5_DO[22].output := gVLV[28].in.IS_ON;		(* Задвижка Э-028. Индикация на шкафу. Открыта *)
+_111_A5_DO[23].output := gVLV[28].in.IS_OFF;	(* Задвижка Э-028. Индикация на шкафу. Закрыта *)
+_111_A5_DO[24].output := gVLV[29].in.IS_ON;		(* Задвижка Э-029. Индикация на шкафу. Открыта *)
+_111_A5_DO[25].output := gVLV[29].in.IS_OFF;	(* Задвижка Э-029. Индикация на шкафу. Закрыта *)
+_111_A5_DO[26].output := gVLV[30].in.IS_ON;		(* Задвижка Э-030. Индикация на шкафу. Открыта *)
+_111_A5_DO[27].output := gVLV[30].in.IS_OFF;	(* Задвижка Э-030. Индикация на шкафу. Закрыта *)
+_111_A5_DO[28].output := gVLV[31].in.IS_ON;		(* Задвижка Э-031. Индикация на шкафу. Открыта *)
+_111_A5_DO[29].output := gVLV[31].in.IS_OFF;	(* Задвижка Э-031. Индикация на шкафу. Закрыта *)
+_111_A5_DO[30].output := gVLV[32].in.IS_ON;		(* Задвижка Э-032. Индикация на шкафу. Открыта *)
+_111_A5_DO[31].output := gVLV[32].in.IS_OFF;	(* Задвижка Э-032. Индикация на шкафу. Закрыта *)
+(* A8 *)
+_111_A8_DO[00].output := gVLV[33].in.IS_ON;		(* Задвижка Э-033. Индикация на шкафу. Открыта *)
+_111_A8_DO[01].output := gVLV[33].in.IS_OFF;	(* Задвижка Э-033. Индикация на шкафу. Закрыта *)
+_111_A8_DO[02].output := gVLV[34].in.IS_ON;		(* Задвижка Э-034. Индикация на шкафу. Открыта *)
+_111_A8_DO[03].output := gVLV[34].in.IS_OFF;	(* Задвижка Э-034. Индикация на шкафу. Закрыта *)
+_111_A8_DO[04].output := gVLV[35].in.IS_ON;		(* Задвижка Э-035. Индикация на шкафу. Открыта *)
+_111_A8_DO[05].output := gVLV[35].in.IS_OFF;	(* Задвижка Э-035. Индикация на шкафу. Закрыта *)
+_111_A8_DO[06].output := gVLV[36].in.IS_ON;		(* Задвижка Э-036. Индикация на шкафу. Открыта *)
+_111_A8_DO[07].output := gVLV[36].in.IS_OFF;	(* Задвижка Э-036. Индикация на шкафу. Закрыта *)
+_111_A8_DO[08].output := gVLV[37].in.IS_ON;		(* Задвижка Э-037. Индикация на шкафу. Открыта *)
+_111_A8_DO[09].output := gVLV[37].in.IS_OFF;	(* Задвижка Э-037. Индикация на шкафу. Закрыта *)
+_111_A8_DO[10].output := gVLV[38].in.IS_ON;		(* Задвижка Э-038. Индикация на шкафу. Открыта *)
+_111_A8_DO[11].output := gVLV[38].in.IS_OFF;	(* Задвижка Э-038. Индикация на шкафу. Закрыта *)
+_111_A8_DO[12].output := gVLV[39].in.IS_ON;		(* Задвижка Э-039. Индикация на шкафу. Открыта *)
+_111_A8_DO[13].output := gVLV[39].in.IS_OFF;	(* Задвижка Э-039. Индикация на шкафу. Закрыта *)
+_111_A8_DO[14].output := gVLV[40].in.IS_ON;		(* Задвижка Э-040. Индикация на шкафу. Открыта *)
+_111_A8_DO[15].output := gVLV[40].in.IS_OFF;	(* Задвижка Э-040. Индикация на шкафу. Закрыта *)
+_111_A8_DO[16].output := gVLV[41].in.IS_ON;		(* Задвижка Э-041. Индикация на шкафу. Открыта *)
+_111_A8_DO[17].output := gVLV[41].in.IS_OFF;	(* Задвижка Э-041. Индикация на шкафу. Закрыта *)
+_111_A8_DO[18].output := gVLV[42].in.IS_ON;		(* Задвижка Э-042. Индикация на шкафу. Открыта *)
+_111_A8_DO[19].output := gVLV[42].in.IS_OFF;	(* Задвижка Э-042. Индикация на шкафу. Закрыта *)
+_111_A8_DO[20].output := gVLV[43].in.IS_ON;		(* Задвижка Э-043. Индикация на шкафу. Открыта *)
+_111_A8_DO[21].output := gVLV[43].in.IS_OFF;	(* Задвижка Э-043. Индикация на шкафу. Закрыта *)
+_111_A8_DO[22].output := gVLV[44].in.IS_ON;		(* Задвижка Э-044. Индикация на шкафу. Открыта *)
+_111_A8_DO[23].output := gVLV[44].in.IS_OFF;	(* Задвижка Э-044. Индикация на шкафу. Закрыта *)
+_111_A8_DO[24].output := gVLV[45].in.IS_ON;		(* Задвижка Э-045. Индикация на шкафу. Открыта *)
+_111_A8_DO[25].output := gVLV[45].in.IS_OFF;	(* Задвижка Э-045. Индикация на шкафу. Закрыта *)
+_111_A8_DO[26].output := gVLV[46].in.IS_ON;		(* Задвижка Э-046. Индикация на шкафу. Открыта *)
+_111_A8_DO[27].output := gVLV[46].in.IS_OFF;	(* Задвижка Э-046. Индикация на шкафу. Закрыта *)
+_111_A8_DO[28].output := gVLV[47].in.IS_ON;		(* Задвижка Э-047. Индикация на шкафу. Открыта *)
+_111_A8_DO[29].output := gVLV[47].in.IS_OFF;	(* Задвижка Э-047. Индикация на шкафу. Закрыта *)
+_111_A8_DO[30].output := gVLV[48].in.IS_ON;		(* Задвижка Э-048. Индикация на шкафу. Открыта *)
+_111_A8_DO[31].output := gVLV[48].in.IS_OFF;	(* Задвижка Э-048. Индикация на шкафу. Закрыта *)
+(* A9 *)
+_111_A9_DO[00].output := _dis;	(*  *)
+_111_A9_DO[01].output := _dis;	(*  *)
+_111_A9_DO[02].output := _dis;	(*  *)
+_111_A9_DO[03].output := _dis;	(*  *)
+_111_A9_DO[04].output := _dis;	(*  *)
+_111_A9_DO[05].output := _dis;	(*  *)
+_111_A9_DO[06].output := _dis;	(*  *)
+_111_A9_DO[07].output := _dis;	(*  *)
+_111_A9_DO[08].output := _dis;	(*  *)
+_111_A9_DO[09].output := _dis;	(*  *)
+_111_A9_DO[10].output := _dis;	(*  *)
+_111_A9_DO[11].output := _dis;	(*  *)
+_111_A9_DO[12].output := _dis;	(*  *)
+_111_A9_DO[13].output := _dis;	(*  *)
+_111_A9_DO[14].output := _dis;	(*  *)
+_111_A9_DO[15].output := _dis;	(*  *)
+_111_A9_DO[16].output := _dis;	(*  *)
+_111_A9_DO[17].output := _dis;	(*  *)
+_111_A9_DO[18].output := _dis;	(*  *)
+_111_A9_DO[19].output := _dis;	(*  *)
+_111_A9_DO[20].output := _dis;	(*  *)
+_111_A9_DO[21].output := _dis;	(*  *)
+_111_A9_DO[22].output := _dis;	(*  *)
+_111_A9_DO[23].output := _dis;	(*  *)
+_111_A9_DO[24].output := _dis;	(*  *)
+_111_A9_DO[25].output := _dis;	(*  *)
+_111_A9_DO[26].output := _dis;	(*  *)
+_111_A9_DO[27].output := _dis;	(*  *)
+_111_A9_DO[28].output := _dis;	(*  *)
+_111_A9_DO[29].output := _dis;	(*  *)
+_111_A9_DO[30].output := _dis;	(*  *)
+_111_A9_DO[31].output := _dis;	(*  *)
+
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 10: _111_End *)
+
+PROGRAM _111_End
+
+(* First Cycle *)
+First := TRUE;
+END_PROGRAM
+(* -------------------- *)
+
+
+
+(*============================================================*)
+
+
+(*=== APT112 ===*)
+
+(* FUNCTION BLOCK: FB_HMI_EXCH *)
+
+FUNCTION_BLOCK FB_HMI_EXCH
+
+gI := 1;
+IF First THEN gD := NOT gD; END_IF;
+(* Valves *)
+FOR i := 1 TO 48 DO
+	exchV(i);
+	(* Задвижка Э-49..Э-96 *)
+END_FOR;
+(* Discretes *)
+FOR i := 2 TO 1 BY -1 DO
+	exchD(i);	
+	(* Состояние двери АПТ 1.1.2 *)
+	(* Наличие питания на вводе *)
+END_FOR;
+(* Connection *)
+w := CON112_111;	exchWord(w);
+w := CON112_113;	exchWord(w);
+gI := gI + 2;
+(* Diagnostics *)
+CPU_pri[1] := __SYSVA_FO_ISPRIMARY;
+CPU_act[1] := __SYSVA_FO_ISACTIVE;
+CPU_pri[2] := NOT __SYSVA_FO_ISPRIMARY;
+CPU_act[2] := NOT __SYSVA_FO_ISACTIVE;
+exchMdlPSU(	inMdl := _112_G2_1_MDL,	inCh := _112_G2_1_PSU);
+exchMdlPSU(	inMdl := _112_G2_2_MDL,	inCh := _112_G2_2_PSU);
+exchMdlCPU(	inMdl := _112_A1_1_MDL,	isPri := CPU_pri[1],	isAct := CPU_act[1]);
+exchMdlCPU(	inMdl := _112_A1_2_MDL,	isPri := CPU_pri[2],	isAct := CPU_act[2]);
+exchMdlDI(	inMdl := _112_A2_MDl,	inCh := _112_A2_DI);
+exchMdlDI(	inMdl := _112_A3_MDl,	inCh := _112_A3_DI);
+exchMdlDO(	inMdl := _112_A4_MDl,	inCh := _112_A4_DO);
+exchMdlDO(	inMdl := _112_A5_MDl,	inCh := _112_A5_DO);
+exchMdlDI(	inMdl := _112_A6_MDl,	inCh := _112_A6_DI);
+exchMdlDI(	inMdl := _112_A7_MDl,	inCh := _112_A7_DI);
+exchMdlDO(	inMdl := _112_A8_MDl,	inCh := _112_A8_DO);
+exchMdlDO(	inMdl := _112_A9_MDl,	inCh := _112_A9_DO);
+END_FUNCTION_BLOCK
+(* -------------------- *)
+
+
+(* ROUTINE 01: _112_LinkInput *)
+
+PROGRAM _112_LinkInput
+
+(* A2 *)
+_dis					:= _112_A2_DI[00].input;	(*  *)
+_dis					:= _112_A2_DI[01].input;	(*  *)
+_dis					:= _112_A2_DI[02].input;	(*  *)
+_dis					:= _112_A2_DI[03].input;	(*  *)
+_dis					:= _112_A2_DI[04].input;	(*  *)
+_dis					:= _112_A2_DI[05].input;	(*  *)
+_dis					:= _112_A2_DI[06].input;	(*  *)
+_dis					:= _112_A2_DI[07].input;	(*  *)
+_dis					:= _112_A2_DI[08].input;	(*  *)
+_dis					:= _112_A2_DI[09].input;	(*  *)
+_dis					:= _112_A2_DI[10].input;	(*  *)
+_dis					:= _112_A2_DI[11].input;	(*  *)
+_dis					:= _112_A2_DI[12].input;	(*  *)
+_dis					:= _112_A2_DI[13].input;	(*  *)
+_dis					:= _112_A2_DI[14].input;	(*  *)
+_dis					:= _112_A2_DI[15].input;	(*  *)
+gVLV[01].in.LOCAL		:= _112_A2_DI[16].input;	(* Задвижка Э-49 Ручной режим *)		
+gVLV[01].in.REMOTE		:= _112_A2_DI[17].input;	(* Задвижка Э-49 Дистанционный режим *)
+gVLV[02].in.LOCAL		:= _112_A2_DI[18].input;	(* Задвижка Э-50 Ручной режим *)		
+gVLV[02].in.REMOTE		:= _112_A2_DI[19].input;	(* Задвижка Э-50 Дистанционный режим *)
+gVLV[03].in.LOCAL		:= _112_A2_DI[20].input;	(* Задвижка Э-51 Ручной режим *)		
+gVLV[03].in.REMOTE		:= _112_A2_DI[21].input;	(* Задвижка Э-51 Дистанционный режим *)
+gVLV[04].in.LOCAL		:= _112_A2_DI[22].input;	(* Задвижка Э-52 Ручной режим *)		
+gVLV[04].in.REMOTE		:= _112_A2_DI[23].input;	(* Задвижка Э-52 Дистанционный режим *)
+gVLV[05].in.LOCAL		:= _112_A2_DI[24].input;	(* Задвижка Э-53 Ручной режим *)		
+gVLV[05].in.REMOTE		:= _112_A2_DI[25].input;	(* Задвижка Э-53 Дистанционный режим *)
+gVLV[06].in.LOCAL		:= _112_A2_DI[26].input;	(* Задвижка Э-54 Ручной режим *)		
+gVLV[06].in.REMOTE		:= _112_A2_DI[27].input;	(* Задвижка Э-54 Дистанционный режим *)
+gVLV[07].in.LOCAL		:= _112_A2_DI[28].input;	(* Задвижка Э-55 Ручной режим *)		
+gVLV[07].in.REMOTE		:= _112_A2_DI[29].input;	(* Задвижка Э-55 Дистанционный режим *)
+gVLV[08].in.LOCAL		:= _112_A2_DI[30].input;	(* Задвижка Э-56 Ручной режим *)		
+gVLV[08].in.REMOTE		:= _112_A2_DI[31].input;	(* Задвижка Э-56 Дистанционный режим *)
+(* A3 *)
+gVLV[09].in.LOCAL		:= _112_A3_DI[00].input;	(* Задвижка Э-57 Ручной режим *)		
+gVLV[09].in.REMOTE		:= _112_A3_DI[01].input;	(* Задвижка Э-57 Дистанционный режим *)
+gVLV[10].in.LOCAL		:= _112_A3_DI[02].input;	(* Задвижка Э-58 Ручной режим *)		
+gVLV[10].in.REMOTE		:= _112_A3_DI[03].input;	(* Задвижка Э-58 Дистанционный режим *)
+gVLV[11].in.LOCAL		:= _112_A3_DI[04].input;	(* Задвижка Э-59 Ручной режим *)		
+gVLV[11].in.REMOTE		:= _112_A3_DI[05].input;	(* Задвижка Э-59 Дистанционный режим *)
+gVLV[12].in.LOCAL		:= _112_A3_DI[06].input;	(* Задвижка Э-60 Ручной режим *)		
+gVLV[12].in.REMOTE		:= _112_A3_DI[07].input;	(* Задвижка Э-60 Дистанционный режим *)
+gVLV[13].in.LOCAL		:= _112_A3_DI[08].input;	(* Задвижка Э-61 Ручной режим *)		
+gVLV[13].in.REMOTE		:= _112_A3_DI[09].input;	(* Задвижка Э-61 Дистанционный режим *)
+gVLV[14].in.LOCAL		:= _112_A3_DI[10].input;	(* Задвижка Э-62 Ручной режим *)		
+gVLV[14].in.REMOTE		:= _112_A3_DI[11].input;	(* Задвижка Э-62 Дистанционный режим *)
+gVLV[15].in.LOCAL		:= _112_A3_DI[12].input;	(* Задвижка Э-63 Ручной режим *)		
+gVLV[15].in.REMOTE		:= _112_A3_DI[13].input;	(* Задвижка Э-63 Дистанционный режим *)
+gVLV[16].in.LOCAL		:= _112_A3_DI[14].input;	(* Задвижка Э-64 Ручной режим *)		
+gVLV[16].in.REMOTE		:= _112_A3_DI[15].input;	(* Задвижка Э-64 Дистанционный режим *)
+gVLV[17].in.LOCAL		:= _112_A3_DI[16].input;	(* Задвижка Э-65 Ручной режим *)		
+gVLV[17].in.REMOTE		:= _112_A3_DI[17].input;	(* Задвижка Э-65 Дистанционный режим *)
+gVLV[18].in.LOCAL		:= _112_A3_DI[18].input;	(* Задвижка Э-66 Ручной режим *)		
+gVLV[18].in.REMOTE		:= _112_A3_DI[19].input;	(* Задвижка Э-66 Дистанционный режим *)
+gVLV[19].in.LOCAL		:= _112_A3_DI[20].input;	(* Задвижка Э-67 Ручной режим *)		
+gVLV[19].in.REMOTE		:= _112_A3_DI[21].input;	(* Задвижка Э-67 Дистанционный режим *)
+gVLV[20].in.LOCAL		:= _112_A3_DI[22].input;	(* Задвижка Э-68 Ручной режим *)		
+gVLV[20].in.REMOTE		:= _112_A3_DI[23].input;	(* Задвижка Э-68 Дистанционный режим *)
+gVLV[21].in.LOCAL		:= _112_A3_DI[24].input;	(* Задвижка Э-69 Ручной режим *)		
+gVLV[21].in.REMOTE		:= _112_A3_DI[25].input;	(* Задвижка Э-69 Дистанционный режим *)
+gVLV[22].in.LOCAL		:= _112_A3_DI[26].input;	(* Задвижка Э-70 Ручной режим *)		
+gVLV[22].in.REMOTE		:= _112_A3_DI[27].input;	(* Задвижка Э-70 Дистанционный режим *)
+gVLV[23].in.LOCAL		:= _112_A3_DI[28].input;	(* Задвижка Э-71 Ручной режим *)		
+gVLV[23].in.REMOTE		:= _112_A3_DI[29].input;	(* Задвижка Э-71 Дистанционный режим *)
+gVLV[24].in.LOCAL		:= _112_A3_DI[30].input;	(* Задвижка Э-72 Ручной режим *)		
+gVLV[24].in.REMOTE		:= _112_A3_DI[31].input;	(* Задвижка Э-72 Дистанционный режим *)
+(* A6 *)
+gVLV[25].in.LOCAL		:= _112_A6_DI[00].input;	(* Задвижка Э-73 Ручной режим *)		
+gVLV[25].in.REMOTE		:= _112_A6_DI[01].input;	(* Задвижка Э-73 Дистанционный режим *)
+gVLV[26].in.LOCAL		:= _112_A6_DI[02].input;	(* Задвижка Э-74 Ручной режим *)		
+gVLV[26].in.REMOTE		:= _112_A6_DI[03].input;	(* Задвижка Э-74 Дистанционный режим *)
+gVLV[27].in.LOCAL		:= _112_A6_DI[04].input;	(* Задвижка Э-75 Ручной режим *)		
+gVLV[27].in.REMOTE		:= _112_A6_DI[05].input;	(* Задвижка Э-75 Дистанционный режим *)
+gVLV[28].in.LOCAL		:= _112_A6_DI[06].input;	(* Задвижка Э-76 Ручной режим *)		
+gVLV[28].in.REMOTE		:= _112_A6_DI[07].input;	(* Задвижка Э-76 Дистанционный режим *)
+gVLV[29].in.LOCAL		:= _112_A6_DI[08].input;	(* Задвижка Э-77 Ручной режим *)		
+gVLV[29].in.REMOTE		:= _112_A6_DI[09].input;	(* Задвижка Э-77 Дистанционный режим *)
+gVLV[30].in.LOCAL		:= _112_A6_DI[10].input;	(* Задвижка Э-78 Ручной режим *)		
+gVLV[30].in.REMOTE		:= _112_A6_DI[11].input;	(* Задвижка Э-78 Дистанционный режим *)
+gVLV[31].in.LOCAL		:= _112_A6_DI[12].input;	(* Задвижка Э-79 Ручной режим *)		
+gVLV[31].in.REMOTE		:= _112_A6_DI[13].input;	(* Задвижка Э-79 Дистанционный режим *)
+gVLV[32].in.LOCAL		:= _112_A6_DI[14].input;	(* Задвижка Э-80 Ручной режим *)		
+gVLV[32].in.REMOTE		:= _112_A6_DI[15].input;	(* Задвижка Э-80 Дистанционный режим *)
+gVLV[33].in.LOCAL		:= _112_A6_DI[16].input;	(* Задвижка Э-81 Ручной режим *)		
+gVLV[33].in.REMOTE		:= _112_A6_DI[17].input;	(* Задвижка Э-81 Дистанционный режим *)
+gVLV[34].in.LOCAL		:= _112_A6_DI[18].input;	(* Задвижка Э-82 Ручной режим *)		
+gVLV[34].in.REMOTE		:= _112_A6_DI[19].input;	(* Задвижка Э-82 Дистанционный режим *)
+gVLV[35].in.LOCAL		:= _112_A6_DI[20].input;	(* Задвижка Э-83 Ручной режим *)		
+gVLV[35].in.REMOTE		:= _112_A6_DI[21].input;	(* Задвижка Э-83 Дистанционный режим *)
+gVLV[36].in.LOCAL		:= _112_A6_DI[22].input;	(* Задвижка Э-84 Ручной режим *)		
+gVLV[36].in.REMOTE		:= _112_A6_DI[23].input;	(* Задвижка Э-84 Дистанционный режим *)
+gVLV[37].in.LOCAL		:= _112_A6_DI[24].input;	(* Задвижка Э-85 Ручной режим *)		
+gVLV[37].in.REMOTE		:= _112_A6_DI[25].input;	(* Задвижка Э-85 Дистанционный режим *)
+gVLV[38].in.LOCAL		:= _112_A6_DI[26].input;	(* Задвижка Э-86 Ручной режим *)		
+gVLV[38].in.REMOTE		:= _112_A6_DI[27].input;	(* Задвижка Э-86 Дистанционный режим *)
+gVLV[39].in.LOCAL		:= _112_A6_DI[28].input;	(* Задвижка Э-87 Ручной режим *)		
+gVLV[39].in.REMOTE		:= _112_A6_DI[29].input;	(* Задвижка Э-87 Дистанционный режим *)
+gVLV[40].in.LOCAL		:= _112_A6_DI[30].input;	(* Задвижка Э-88 Ручной режим *)		
+gVLV[40].in.REMOTE		:= _112_A6_DI[31].input;	(* Задвижка Э-88 Дистанционный режим *)
+(* A7 *)
+_mdl := MdlErr(_112_A7_MDL);
+gVLV[41].in.LOCAL		:= _112_A7_DI[00].input;	(* Задвижка Э-89 Ручной режим *)		
+gVLV[41].in.REMOTE		:= _112_A7_DI[01].input;	(* Задвижка Э-89 Дистанционный режим *)
+gVLV[42].in.LOCAL		:= _112_A7_DI[02].input;	(* Задвижка Э-90 Ручной режим *)		
+gVLV[42].in.REMOTE		:= _112_A7_DI[03].input;	(* Задвижка Э-90 Дистанционный режим *)
+gVLV[43].in.LOCAL		:= _112_A7_DI[04].input;	(* Задвижка Э-91 Ручной режим *)		
+gVLV[43].in.REMOTE		:= _112_A7_DI[05].input;	(* Задвижка Э-91 Дистанционный режим *)
+gVLV[44].in.LOCAL		:= _112_A7_DI[06].input;	(* Задвижка Э-92 Ручной режим *)		
+gVLV[44].in.REMOTE		:= _112_A7_DI[07].input;	(* Задвижка Э-92 Дистанционный режим *)
+gVLV[45].in.LOCAL		:= _112_A7_DI[08].input;	(* Задвижка Э-93 Ручной режим *)		
+gVLV[45].in.REMOTE		:= _112_A7_DI[09].input;	(* Задвижка Э-93 Дистанционный режим *)
+gVLV[46].in.LOCAL		:= _112_A7_DI[10].input;	(* Задвижка Э-94 Ручной режим *)		
+gVLV[46].in.REMOTE		:= _112_A7_DI[11].input;	(* Задвижка Э-94 Дистанционный режим *)
+gVLV[47].in.LOCAL		:= _112_A7_DI[12].input;	(* Задвижка Э-95 Ручной режим *)		
+gVLV[47].in.REMOTE		:= _112_A7_DI[13].input;	(* Задвижка Э-95 Дистанционный режим *)
+gVLV[48].in.LOCAL		:= _112_A7_DI[14].input;	(* Задвижка Э-96 Ручной режим *)		
+gVLV[48].in.REMOTE		:= _112_A7_DI[15].input;	(* Задвижка Э-96 Дистанционный режим *)
+gDI[1].IN				:= _112_A7_DI[16].input;	gDI[1].MDL := _mdl; (* Состояние двери АПТ 1.1.2 *)
+gDI[2].IN				:= _112_A7_DI[17].input;	gDI[2].MDL := _mdl;(* Наличие питания на вводе *)
+_dis					:= _112_A7_DI[18].input;	(*  *)
+_dis					:= _112_A7_DI[19].input;	(*  *)
+_dis					:= _112_A7_DI[20].input;	(*  *)
+_dis					:= _112_A7_DI[21].input;	(*  *)
+_dis					:= _112_A7_DI[22].input;	(*  *)
+_dis					:= _112_A7_DI[23].input;	(*  *)
+_dis					:= _112_A7_DI[24].input;	(*  *)
+_dis					:= _112_A7_DI[25].input;	(*  *)
+_dis					:= _112_A7_DI[26].input;	(*  *)
+_dis					:= _112_A7_DI[27].input;	(*  *)
+_dis					:= _112_A7_DI[28].input;	(*  *)
+_dis					:= _112_A7_DI[29].input;	(*  *)
+_dis					:= _112_A7_DI[30].input;	(*  *)
+_dis					:= _112_A7_DI[31].input;	(*  *)
+
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 02: _112_HMI_in *)
+
+PROGRAM _112_HMI_in
+
+(* Transfering from HMI *)
+hmiExch();
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 03: _112_Inst *)
+
+PROGRAM _112_Inst
+
+(* Valves *)
+FOR i := 1 TO 48 DO
+	_gVLV(i);
+	(* Задвижка Э-49..Э-96 *)
+END_FOR;
+
+(* Discretes *)
+FOR i := 1 TO 2 DO
+	_gDI(i);
+	(* Состояние двери АПТ 1.1.1 *)
+	(* Наличие питания на вводе *)
+END_FOR;
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 04: _112_Automatic *)
+
+PROGRAM _112_Automatic
+
+(* Пожар на резервуаре 1/9 *)
+i := 1;
+v[ 1] := 51		-48*1;
+v[ 2] := 52		-48*1;
+v[ 3] := 53		-48*1;
+v[ 4] := 54		-48*1;
+v[ 5] := 96		-48*1;
+v[ 6] := 93		-48*1;
+v[ 7] := 57		-48*1;
+v[ 8] := 58		-48*1;
+v[ 9] := 0		;
+v[10] := 0		;
+vr[1] := 50		-48*1;
+vr[2] := 49		-48*1;
+vr[3] := 91		-48*1;
+vr[4] := 92		-48*1;
+vlv(g := i,	v := v,	vr := vr); i:=i+1;
+(* Пожар на резервуаре 1/10 *)
+v[ 1] := 57		-48*1;
+v[ 2] := 58		-48*1;
+v[ 3] := 59		-48*1;
+v[ 4] := 60		-48*1;
+v[ 5] := 53		-48*1;
+v[ 6] := 54		-48*1;
+v[ 7] := 63		-48*1;
+v[ 8] := 64		-48*1;
+v[ 9] := 90		-48*1;
+v[10] := 87		-48*1;
+vr[1] := 56		-48*1;
+vr[2] := 55		-48*1;
+vr[3] := 85		-48*1;
+vr[4] := 86		-48*1;
+vlv(g := i,	v := v,	vr := vr); i:=i+1;
+(* Пожар на резервуаре 1/11 *)
+v[ 1] := 63		-48*1;
+v[ 2] := 64		-48*1;
+v[ 3] := 65		-48*1;
+v[ 4] := 66		-48*1;
+v[ 5] := 59		-48*1;
+v[ 6] := 60		-48*1;
+v[ 7] := 69		-48*1;
+v[ 8] := 70		-48*1;
+v[ 9] := 84		-48*1;
+v[10] := 81		-48*1;
+vr[1] := 62		-48*1;
+vr[2] := 61		-48*1;
+vr[3] := 79		-48*1;
+vr[4] := 80		-48*1;
+vlv(g := i,	v := v,	vr := vr); i:=i+1;
+(* Пожар на резервуаре 1/12 *)
+v[ 1] := 69		-48*1;
+v[ 2] := 70		-48*1;
+v[ 3] := 71		-48*1;
+v[ 4] := 72		-48*1;
+v[ 5] := 65		-48*1;
+v[ 6] := 66		-48*1;
+v[ 7] := 78		-48*1;
+v[ 8] := 75		-48*1;
+v[ 9] := 0		;
+v[10] := 0		;
+vr[1] := 68		-48*1;
+vr[2] := 67		-48*1;
+vr[3] := 73		-48*1;
+vr[4] := 74		-48*1;
+vlv(g := i,	v := v,	vr := vr); i:=i+1;
+(* Пожар на резервуаре 1/13 *)
+v[ 1] := 93		-48*1;
+v[ 2] := 94		-48*1;
+v[ 3] := 95		-48*1;
+v[ 4] := 96		-48*1;
+v[ 5] := 89		-48*1;
+v[ 6] := 90		-48*1;
+v[ 7] := 51		-48*1;
+v[ 8] := 54		-48*1;
+v[ 9] := 0		;
+v[10] := 0		;
+vr[1] := 49		-48*1;
+vr[2] := 50		-48*1;
+vr[3] := 92		-48*1;
+vr[4] := 91		-48*1;
+vlv(g := i,	v := v,	vr := vr); i:=i+1;
+(* Пожар на резервуаре 1/14 *)
+v[ 1] := 87		-48*1;
+v[ 2] := 88		-48*1;
+v[ 3] := 89		-48*1;
+v[ 4] := 90		-48*1;
+v[ 5] := 93		-48*1;
+v[ 6] := 94		-48*1;
+v[ 7] := 83		-48*1;
+v[ 8] := 84		-48*1;
+v[ 9] := 57		-48*1;
+v[10] := 60		-48*1;
+vr[1] := 55		-48*1;
+vr[2] := 56		-48*1;
+vr[3] := 86		-48*1;
+vr[4] := 85		-48*1;
+vlv(g := i,	v := v,	vr := vr); i:=i+1;
+(* Пожар на резервуаре 1/15 *)
+v[ 1] := 81		-48*1;
+v[ 2] := 82		-48*1;
+v[ 3] := 83		-48*1;
+v[ 4] := 84		-48*1;
+v[ 5] := 87		-48*1;
+v[ 6] := 88		-48*1;
+v[ 7] := 77		-48*1;
+v[ 8] := 78		-48*1;
+v[ 9] := 63		-48*1;
+v[10] := 66		-48*1;
+vr[1] := 61		-48*1;
+vr[2] := 62		-48*1;
+vr[3] := 80		-48*1;
+vr[4] := 79		-48*1;
+vlv(g := i,	v := v,	vr := vr); i:=i+1;
+(* Пожар на резервуаре 1/16 *)
+v[ 1] := 75		-48*1;
+v[ 2] := 76		-48*1;
+v[ 3] := 77		-48*1;
+v[ 4] := 78		-48*1;
+v[ 5] := 81		-48*1;
+v[ 6] := 82		-48*1;
+v[ 7] := 69		-48*1;
+v[ 8] := 72		-48*1;
+v[ 9] := 0		;
+v[10] := 0		;
+vr[1] := 67		-48*1;
+vr[2] := 68		-48*1;
+vr[3] := 74		-48*1;
+vr[4] := 73		-48*1;
+vlv(g := i,	v := v,	vr := vr); i:=i+1;
+(* Автоматическое управление задвижками *)
+b := VlvAut(v :=  1, fs1 := 1, fs2 := 13-8);
+b := VlvAut(v :=  2, fs1 := 1, fs2 := 13-8);
+b := VlvAut(v :=  3, fs1 := 1, fs2 := 0);
+b := VlvAut(v :=  4, fs1 := 1, fs2 := 0);
+b := VlvAut(v :=  5, fs1 := 1, fs2 := 0);
+b := VlvAut(v :=  6, fs1 := 1, fs2 := 0);
+b := VlvAut(v :=  7, fs1 := 2, fs2 := 14-8);
+b := VlvAut(v :=  8, fs1 := 2, fs2 := 14-8);
+b := VlvAut(v :=  9, fs1 := 2, fs2 := 0);
+b := VlvAut(v := 10, fs1 := 2, fs2 := 0);
+b := VlvAut(v := 11, fs1 := 2, fs2 := 0);
+b := VlvAut(v := 12, fs1 := 2, fs2 := 0);
+b := VlvAut(v := 13, fs1 := 3, fs2 := 15-8);
+b := VlvAut(v := 14, fs1 := 3, fs2 := 15-8);
+b := VlvAut(v := 15, fs1 := 3, fs2 := 0);
+b := VlvAut(v := 16, fs1 := 3, fs2 := 0);
+b := VlvAut(v := 17, fs1 := 3, fs2 := 0);
+b := VlvAut(v := 18, fs1 := 3, fs2 := 0);
+b := VlvAut(v := 19, fs1 := 4, fs2 := 16-8);
+b := VlvAut(v := 20, fs1 := 4, fs2 := 16-8);
+b := VlvAut(v := 21, fs1 := 4, fs2 := 0);
+b := VlvAut(v := 22, fs1 := 4, fs2 := 0);
+b := VlvAut(v := 23, fs1 := 4, fs2 := 0);
+b := VlvAut(v := 24, fs1 := 4, fs2 := 0);
+b := VlvAut(v := 25, fs1 := 8, fs2 := 12-8);
+b := VlvAut(v := 26, fs1 := 8, fs2 := 12-8);
+b := VlvAut(v := 27, fs1 := 8, fs2 := 0);
+b := VlvAut(v := 28, fs1 := 8, fs2 := 0);
+b := VlvAut(v := 29, fs1 := 8, fs2 := 0);
+b := VlvAut(v := 30, fs1 := 8, fs2 := 0);
+b := VlvAut(v := 31, fs1 := 7, fs2 := 11-8);
+b := VlvAut(v := 32, fs1 := 7, fs2 := 11-8);
+b := VlvAut(v := 33, fs1 := 7, fs2 := 0);
+b := VlvAut(v := 34, fs1 := 7, fs2 := 0);
+b := VlvAut(v := 35, fs1 := 7, fs2 := 0);
+b := VlvAut(v := 36, fs1 := 7, fs2 := 0);
+b := VlvAut(v := 37, fs1 := 6, fs2 := 10-8);
+b := VlvAut(v := 38, fs1 := 6, fs2 := 10-8);
+b := VlvAut(v := 39, fs1 := 6, fs2 := 0);
+b := VlvAut(v := 40, fs1 := 6, fs2 := 0);
+b := VlvAut(v := 41, fs1 := 6, fs2 := 0);
+b := VlvAut(v := 42, fs1 := 6, fs2 := 0);
+b := VlvAut(v := 43, fs1 := 5, fs2 := 9-8);
+b := VlvAut(v := 44, fs1 := 5, fs2 := 9-8);
+b := VlvAut(v := 45, fs1 := 5, fs2 := 0);
+b := VlvAut(v := 46, fs1 := 5, fs2 := 0);
+b := VlvAut(v := 47, fs1 := 5, fs2 := 0);
+b := VlvAut(v := 48, fs1 := 5, fs2 := 0);
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 05: _112_RTU_Master *)
+
+PROGRAM _112_RTU_Master
+
+(* First Cycle *)
+IF NOT First OR sInit THEN
+	sInit := FALSE;
+	
+	(* 48 identical valves on 2 ports; 24 valves on each port; 2 requests for each valve: read, write; 48 requests on each port *)
+	(* available: 8 request groups on each port, 16 requests in each group *)
+	sMaxReqs := 16;
+	sMaxCtrls := (24 * 2) / sMaxReqs; (* 24 = Number of Modbus Devices *)
+	(* Preparing configs for requests *)
+	FOR i := 1 TO 24 DO
+		(* reading *)
+		cfg_SID[i*2 - 1] := ANY_TO_BYTE(i);
+		cfg_FUN[i*2 - 1] := 3;
+		cfg_ADR[i*2 - 1] := 4; (* 40004; *)
+		cfg_LEN[i*2 - 1] := 4;
+		(* writing *)
+		cfg_SID[i*2 - 0] := ANY_TO_BYTE(i);
+		cfg_FUN[i*2 - 0] := 16;
+		cfg_ADR[i*2 - 0] := 2; (* 40002; *)
+		cfg_LEN[i*2 - 0] := 2;
+	END_FOR;
+	sOffset := 0;
+	sReqNo := 1;
+	sCtrlNo := 0;
+	(* Configuring requests *)
+	FOR i := 1 TO 48 DO
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].enable := TRUE;
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].single_request := FALSE;
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].on_modify_request := FALSE;
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].do_single_req := FALSE;
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].command.timeout_ms := 1000;
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].command.repeat_over_scan := TRUE;
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].command.slave_id 			:= cfg_SID[i];
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].command.func_code 		:= cfg_FUN[i];
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].command.slave_data_addr	:= cfg_ADR[i];
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].command.slave_data_length	:= cfg_LEN[i];
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].command.offset := sOffset;
+		sOffset := sOffset + cfg_LEN[i];
+		sReqNo := sReqNo + 1;
+		IF sReqNo > sMaxReqs THEN 
+			sReqNo := 1;
+			sCtrlNo := sCtrlNo + 1;
+			IF sCtrlNo > sMaxCtrls THEN 
+				sCtrlNo := 0;
+			END_IF;
+		END_IF;
+	END_FOR;
+	_Ctrl_2 := _Ctrl_1;
+	_Control_1 := 1;
+	_Control_2 := 1;
+END_IF;
+
+(* Every Cycle *)
+sCtrlNo := 0;
+sReqNo := 1;
+FOR i := 1 TO 24 DO
+	(* 24 valves on Port 1 *)
+	j:=i;
+	sCOBA(
+		iReqStatus	:= _Diag_1[sCtrlNo].RequestsAndStats[sReqNo].status_request,
+		i40004 	:= _HR_1[0].regs[(i-1)*6 + 1],
+		i40005 	:= _HR_1[0].regs[(i-1)*6 + 2],
+		i40006 	:= _HR_1[0].regs[(i-1)*6 + 3],
+		i40007 	:= _HR_1[0].regs[(i-1)*6 + 4],
+		g		:= j,
+		o40002	=> _HR_1[0].regs[(i-1)*6 + 5],
+		o40003	=> _HR_1[0].regs[(i-1)*6 + 6]
+	);
+	(* 24 valves on Port 2 *)
+	j:=i+24;
+	sCOBA(
+		iReqStatus	:= _Diag_2[sCtrlNo].RequestsAndStats[sReqNo].status_request,
+		i40004 	:= _HR_2[0].regs[(i-1)*6 + 1],
+		i40005 	:= _HR_2[0].regs[(i-1)*6 + 2],
+		i40006 	:= _HR_2[0].regs[(i-1)*6 + 3],
+		i40007 	:= _HR_2[0].regs[(i-1)*6 + 4],
+		g		:= j,
+		o40002	=> _HR_2[0].regs[(i-1)*6 + 5],
+		o40003	=> _HR_2[0].regs[(i-1)*6 + 6]
+	);
+	sReqNo := sReqNo + 1;
+	IF sReqNo > sMaxReqs THEN 
+		sReqNo := 1;
+		sCtrlNo := sCtrlNo + 1;
+		IF sCtrlNo > sMaxCtrls THEN 
+			sCtrlNo := 0;
+		END_IF;
+	END_IF;
+END_FOR;
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 06: _112_TCP_Master *)
+
+PROGRAM _112_TCP_Master
+
+(* First Cycle *)
+IF NOT First THEN
+	_Control := 1;
+	(*	En	IP					Port	ID	Func	RegNo			Len		Offset in _HR	Timeout	*)
+	rq01(1,	'192.168.0.1'	,	502	,	1,	3	,	1			,	1	,	2000			,	1000);	_Ctrl[0].Requests[ 1] := rq01.out;	(* АПТ 1.1.1 основной *)
+	rq02(0,	'192.168.1.1'	,	502	,	1,	3	,	1			,	1	,	2000			,	1000);	_Ctrl[0].Requests[ 2] := rq02.out;	(* АПТ 1.1.1 резервный *)
+	rq03(1,	'192.168.0.3'	,	502	,	1,	3	,	1			,	1	,	2000			,	1000);	_Ctrl[0].Requests[ 3] := rq03.out;	(* АПТ 1.1.3 основной *)
+	rq04(0,	'192.168.1.3'	,	502	,	1,	3	,	1			,	1	,	2000			,	1000);	_Ctrl[0].Requests[ 4] := rq04.out;	(* АПТ 1.1.3 резервный *)
+	rq05(1,	'192.168.0.5'	,	502	,	1,	3	,	1001		,	43	,	0				,	1000);	_Ctrl[0].Requests[ 5] := rq05.out;	(* АПТ 2.3 основной *)
+	rq06(0,	'192.168.1.5'	,	502	,	1,	3	,	1001		,	43	,	0				,	1000);	_Ctrl[0].Requests[ 6] := rq06.out;	(* АПТ 2.3 резервный *)
+	rq07(1,	'192.168.0.5'	,	502	,	1,	16	,	1101+8*1	,	8	,	100				,	1000);	_Ctrl[0].Requests[ 7] := rq07.out;	(* АПТ 2.3 основной *)
+	rq08(0,	'192.168.1.5'	,	502	,	1,	16	,	1101+8*1	,	8	,	100				,	1000);	_Ctrl[0].Requests[ 8] := rq08.out;	(* АПТ 2.3 резервный *)
+END_IF;
+
+sCtrlNo := 0;
+(* 111 *)
+sReqNo := 1;
+IF _Ctrl[sCtrlNo].Requests[sReqNo].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>100 THEN
+		CON112_111 := 0;
+		IF Timer[sReqNo]<3000 THEN
+			Timer[sReqNo] := Timer[sReqNo] + CYCLE_TIME;
+		ELSE
+			_Ctrl[sCtrlNo].Requests[sReqNo].enable := FALSE;
+			_Ctrl[sCtrlNo].Requests[sReqNo+1].enable := TRUE;
+			Timer[sReqNo] := 0;
+		END_IF;
+	ELSE
+		CON112_111 := 1;
+	END_IF;
+END_IF;
+IF _Ctrl[sCtrlNo].Requests[sReqNo+1].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo+1].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo+1].status_request<>100 THEN
+		CON112_111 := 0;
+		IF Timer[sReqNo+1]<3000 THEN
+			Timer[sReqNo+1] := Timer[sReqNo+1] + CYCLE_TIME;
+		ELSE
+			_Ctrl[sCtrlNo].Requests[sReqNo+1].enable := FALSE;
+			_Ctrl[sCtrlNo].Requests[sReqNo].enable := TRUE;
+			Timer[sReqNo+1] := 0;
+		END_IF;
+	ELSE
+		CON112_111 := 1;
+	END_IF;
+END_IF;
+(* 113 *)
+sReqNo := 3;
+IF _Ctrl[sCtrlNo].Requests[sReqNo].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>100 THEN
+		CON112_113 := 0;
+		IF Timer[sReqNo]<3000 THEN
+			Timer[sReqNo] := Timer[sReqNo] + CYCLE_TIME;
+		ELSE
+			_Ctrl[sCtrlNo].Requests[sReqNo].enable := FALSE;
+			_Ctrl[sCtrlNo].Requests[sReqNo+1].enable := TRUE;
+			Timer[sReqNo] := 0;
+		END_IF;
+	ELSE
+		CON112_113 := 1;
+	END_IF;
+END_IF;
+IF _Ctrl[sCtrlNo].Requests[sReqNo+1].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo+1].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo+1].status_request<>100 THEN
+		CON112_113 := 0;
+		IF Timer[sReqNo+1]<3000 THEN
+			Timer[sReqNo+1] := Timer[sReqNo+1] + CYCLE_TIME;
+		ELSE
+			_Ctrl[sCtrlNo].Requests[sReqNo+1].enable := FALSE;
+			_Ctrl[sCtrlNo].Requests[sReqNo].enable := TRUE;
+			Timer[sReqNo+1] := 0;
+		END_IF;
+	ELSE
+		CON112_113 := 1;
+	END_IF;
+END_IF;
+(* 23 read *)
+sReqNo := 5;
+IF _Ctrl[sCtrlNo].Requests[sReqNo].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>100 THEN
+		;
+		IF Timer[sReqNo]<3000 THEN
+			Timer[sReqNo] := Timer[sReqNo] + CYCLE_TIME;
+		ELSE
+			_Ctrl[sCtrlNo].Requests[sReqNo].enable := FALSE;
+			_Ctrl[sCtrlNo].Requests[sReqNo+1].enable := TRUE;
+			Timer[sReqNo] := 0;
+		END_IF;
+	ELSE
+		;
+	END_IF;
+END_IF;
+IF _Ctrl[sCtrlNo].Requests[sReqNo+1].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo+1].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo+1].status_request<>100 THEN
+		;
+		IF Timer[sReqNo+1]<3000 THEN
+			Timer[sReqNo+1] := Timer[sReqNo+1] + CYCLE_TIME;
+		ELSE
+			_Ctrl[sCtrlNo].Requests[sReqNo+1].enable := FALSE;
+			_Ctrl[sCtrlNo].Requests[sReqNo].enable := TRUE;
+			Timer[sReqNo+1] := 0;
+		END_IF;
+	ELSE
+		;
+	END_IF;
+END_IF;
+(* 23 write *)
+sReqNo := 7;
+IF _Ctrl[sCtrlNo].Requests[sReqNo].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>100 THEN
+		;
+		IF Timer[sReqNo]<3000 THEN
+			Timer[sReqNo] := Timer[sReqNo] + CYCLE_TIME;
+		ELSE
+			_Ctrl[sCtrlNo].Requests[sReqNo].enable := FALSE;
+			_Ctrl[sCtrlNo].Requests[sReqNo+1].enable := TRUE;
+			Timer[sReqNo] := 0;
+		END_IF;
+	ELSE
+		;
+	END_IF;
+END_IF;
+IF _Ctrl[sCtrlNo].Requests[sReqNo+1].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo+1].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo+1].status_request<>100 THEN
+		;
+		IF Timer[sReqNo+1]<3000 THEN
+			Timer[sReqNo+1] := Timer[sReqNo+1] + CYCLE_TIME;
+		ELSE
+			_Ctrl[sCtrlNo].Requests[sReqNo+1].enable := FALSE;
+			_Ctrl[sCtrlNo].Requests[sReqNo].enable := TRUE;
+			Timer[sReqNo+1] := 0;
+		END_IF;
+	ELSE
+		;
+	END_IF;
+END_IF;
+
+
+(* Пожар резервуаров 1/9..1/16 *)
+FOR i := 1 TO 8 DO
+	gFS[i].PRM.FIRE := _HR[0].regs[i+8];
+END_FOR;
+(* Состояние клапанов *)
+FOR i := 1 TO 8 DO
+	_HR[0].regs[i + 100] := gFS[i].PRM.VLVS;
+END_FOR;
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 07: _112_HMI_out *)
+
+PROGRAM _112_HMI_out
+
+(* Transfering to HMI *)
+hmiExch();
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 08: _112_LinkOutput *)
+
+PROGRAM _112_LinkOutput
+
+(* A4 *)
+_112_A4_DO[00].output := gVLV[01].in.IS_ON;			(* Задвижка Э-49 открыта *)
+_112_A4_DO[01].output := gVLV[01].in.IS_OFF;		(* Задвижка Э-49 закрыта *)
+_112_A4_DO[02].output := gVLV[02].in.IS_ON;			(* Задвижка Э-50 открыта *)
+_112_A4_DO[03].output := gVLV[02].in.IS_OFF;		(* Задвижка Э-50 закрыта *)
+_112_A4_DO[04].output := gVLV[03].in.IS_ON;			(* Задвижка Э-51 открыта *)
+_112_A4_DO[05].output := gVLV[03].in.IS_OFF;		(* Задвижка Э-51 закрыта *)
+_112_A4_DO[06].output := gVLV[04].in.IS_ON;			(* Задвижка Э-52 открыта *)
+_112_A4_DO[07].output := gVLV[04].in.IS_OFF;		(* Задвижка Э-52 закрыта *)
+_112_A4_DO[08].output := gVLV[05].in.IS_ON;			(* Задвижка Э-53 открыта *)
+_112_A4_DO[09].output := gVLV[05].in.IS_OFF;		(* Задвижка Э-53 закрыта *)
+_112_A4_DO[10].output := gVLV[06].in.IS_ON;			(* Задвижка Э-54 открыта *)
+_112_A4_DO[11].output := gVLV[06].in.IS_OFF;		(* Задвижка Э-54 закрыта *)
+_112_A4_DO[12].output := gVLV[07].in.IS_ON;			(* Задвижка Э-55 открыта *)
+_112_A4_DO[13].output := gVLV[07].in.IS_OFF;		(* Задвижка Э-55 закрыта *)
+_112_A4_DO[14].output := gVLV[08].in.IS_ON;			(* Задвижка Э-56 открыта *)
+_112_A4_DO[15].output := gVLV[08].in.IS_OFF;		(* Задвижка Э-56 закрыта *)
+_112_A4_DO[16].output := gVLV[09].in.IS_ON;			(* Задвижка Э-57 открыта *)
+_112_A4_DO[17].output := gVLV[09].in.IS_OFF;		(* Задвижка Э-57 закрыта *)
+_112_A4_DO[18].output := gVLV[10].in.IS_ON;			(* Задвижка Э-58 открыта *)
+_112_A4_DO[19].output := gVLV[10].in.IS_OFF;		(* Задвижка Э-58 закрыта *)
+_112_A4_DO[20].output := gVLV[11].in.IS_ON;			(* Задвижка Э-59 открыта *)
+_112_A4_DO[21].output := gVLV[11].in.IS_OFF;		(* Задвижка Э-59 закрыта *)
+_112_A4_DO[22].output := gVLV[12].in.IS_ON;			(* Задвижка Э-60 открыта *)
+_112_A4_DO[23].output := gVLV[12].in.IS_OFF;		(* Задвижка Э-60 закрыта *)
+_112_A4_DO[24].output := gVLV[13].in.IS_ON;			(* Задвижка Э-61 открыта *)
+_112_A4_DO[25].output := gVLV[13].in.IS_OFF;		(* Задвижка Э-61 закрыта *)
+_112_A4_DO[26].output := gVLV[14].in.IS_ON;			(* Задвижка Э-62 открыта *)
+_112_A4_DO[27].output := gVLV[14].in.IS_OFF;		(* Задвижка Э-62 закрыта *)
+_112_A4_DO[28].output := gVLV[15].in.IS_ON;			(* Задвижка Э-63 открыта *)
+_112_A4_DO[29].output := gVLV[15].in.IS_OFF;		(* Задвижка Э-63 закрыта *)
+_112_A4_DO[30].output := gVLV[16].in.IS_ON;			(* Задвижка Э-64 открыта *)
+_112_A4_DO[31].output := gVLV[16].in.IS_OFF;		(* Задвижка Э-64 закрыта *)
+(* A5 *)
+_112_A5_DO[00].output := gVLV[17].in.IS_ON;			(* Задвижка Э-65 открыта *)
+_112_A5_DO[01].output := gVLV[17].in.IS_OFF;		(* Задвижка Э-65 закрыта *)
+_112_A5_DO[02].output := gVLV[18].in.IS_ON;			(* Задвижка Э-66 открыта *)
+_112_A5_DO[03].output := gVLV[18].in.IS_OFF;		(* Задвижка Э-66 закрыта *)
+_112_A5_DO[04].output := gVLV[19].in.IS_ON;			(* Задвижка Э-67 открыта *)
+_112_A5_DO[05].output := gVLV[19].in.IS_OFF;		(* Задвижка Э-67 закрыта *)
+_112_A5_DO[06].output := gVLV[20].in.IS_ON;			(* Задвижка Э-68 открыта *)
+_112_A5_DO[07].output := gVLV[20].in.IS_OFF;		(* Задвижка Э-68 закрыта *)
+_112_A5_DO[08].output := gVLV[21].in.IS_ON;			(* Задвижка Э-69 открыта *)
+_112_A5_DO[09].output := gVLV[21].in.IS_OFF;		(* Задвижка Э-69 закрыта *)
+_112_A5_DO[10].output := gVLV[22].in.IS_ON;			(* Задвижка Э-70 открыта *)
+_112_A5_DO[11].output := gVLV[22].in.IS_OFF;		(* Задвижка Э-70 закрыта *)
+_112_A5_DO[12].output := gVLV[23].in.IS_ON;			(* Задвижка Э-71 открыта *)
+_112_A5_DO[13].output := gVLV[23].in.IS_OFF;		(* Задвижка Э-71 закрыта *)
+_112_A5_DO[14].output := gVLV[24].in.IS_ON;			(* Задвижка Э-72 открыта *)
+_112_A5_DO[15].output := gVLV[24].in.IS_OFF;		(* Задвижка Э-72 закрыта *)
+_112_A5_DO[16].output := gVLV[25].in.IS_ON;			(* Задвижка Э-73 открыта *)
+_112_A5_DO[17].output := gVLV[25].in.IS_OFF;		(* Задвижка Э-73 закрыта *)
+_112_A5_DO[18].output := gVLV[26].in.IS_ON;			(* Задвижка Э-74 открыта *)
+_112_A5_DO[19].output := gVLV[26].in.IS_OFF;		(* Задвижка Э-74 закрыта *)
+_112_A5_DO[20].output := gVLV[27].in.IS_ON;			(* Задвижка Э-75 открыта *)
+_112_A5_DO[21].output := gVLV[27].in.IS_OFF;		(* Задвижка Э-75 закрыта *)
+_112_A5_DO[22].output := gVLV[28].in.IS_ON;			(* Задвижка Э-76 открыта *)
+_112_A5_DO[23].output := gVLV[28].in.IS_OFF;		(* Задвижка Э-76 закрыта *)
+_112_A5_DO[24].output := gVLV[29].in.IS_ON;			(* Задвижка Э-77 открыта *)
+_112_A5_DO[25].output := gVLV[29].in.IS_OFF;		(* Задвижка Э-77 закрыта *)
+_112_A5_DO[26].output := gVLV[30].in.IS_ON;			(* Задвижка Э-78 открыта *)
+_112_A5_DO[27].output := gVLV[30].in.IS_OFF;		(* Задвижка Э-78 закрыта *)
+_112_A5_DO[28].output := gVLV[31].in.IS_ON;			(* Задвижка Э-79 открыта *)
+_112_A5_DO[29].output := gVLV[31].in.IS_OFF;		(* Задвижка Э-79 закрыта *)
+_112_A5_DO[30].output := gVLV[32].in.IS_ON;			(* Задвижка Э-80 открыта *)
+_112_A5_DO[31].output := gVLV[32].in.IS_OFF;		(* Задвижка Э-80 закрыта *)
+(* A8 *)
+_112_A8_DO[00].output := gVLV[33].in.IS_ON;			(* Задвижка Э-81 открыта *)
+_112_A8_DO[01].output := gVLV[33].in.IS_OFF;		(* Задвижка Э-81 закрыта *)
+_112_A8_DO[02].output := gVLV[34].in.IS_ON;			(* Задвижка Э-82 открыта *)
+_112_A8_DO[03].output := gVLV[34].in.IS_OFF;		(* Задвижка Э-82 закрыта *)
+_112_A8_DO[04].output := gVLV[35].in.IS_ON;			(* Задвижка Э-83 открыта *)
+_112_A8_DO[05].output := gVLV[35].in.IS_OFF;		(* Задвижка Э-83 закрыта *)
+_112_A8_DO[06].output := gVLV[36].in.IS_ON;			(* Задвижка Э-84 открыта *)
+_112_A8_DO[07].output := gVLV[36].in.IS_OFF;		(* Задвижка Э-84 закрыта *)
+_112_A8_DO[08].output := gVLV[37].in.IS_ON;			(* Задвижка Э-85 открыта *)
+_112_A8_DO[09].output := gVLV[37].in.IS_OFF;		(* Задвижка Э-85 закрыта *)
+_112_A8_DO[10].output := gVLV[38].in.IS_ON;			(* Задвижка Э-86 открыта *)
+_112_A8_DO[11].output := gVLV[38].in.IS_OFF;		(* Задвижка Э-86 закрыта *)
+_112_A8_DO[12].output := gVLV[39].in.IS_ON;			(* Задвижка Э-87 открыта *)
+_112_A8_DO[13].output := gVLV[39].in.IS_OFF;		(* Задвижка Э-87 закрыта *)
+_112_A8_DO[14].output := gVLV[40].in.IS_ON;			(* Задвижка Э-88 открыта *)
+_112_A8_DO[15].output := gVLV[40].in.IS_OFF;		(* Задвижка Э-88 закрыта *)
+_112_A8_DO[16].output := gVLV[41].in.IS_ON;			(* Задвижка Э-89 открыта *)
+_112_A8_DO[17].output := gVLV[41].in.IS_OFF;		(* Задвижка Э-89 закрыта *)
+_112_A8_DO[18].output := gVLV[42].in.IS_ON;			(* Задвижка Э-90 открыта *)
+_112_A8_DO[19].output := gVLV[42].in.IS_OFF;		(* Задвижка Э-90 закрыта *)
+_112_A8_DO[20].output := gVLV[43].in.IS_ON;			(* Задвижка Э-91 открыта *)
+_112_A8_DO[21].output := gVLV[43].in.IS_OFF;		(* Задвижка Э-91 закрыта *)
+_112_A8_DO[22].output := gVLV[44].in.IS_ON;			(* Задвижка Э-92 открыта *)
+_112_A8_DO[23].output := gVLV[44].in.IS_OFF;		(* Задвижка Э-92 закрыта *)
+_112_A8_DO[24].output := gVLV[45].in.IS_ON;			(* Задвижка Э-93 открыта *)
+_112_A8_DO[25].output := gVLV[45].in.IS_OFF;		(* Задвижка Э-93 закрыта *)
+_112_A8_DO[26].output := gVLV[46].in.IS_ON;			(* Задвижка Э-94 открыта *)
+_112_A8_DO[27].output := gVLV[46].in.IS_OFF;		(* Задвижка Э-94 закрыта *)
+_112_A8_DO[28].output := gVLV[47].in.IS_ON;			(* Задвижка Э-95 открыта *)
+_112_A8_DO[29].output := gVLV[47].in.IS_OFF;		(* Задвижка Э-95 закрыта *)
+_112_A8_DO[30].output := gVLV[48].in.IS_ON;			(* Задвижка Э-96 открыта *)
+_112_A8_DO[31].output := gVLV[48].in.IS_OFF;		(* Задвижка Э-96 закрыта *)
+(* A9 *)
+_112_A9_DO[00].output := _dis;	(*  *)
+_112_A9_DO[01].output := _dis;	(*  *)
+_112_A9_DO[02].output := _dis;	(*  *)
+_112_A9_DO[03].output := _dis;	(*  *)
+_112_A9_DO[04].output := _dis;	(*  *)
+_112_A9_DO[05].output := _dis;	(*  *)
+_112_A9_DO[06].output := _dis;	(*  *)
+_112_A9_DO[07].output := _dis;	(*  *)
+_112_A9_DO[08].output := _dis;	(*  *)
+_112_A9_DO[09].output := _dis;	(*  *)
+_112_A9_DO[10].output := _dis;	(*  *)
+_112_A9_DO[11].output := _dis;	(*  *)
+_112_A9_DO[12].output := _dis;	(*  *)
+_112_A9_DO[13].output := _dis;	(*  *)
+_112_A9_DO[14].output := _dis;	(*  *)
+_112_A9_DO[15].output := _dis;	(*  *)
+_112_A9_DO[16].output := _dis;	(*  *)
+_112_A9_DO[17].output := _dis;	(*  *)
+_112_A9_DO[18].output := _dis;	(*  *)
+_112_A9_DO[19].output := _dis;	(*  *)
+_112_A9_DO[20].output := _dis;	(*  *)
+_112_A9_DO[21].output := _dis;	(*  *)
+_112_A9_DO[22].output := _dis;	(*  *)
+_112_A9_DO[23].output := _dis;	(*  *)
+_112_A9_DO[24].output := _dis;	(*  *)
+_112_A9_DO[25].output := _dis;	(*  *)
+_112_A9_DO[26].output := _dis;	(*  *)
+_112_A9_DO[27].output := _dis;	(*  *)
+_112_A9_DO[28].output := _dis;	(*  *)
+_112_A9_DO[29].output := _dis;	(*  *)
+_112_A9_DO[30].output := _dis;	(*  *)
+_112_A9_DO[31].output := _dis;	(*  *)
+
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 10: _112_End *)
+
+PROGRAM _112_End
+
+(* First Cycle *)
+First := TRUE;
+END_PROGRAM
+(* -------------------- *)
+
+
+
+(*============================================================*)
+
+
+(*=== APT113 ===*)
+
+(* FUNCTION BLOCK: FB_HMI_EXCH *)
+
+FUNCTION_BLOCK FB_HMI_EXCH
+
+gI := 1;
+IF First THEN gD := NOT gD; END_IF;
+(* Valves *)
+FOR i := 1 TO 48 DO
+	exchV(i);
+	(* Задвижка Э-97..Э-144 *)
+END_FOR;
+(* Discretes *)
+FOR i := 2 TO 1 BY -1 DO
+	exchD(i);
+	(* Состояние двери АПТ 1.1.3 *)
+	(* Наличие питания на вводе *)
+END_FOR;
+(* Connection *)
+w := CON113_112;	exchWord(w);
+w := CON113_114;	exchWord(w);
+(* Diagnostics *)
+CPU_pri[1] := __SYSVA_FO_ISPRIMARY;
+CPU_act[1] := __SYSVA_FO_ISACTIVE;
+CPU_pri[2] := NOT __SYSVA_FO_ISPRIMARY;
+CPU_act[2] := NOT __SYSVA_FO_ISACTIVE;
+exchMdlPSU(	inMdl := _113_G2_1_MDL,	inCh := _113_G2_1_PSU);
+exchMdlPSU(	inMdl := _113_G2_2_MDL,	inCh := _113_G2_2_PSU);
+exchMdlCPU(	inMdl := _113_A1_1_MDL,	isPri := CPU_pri[1],	isAct := CPU_act[1]);
+exchMdlCPU(	inMdl := _113_A1_2_MDL,	isPri := CPU_pri[2],	isAct := CPU_act[2]);
+exchMdlDI(	inMdl := _113_A2_MDl,	inCh := _113_A2_DI);
+exchMdlDI(	inMdl := _113_A3_MDl,	inCh := _113_A3_DI);
+exchMdlDO(	inMdl := _113_A4_MDl,	inCh := _113_A4_DO);
+exchMdlDO(	inMdl := _113_A5_MDl,	inCh := _113_A5_DO);
+exchMdlDI(	inMdl := _113_A6_MDl,	inCh := _113_A6_DI);
+exchMdlDI(	inMdl := _113_A7_MDl,	inCh := _113_A7_DI);
+exchMdlDO(	inMdl := _113_A8_MDl,	inCh := _113_A8_DO);
+exchMdlDO(	inMdl := _113_A9_MDl,	inCh := _113_A9_DO);
+END_FUNCTION_BLOCK
+(* -------------------- *)
+
+
+(* ROUTINE 01: _113_LinkInput *)
+
+PROGRAM _113_LinkInput
+
+(* A2 *)
+_dis					:= _113_A2_DI[00].input;	(*  *)
+_dis					:= _113_A2_DI[01].input;	(*  *)
+_dis					:= _113_A2_DI[02].input;	(*  *)
+_dis					:= _113_A2_DI[03].input;	(*  *)
+_dis					:= _113_A2_DI[04].input;	(*  *)
+_dis					:= _113_A2_DI[05].input;	(*  *)
+_dis					:= _113_A2_DI[06].input;	(*  *)
+_dis					:= _113_A2_DI[07].input;	(*  *)
+_dis					:= _113_A2_DI[08].input;	(*  *)
+_dis					:= _113_A2_DI[09].input;	(*  *)
+_dis					:= _113_A2_DI[10].input;	(*  *)
+_dis					:= _113_A2_DI[11].input;	(*  *)
+_dis					:= _113_A2_DI[12].input;	(*  *)
+_dis					:= _113_A2_DI[13].input;	(*  *)
+_dis					:= _113_A2_DI[14].input;	(*  *)
+_dis					:= _113_A2_DI[15].input;	(*  *)
+gVLV[01].in.LOCAL		:= _113_A2_DI[16].input;	(* Задвижка Э-97 Ручной режим *)		
+gVLV[01].in.REMOTE		:= _113_A2_DI[17].input;	(* Задвижка Э-97 Дистанционный режим *)
+gVLV[02].in.LOCAL		:= _113_A2_DI[18].input;	(* Задвижка Э-98 Ручной режим *)		
+gVLV[02].in.REMOTE		:= _113_A2_DI[19].input;	(* Задвижка Э-98 Дистанционный режим *)
+gVLV[03].in.LOCAL		:= _113_A2_DI[20].input;	(* Задвижка Э-99 Ручной режим *)		
+gVLV[03].in.REMOTE		:= _113_A2_DI[21].input;	(* Задвижка Э-99 Дистанционный режим *)
+gVLV[04].in.LOCAL		:= _113_A2_DI[22].input;	(* Задвижка Э-100 Ручной режим *)		
+gVLV[04].in.REMOTE		:= _113_A2_DI[23].input;	(* Задвижка Э-100 Дистанционный режим *)
+gVLV[05].in.LOCAL		:= _113_A2_DI[24].input;	(* Задвижка Э-101 Ручной режим *)		
+gVLV[05].in.REMOTE		:= _113_A2_DI[25].input;	(* Задвижка Э-101 Дистанционный режим *)
+gVLV[06].in.LOCAL		:= _113_A2_DI[26].input;	(* Задвижка Э-102 Ручной режим *)		
+gVLV[06].in.REMOTE		:= _113_A2_DI[27].input;	(* Задвижка Э-102 Дистанционный режим *)
+gVLV[07].in.LOCAL		:= _113_A2_DI[28].input;	(* Задвижка Э-103 Ручной режим *)		
+gVLV[07].in.REMOTE		:= _113_A2_DI[29].input;	(* Задвижка Э-103 Дистанционный режим *)
+gVLV[08].in.LOCAL		:= _113_A2_DI[30].input;	(* Задвижка Э-104 Ручной режим *)		
+gVLV[08].in.REMOTE		:= _113_A2_DI[31].input;	(* Задвижка Э-104 Дистанционный режим *)
+(* A3 *)
+gVLV[09].in.LOCAL		:= _113_A3_DI[00].input;	(* Задвижка Э-105 Ручной режим *)		
+gVLV[09].in.REMOTE		:= _113_A3_DI[01].input;	(* Задвижка Э-105 Дистанционный режим *)
+gVLV[10].in.LOCAL		:= _113_A3_DI[02].input;	(* Задвижка Э-106 Ручной режим *)		
+gVLV[10].in.REMOTE		:= _113_A3_DI[03].input;	(* Задвижка Э-106 Дистанционный режим *)
+gVLV[11].in.LOCAL		:= _113_A3_DI[04].input;	(* Задвижка Э-107 Ручной режим *)		
+gVLV[11].in.REMOTE		:= _113_A3_DI[05].input;	(* Задвижка Э-107 Дистанционный режим *)
+gVLV[12].in.LOCAL		:= _113_A3_DI[06].input;	(* Задвижка Э-108 Ручной режим *)		
+gVLV[12].in.REMOTE		:= _113_A3_DI[07].input;	(* Задвижка Э-108 Дистанционный режим *)
+gVLV[13].in.LOCAL		:= _113_A3_DI[08].input;	(* Задвижка Э-109 Ручной режим *)		
+gVLV[13].in.REMOTE		:= _113_A3_DI[09].input;	(* Задвижка Э-109 Дистанционный режим *)
+gVLV[14].in.LOCAL		:= _113_A3_DI[10].input;	(* Задвижка Э-110 Ручной режим *)		
+gVLV[14].in.REMOTE		:= _113_A3_DI[11].input;	(* Задвижка Э-110 Дистанционный режим *)
+gVLV[15].in.LOCAL		:= _113_A3_DI[12].input;	(* Задвижка Э-111 Ручной режим *)		
+gVLV[15].in.REMOTE		:= _113_A3_DI[13].input;	(* Задвижка Э-111 Дистанционный режим *)
+gVLV[16].in.LOCAL		:= _113_A3_DI[14].input;	(* Задвижка Э-112 Ручной режим *)		
+gVLV[16].in.REMOTE		:= _113_A3_DI[15].input;	(* Задвижка Э-112 Дистанционный режим *)
+gVLV[17].in.LOCAL		:= _113_A3_DI[16].input;	(* Задвижка Э-113 Ручной режим *)		
+gVLV[17].in.REMOTE		:= _113_A3_DI[17].input;	(* Задвижка Э-113 Дистанционный режим *)
+gVLV[18].in.LOCAL		:= _113_A3_DI[18].input;	(* Задвижка Э-114 Ручной режим *)		
+gVLV[18].in.REMOTE		:= _113_A3_DI[19].input;	(* Задвижка Э-114 Дистанционный режим *)
+gVLV[19].in.LOCAL		:= _113_A3_DI[20].input;	(* Задвижка Э-115 Ручной режим *)		
+gVLV[19].in.REMOTE		:= _113_A3_DI[21].input;	(* Задвижка Э-115 Дистанционный режим *)
+gVLV[20].in.LOCAL		:= _113_A3_DI[22].input;	(* Задвижка Э-116 Ручной режим *)		
+gVLV[20].in.REMOTE		:= _113_A3_DI[23].input;	(* Задвижка Э-116 Дистанционный режим *)
+gVLV[21].in.LOCAL		:= _113_A3_DI[24].input;	(* Задвижка Э-117 Ручной режим *)		
+gVLV[21].in.REMOTE		:= _113_A3_DI[25].input;	(* Задвижка Э-117 Дистанционный режим *)
+gVLV[22].in.LOCAL		:= _113_A3_DI[26].input;	(* Задвижка Э-118 Ручной режим *)		
+gVLV[22].in.REMOTE		:= _113_A3_DI[27].input;	(* Задвижка Э-118 Дистанционный режим *)
+gVLV[23].in.LOCAL		:= _113_A3_DI[28].input;	(* Задвижка Э-119 Ручной режим *)		
+gVLV[23].in.REMOTE		:= _113_A3_DI[29].input;	(* Задвижка Э-119 Дистанционный режим *)
+gVLV[24].in.LOCAL		:= _113_A3_DI[30].input;	(* Задвижка Э-120 Ручной режим *)		
+gVLV[24].in.REMOTE		:= _113_A3_DI[31].input;	(* Задвижка Э-120 Дистанционный режим *)
+(* A6 *)
+gVLV[25].in.LOCAL		:= _113_A6_DI[00].input;	(* Задвижка Э-121 Ручной режим *)		
+gVLV[25].in.REMOTE		:= _113_A6_DI[01].input;	(* Задвижка Э-121 Дистанционный режим *)
+gVLV[26].in.LOCAL		:= _113_A6_DI[02].input;	(* Задвижка Э-122 Ручной режим *)		
+gVLV[26].in.REMOTE		:= _113_A6_DI[03].input;	(* Задвижка Э-122 Дистанционный режим *)
+gVLV[27].in.LOCAL		:= _113_A6_DI[04].input;	(* Задвижка Э-123 Ручной режим *)		
+gVLV[27].in.REMOTE		:= _113_A6_DI[05].input;	(* Задвижка Э-123 Дистанционный режим *)
+gVLV[28].in.LOCAL		:= _113_A6_DI[06].input;	(* Задвижка Э-124 Ручной режим *)		
+gVLV[28].in.REMOTE		:= _113_A6_DI[07].input;	(* Задвижка Э-124 Дистанционный режим *)
+gVLV[29].in.LOCAL		:= _113_A6_DI[08].input;	(* Задвижка Э-125 Ручной режим *)		
+gVLV[29].in.REMOTE		:= _113_A6_DI[09].input;	(* Задвижка Э-125 Дистанционный режим *)
+gVLV[30].in.LOCAL		:= _113_A6_DI[10].input;	(* Задвижка Э-126 Ручной режим *)		
+gVLV[30].in.REMOTE		:= _113_A6_DI[11].input;	(* Задвижка Э-126 Дистанционный режим *)
+gVLV[31].in.LOCAL		:= _113_A6_DI[12].input;	(* Задвижка Э-127 Ручной режим *)		
+gVLV[31].in.REMOTE		:= _113_A6_DI[13].input;	(* Задвижка Э-127 Дистанционный режим *)
+gVLV[32].in.LOCAL		:= _113_A6_DI[14].input;	(* Задвижка Э-128 Ручной режим *)		
+gVLV[32].in.REMOTE		:= _113_A6_DI[15].input;	(* Задвижка Э-128 Дистанционный режим *)
+gVLV[33].in.LOCAL		:= _113_A6_DI[16].input;	(* Задвижка Э-129 Ручной режим *)		
+gVLV[33].in.REMOTE		:= _113_A6_DI[17].input;	(* Задвижка Э-129 Дистанционный режим *)
+gVLV[34].in.LOCAL		:= _113_A6_DI[18].input;	(* Задвижка Э-130 Ручной режим *)		
+gVLV[34].in.REMOTE		:= _113_A6_DI[19].input;	(* Задвижка Э-130 Дистанционный режим *)
+gVLV[35].in.LOCAL		:= _113_A6_DI[20].input;	(* Задвижка Э-131 Ручной режим *)		
+gVLV[35].in.REMOTE		:= _113_A6_DI[21].input;	(* Задвижка Э-131 Дистанционный режим *)
+gVLV[36].in.LOCAL		:= _113_A6_DI[22].input;	(* Задвижка Э-132 Ручной режим *)		
+gVLV[36].in.REMOTE		:= _113_A6_DI[23].input;	(* Задвижка Э-132 Дистанционный режим *)
+gVLV[37].in.LOCAL		:= _113_A6_DI[24].input;	(* Задвижка Э-133 Ручной режим *)		
+gVLV[37].in.REMOTE		:= _113_A6_DI[25].input;	(* Задвижка Э-133 Дистанционный режим *)
+gVLV[38].in.LOCAL		:= _113_A6_DI[26].input;	(* Задвижка Э-134 Ручной режим *)		
+gVLV[38].in.REMOTE		:= _113_A6_DI[27].input;	(* Задвижка Э-134 Дистанционный режим *)
+gVLV[39].in.LOCAL		:= _113_A6_DI[28].input;	(* Задвижка Э-135 Ручной режим *)		
+gVLV[39].in.REMOTE		:= _113_A6_DI[29].input;	(* Задвижка Э-135 Дистанционный режим *)
+gVLV[40].in.LOCAL		:= _113_A6_DI[30].input;	(* Задвижка Э-136 Ручной режим *)		
+gVLV[40].in.REMOTE		:= _113_A6_DI[31].input;	(* Задвижка Э-136 Дистанционный режим *)
+(* A7 *)
+_mdl := MdlErr(_113_A7_MDL);
+gVLV[41].in.LOCAL		:= _113_A7_DI[00].input;	(* Задвижка Э-137 Ручной режим *)		
+gVLV[41].in.REMOTE		:= _113_A7_DI[01].input;	(* Задвижка Э-137 Дистанционный режим *)
+gVLV[42].in.LOCAL		:= _113_A7_DI[02].input;	(* Задвижка Э-138 Ручной режим *)		
+gVLV[42].in.REMOTE		:= _113_A7_DI[03].input;	(* Задвижка Э-138 Дистанционный режим *)
+gVLV[43].in.LOCAL		:= _113_A7_DI[04].input;	(* Задвижка Э-139 Ручной режим *)		
+gVLV[43].in.REMOTE		:= _113_A7_DI[05].input;	(* Задвижка Э-139 Дистанционный режим *)
+gVLV[44].in.LOCAL		:= _113_A7_DI[06].input;	(* Задвижка Э-140 Ручной режим *)		
+gVLV[44].in.REMOTE		:= _113_A7_DI[07].input;	(* Задвижка Э-140 Дистанционный режим *)
+gVLV[45].in.LOCAL		:= _113_A7_DI[08].input;	(* Задвижка Э-141 Ручной режим *)		
+gVLV[45].in.REMOTE		:= _113_A7_DI[09].input;	(* Задвижка Э-141 Дистанционный режим *)
+gVLV[46].in.LOCAL		:= _113_A7_DI[10].input;	(* Задвижка Э-142 Ручной режим *)		
+gVLV[46].in.REMOTE		:= _113_A7_DI[11].input;	(* Задвижка Э-142 Дистанционный режим *)
+gVLV[47].in.LOCAL		:= _113_A7_DI[12].input;	(* Задвижка Э-143 Ручной режим *)		
+gVLV[47].in.REMOTE		:= _113_A7_DI[13].input;	(* Задвижка Э-143 Дистанционный режим *)
+gVLV[48].in.LOCAL		:= _113_A7_DI[14].input;	(* Задвижка Э-144 Ручной режим *)		
+gVLV[48].in.REMOTE		:= _113_A7_DI[15].input;	(* Задвижка Э-144 Дистанционный режим *)
+gDI[1].IN				:= _113_A7_DI[16].input;	gDI[1].MDL := _mdl; (* Состояние двери АПТ 1.1.3 *)
+gDI[2].IN				:= _113_A7_DI[17].input;	gDI[2].MDL := _mdl; (* Наличие питания на вводе *)
+_dis					:= _113_A7_DI[18].input;	(*  *)
+_dis					:= _113_A7_DI[19].input;	(*  *)
+_dis					:= _113_A7_DI[20].input;	(*  *)
+_dis					:= _113_A7_DI[21].input;	(*  *)
+_dis					:= _113_A7_DI[22].input;	(*  *)
+_dis					:= _113_A7_DI[23].input;	(*  *)
+_dis					:= _113_A7_DI[24].input;	(*  *)
+_dis					:= _113_A7_DI[25].input;	(*  *)
+_dis					:= _113_A7_DI[26].input;	(*  *)
+_dis					:= _113_A7_DI[27].input;	(*  *)
+_dis					:= _113_A7_DI[28].input;	(*  *)
+_dis					:= _113_A7_DI[29].input;	(*  *)
+_dis					:= _113_A7_DI[30].input;	(*  *)
+_dis					:= _113_A7_DI[31].input;	(*  *)
+
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 02: _113_HMI_in *)
+
+PROGRAM _113_HMI_in
+
+(* Transfering from HMI *)
+hmiExch();
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 03: _113_Inst *)
+
+PROGRAM _113_Inst
+
+(* Valves *)
+FOR i := 1 TO 48 DO
+	_gVLV(i);
+	(* Задвижка Э-97..Э-144 *)
+END_FOR;
+
+(* Discretes *)
+FOR i := 1 TO 2 DO
+	_gDI(i);
+	(* Состояние двери АПТ 1.1.3 *)
+	(* Наличие питания на вводе *)
+END_FOR;
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 04: _113_Automatic *)
+
+PROGRAM _113_Automatic
+
+(* Пожар на резервуаре 1/17 *)
+i := 1;
+v[ 1] := 97		-48*2;
+v[ 2] := 98		-48*2;
+v[ 3] := 99		-48*2;
+v[ 4] := 100	-48*2;
+v[ 5] := 103	-48*2;
+v[ 6] := 104	-48*2;
+v[ 7] := 139	-48*2;
+v[ 8] := 142	-48*2;
+v[ 9] := 0		;
+v[10] := 0		;
+vr[1] := 101	-48*2;
+vr[2] := 102	-48*2;
+vr[3] := 144	-48*2;
+vr[4] := 143	-48*2;
+vlv(g := i,	v := v,	vr := vr); i:=i+1;
+(* Пожар на резервуаре 1/18 *)
+v[ 1] := 103	-48*2;
+v[ 2] := 104	-48*2;
+v[ 3] := 105	-48*2;
+v[ 4] := 106	-48*2;
+v[ 5] := 99		-48*2;
+v[ 6] := 100	-48*2;
+v[ 7] := 109	-48*2;
+v[ 8] := 110	-48*2;
+v[ 9] := 136	-48*2;
+v[10] := 133	-48*2;
+vr[1] := 107	-48*2;
+vr[2] := 108	-48*2;
+vr[3] := 138	-48*2;
+vr[4] := 137	-48*2;
+vlv(g := i,	v := v,	vr := vr); i:=i+1;
+(* Пожар на резервуаре 1/19 *)
+v[ 1] := 109	-48*2;
+v[ 2] := 110	-48*2;
+v[ 3] := 111	-48*2;
+v[ 4] := 112	-48*2;
+v[ 5] := 105	-48*2;
+v[ 6] := 106	-48*2;
+v[ 7] := 115	-48*2;
+v[ 8] := 116	-48*2;
+v[ 9] := 127	-48*2;
+v[10] := 130	-48*2;
+vr[1] := 113	-48*2;
+vr[2] := 114	-48*2;
+vr[3] := 132	-48*2;
+vr[4] := 131	-48*2;
+vlv(g := i,	v := v,	vr := vr); i:=i+1;
+(* Пожар на резервуаре 1/20 *)
+v[ 1] := 115	-48*2;
+v[ 2] := 116	-48*2;
+v[ 3] := 117	-48*2;
+v[ 4] := 118	-48*2;
+v[ 5] := 111	-48*2;
+v[ 6] := 112	-48*2;
+v[ 7] := 121	-48*2;
+v[ 8] := 124	-48*2;
+v[ 9] := 0		;
+v[10] := 0		;
+vr[1] := 119	-48*2;
+vr[2] := 120	-48*2;
+vr[3] := 126	-48*2;
+vr[4] := 125	-48*2;
+vlv(g := i,	v := v,	vr := vr); i:=i+1;
+(* Пожар на резервуаре 1/21 *)
+v[ 1] := 139	-48*2;
+v[ 2] := 140	-48*2;
+v[ 3] := 141	-48*2;
+v[ 4] := 142	-48*2;
+v[ 5] := 135	-48*2;
+v[ 6] := 136	-48*2;
+v[ 7] := 97		-48*2;
+v[ 8] := 100	-48*2;
+v[ 9] := 0		;
+v[10] := 0		;
+vr[1] := 102	-48*2;
+vr[2] := 101	-48*2;
+vr[3] := 143	-48*2;
+vr[4] := 144	-48*2;
+vlv(g := i,	v := v,	vr := vr); i:=i+1;
+(* Пожар на резервуаре 1/22 *)
+v[ 1] := 133	-48*2;
+v[ 2] := 134	-48*2;
+v[ 3] := 135	-48*2;
+v[ 4] := 136	-48*2;
+v[ 5] := 139	-48*2;
+v[ 6] := 140	-48*2;
+v[ 7] := 129	-48*2;
+v[ 8] := 130	-48*2;
+v[ 9] := 103	-48*2;
+v[10] := 106	-48*2;
+vr[1] := 108	-48*2;
+vr[2] := 107	-48*2;
+vr[3] := 137	-48*2;
+vr[4] := 138	-48*2;
+vlv(g := i,	v := v,	vr := vr); i:=i+1;
+(* Пожар на резервуаре 1/23 *)
+v[ 1] := 127	-48*2;
+v[ 2] := 128	-48*2;
+v[ 3] := 129	-48*2;
+v[ 4] := 130	-48*2;
+v[ 5] := 133	-48*2;
+v[ 6] := 134	-48*2;
+v[ 7] := 123	-48*2;
+v[ 8] := 124	-48*2;
+v[ 9] := 109	-48*2;
+v[10] := 112	-48*2;
+vr[1] := 114	-48*2;
+vr[2] := 113	-48*2;
+vr[3] := 131	-48*2;
+vr[4] := 132	-48*2;
+vlv(g := i,	v := v,	vr := vr); i:=i+1;
+(* Пожар на резервуаре 1/24 *)
+v[ 1] := 121	-48*2;
+v[ 2] := 122	-48*2;
+v[ 3] := 123	-48*2;
+v[ 4] := 124	-48*2;
+v[ 5] := 127	-48*2;
+v[ 6] := 128	-48*2;
+v[ 7] := 115	-48*2;
+v[ 8] := 118	-48*2;
+v[ 9] := 0		;
+v[10] := 0		;
+vr[1] := 120	-48*2;
+vr[2] := 119	-48*2;
+vr[3] := 125	-48*2;
+vr[4] := 126	-48*2;
+vlv(g := i,	v := v,	vr := vr); i:=i+1;
+(* Автоматическое управление задвижками *)
+b := VlvAut(v :=  1, fs1 := 1, fs2 := 0);
+b := VlvAut(v :=  2, fs1 := 1, fs2 := 0);
+b := VlvAut(v :=  3, fs1 := 1, fs2 := 0);
+b := VlvAut(v :=  4, fs1 := 1, fs2 := 0);
+b := VlvAut(v :=  5, fs1 := 1, fs2 := 21-8*2);
+b := VlvAut(v :=  6, fs1 := 1, fs2 := 21-8*2);
+b := VlvAut(v :=  7, fs1 := 2, fs2 := 0);
+b := VlvAut(v :=  8, fs1 := 2, fs2 := 0);
+b := VlvAut(v :=  9, fs1 := 2, fs2 := 0);
+b := VlvAut(v := 10, fs1 := 2, fs2 := 0);
+b := VlvAut(v := 11, fs1 := 2, fs2 := 22-8*2);
+b := VlvAut(v := 12, fs1 := 2, fs2 := 22-8*2);
+b := VlvAut(v := 13, fs1 := 3, fs2 := 0);
+b := VlvAut(v := 14, fs1 := 3, fs2 := 0);
+b := VlvAut(v := 15, fs1 := 3, fs2 := 0);
+b := VlvAut(v := 16, fs1 := 3, fs2 := 0);
+b := VlvAut(v := 17, fs1 := 3, fs2 := 23-8*2);
+b := VlvAut(v := 18, fs1 := 3, fs2 := 23-8*2);
+b := VlvAut(v := 19, fs1 := 4, fs2 := 0);
+b := VlvAut(v := 20, fs1 := 4, fs2 := 0);
+b := VlvAut(v := 21, fs1 := 4, fs2 := 0);
+b := VlvAut(v := 22, fs1 := 4, fs2 := 0);
+b := VlvAut(v := 23, fs1 := 4, fs2 := 24-8*2);
+b := VlvAut(v := 24, fs1 := 4, fs2 := 24-8*2);
+b := VlvAut(v := 25, fs1 := 8, fs2 := 0);
+b := VlvAut(v := 26, fs1 := 8, fs2 := 0);
+b := VlvAut(v := 27, fs1 := 8, fs2 := 0);
+b := VlvAut(v := 28, fs1 := 8, fs2 := 0);
+b := VlvAut(v := 29, fs1 := 8, fs2 := 20-8*2);
+b := VlvAut(v := 30, fs1 := 8, fs2 := 20-8*2);
+b := VlvAut(v := 31, fs1 := 7, fs2 := 0);
+b := VlvAut(v := 32, fs1 := 7, fs2 := 0);
+b := VlvAut(v := 33, fs1 := 7, fs2 := 0);
+b := VlvAut(v := 34, fs1 := 7, fs2 := 0);
+b := VlvAut(v := 35, fs1 := 7, fs2 := 19-8*2);
+b := VlvAut(v := 36, fs1 := 7, fs2 := 19-8*2);
+b := VlvAut(v := 37, fs1 := 6, fs2 := 0);
+b := VlvAut(v := 38, fs1 := 6, fs2 := 0);
+b := VlvAut(v := 39, fs1 := 6, fs2 := 0);
+b := VlvAut(v := 40, fs1 := 6, fs2 := 0);
+b := VlvAut(v := 41, fs1 := 6, fs2 := 18-8*2);
+b := VlvAut(v := 42, fs1 := 6, fs2 := 18-8*2);
+b := VlvAut(v := 43, fs1 := 5, fs2 := 0);
+b := VlvAut(v := 44, fs1 := 5, fs2 := 0);
+b := VlvAut(v := 45, fs1 := 5, fs2 := 0);
+b := VlvAut(v := 46, fs1 := 5, fs2 := 0);
+b := VlvAut(v := 47, fs1 := 5, fs2 := 17-8*2);
+b := VlvAut(v := 48, fs1 := 5, fs2 := 17-8*2);
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 05: _113_RTU_Master *)
+
+PROGRAM _113_RTU_Master
+
+(* First Cycle *)
+IF NOT First OR sInit THEN
+	sInit := FALSE;
+	
+	(* 48 identical valves on 2 ports; 24 valves on each port; 2 requests for each valve: read, write; 48 requests on each port *)
+	(* available: 8 request groups on each port, 16 requests in each group *)
+	sMaxReqs := 16;
+	sMaxCtrls := (24 * 2) / sMaxReqs; (* 24 = Number of Modbus Devices *)
+	(* Preparing configs for requests *)
+	FOR i := 1 TO 24 DO
+		(* reading *)
+		cfg_SID[i*2 - 1] := ANY_TO_BYTE(i);
+		cfg_FUN[i*2 - 1] := 3;
+		cfg_ADR[i*2 - 1] := 4; (* 40004; *)
+		cfg_LEN[i*2 - 1] := 4;
+		(* writing *)
+		cfg_SID[i*2 - 0] := ANY_TO_BYTE(i);
+		cfg_FUN[i*2 - 0] := 16;
+		cfg_ADR[i*2 - 0] := 2; (* 40002; *)
+		cfg_LEN[i*2 - 0] := 2;
+	END_FOR;
+	sOffset := 0;
+	sReqNo := 1;
+	sCtrlNo := 0;
+	(* Configuring requests *)
+	FOR i := 1 TO 48 DO
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].enable := TRUE;
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].single_request := FALSE;
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].on_modify_request := FALSE;
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].do_single_req := FALSE;
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].command.timeout_ms := 1000;
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].command.repeat_over_scan := TRUE;
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].command.slave_id 			:= cfg_SID[i];
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].command.func_code 		:= cfg_FUN[i];
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].command.slave_data_addr	:= cfg_ADR[i];
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].command.slave_data_length	:= cfg_LEN[i];
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].command.offset := sOffset;
+		sOffset := sOffset + cfg_LEN[i];
+		sReqNo := sReqNo + 1;
+		IF sReqNo > sMaxReqs THEN 
+			sReqNo := 1;
+			sCtrlNo := sCtrlNo + 1;
+			IF sCtrlNo > sMaxCtrls THEN 
+				sCtrlNo := 0;
+			END_IF;
+		END_IF;
+	END_FOR;
+	_Ctrl_2 := _Ctrl_1;
+	_Control_1 := 1;
+	_Control_2 := 1;
+END_IF;
+
+(* Every Cycle *)
+sCtrlNo := 0;
+sReqNo := 1;
+FOR i := 1 TO 24 DO
+	(* 24 valves on Port 1 *)
+	j:=i;
+	sCOBA(
+		iReqStatus	:= _Diag_1[sCtrlNo].RequestsAndStats[sReqNo].status_request,
+		i40004 	:= _HR_1[0].regs[(i-1)*6 + 1],
+		i40005 	:= _HR_1[0].regs[(i-1)*6 + 2],
+		i40006 	:= _HR_1[0].regs[(i-1)*6 + 3],
+		i40007 	:= _HR_1[0].regs[(i-1)*6 + 4],
+		g		:= j,
+		o40002	=> _HR_1[0].regs[(i-1)*6 + 5],
+		o40003	=> _HR_1[0].regs[(i-1)*6 + 6]
+	);
+	(* 24 valves on Port 2 *)
+	j:=i+24;
+	sCOBA(
+		iReqStatus	:= _Diag_2[sCtrlNo].RequestsAndStats[sReqNo].status_request,
+		i40004 	:= _HR_2[0].regs[(i-1)*6 + 1],
+		i40005 	:= _HR_2[0].regs[(i-1)*6 + 2],
+		i40006 	:= _HR_2[0].regs[(i-1)*6 + 3],
+		i40007 	:= _HR_2[0].regs[(i-1)*6 + 4],
+		g		:= j,
+		o40002	=> _HR_2[0].regs[(i-1)*6 + 5],
+		o40003	=> _HR_2[0].regs[(i-1)*6 + 6]
+	);
+	sReqNo := sReqNo + 1;
+	IF sReqNo > sMaxReqs THEN 
+		sReqNo := 1;
+		sCtrlNo := sCtrlNo + 1;
+		IF sCtrlNo > sMaxCtrls THEN 
+			sCtrlNo := 0;
+		END_IF;
+	END_IF;
+END_FOR;
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 06: _113_TCP_Master *)
+
+PROGRAM _113_TCP_Master
+
+(* First Cycle *)
+IF NOT First THEN
+	_Control := 1;
+	(*	En	IP					Port	ID	Func	RegNo			Len		Offset in _HR	Timeout	*)
+	rq01(1,	'192.168.0.2'	,	502	,	1,	3	,	1			,	1	,	2000			,	1000);	_Ctrl[0].Requests[ 1] := rq01.out;	(* АПТ 1.1.2 основной *)
+	rq02(0,	'192.168.1.2'	,	502	,	1,	3	,	1			,	1	,	2000			,	1000);	_Ctrl[0].Requests[ 2] := rq02.out;	(* АПТ 1.1.2 резервный *)
+	rq03(1,	'192.168.0.4'	,	502	,	1,	3	,	1			,	1	,	2000			,	1000);	_Ctrl[0].Requests[ 3] := rq03.out;	(* АПТ 1.1.4 основной *)
+	rq04(0,	'192.168.1.4'	,	502	,	1,	3	,	1			,	1	,	2000			,	1000);	_Ctrl[0].Requests[ 4] := rq04.out;	(* АПТ 1.1.4 резервный *)
+	rq05(1,	'192.168.0.5'	,	502	,	1,	3	,	1001		,	43	,	0				,	1000);	_Ctrl[0].Requests[ 5] := rq05.out;	(* АПТ 2.3 основной *)
+	rq06(0,	'192.168.1.5'	,	502	,	1,	3	,	1001		,	43	,	0				,	1000);	_Ctrl[0].Requests[ 6] := rq06.out;	(* АПТ 2.3 резервный *)
+	rq07(1,	'192.168.0.5'	,	502	,	1,	16	,	1101+8*2	,	8	,	100				,	1000);	_Ctrl[0].Requests[ 7] := rq07.out;	(* АПТ 2.3 основной *)
+	rq08(0,	'192.168.1.5'	,	502	,	1,	16	,	1101+8*2	,	8	,	100				,	1000);	_Ctrl[0].Requests[ 8] := rq08.out;	(* АПТ 2.3 резервный *)
+END_IF;
+
+sCtrlNo := 0;
+(* 112 *)
+sReqNo := 1;
+IF _Ctrl[sCtrlNo].Requests[sReqNo].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>100 THEN
+		CON113_112 := 0;
+		IF Timer[sReqNo]<3000 THEN
+			Timer[sReqNo] := Timer[sReqNo] + CYCLE_TIME;
+		ELSE
+			_Ctrl[sCtrlNo].Requests[sReqNo].enable := FALSE;
+			_Ctrl[sCtrlNo].Requests[sReqNo+1].enable := TRUE;
+			Timer[sReqNo] := 0;
+		END_IF;
+	ELSE
+		CON113_112 := 1;
+	END_IF;
+END_IF;
+IF _Ctrl[sCtrlNo].Requests[sReqNo+1].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo+1].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo+1].status_request<>100 THEN
+		CON113_112 := 0;
+		IF Timer[sReqNo+1]<3000 THEN
+			Timer[sReqNo+1] := Timer[sReqNo+1] + CYCLE_TIME;
+		ELSE
+			_Ctrl[sCtrlNo].Requests[sReqNo+1].enable := FALSE;
+			_Ctrl[sCtrlNo].Requests[sReqNo].enable := TRUE;
+			Timer[sReqNo+1] := 0;
+		END_IF;
+	ELSE
+		CON113_112 := 1;
+	END_IF;
+END_IF;
+(* 114 *)
+sReqNo := 3;
+IF _Ctrl[sCtrlNo].Requests[sReqNo].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>100 THEN
+		CON113_114 := 0;
+		IF Timer[sReqNo]<3000 THEN
+			Timer[sReqNo] := Timer[sReqNo] + CYCLE_TIME;
+		ELSE
+			_Ctrl[sCtrlNo].Requests[sReqNo].enable := FALSE;
+			_Ctrl[sCtrlNo].Requests[sReqNo+1].enable := TRUE;
+			Timer[sReqNo] := 0;
+		END_IF;
+	ELSE
+		CON113_114 := 1;
+	END_IF;
+END_IF;
+IF _Ctrl[sCtrlNo].Requests[sReqNo+1].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo+1].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo+1].status_request<>100 THEN
+		CON113_114 := 0;
+		IF Timer[sReqNo+1]<3000 THEN
+			Timer[sReqNo+1] := Timer[sReqNo+1] + CYCLE_TIME;
+		ELSE
+			_Ctrl[sCtrlNo].Requests[sReqNo+1].enable := FALSE;
+			_Ctrl[sCtrlNo].Requests[sReqNo].enable := TRUE;
+			Timer[sReqNo+1] := 0;
+		END_IF;
+	ELSE
+		CON113_114 := 1;
+	END_IF;
+END_IF;
+(* 23 read *)
+sReqNo := 5;
+IF _Ctrl[sCtrlNo].Requests[sReqNo].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>100 THEN
+		;
+		IF Timer[sReqNo]<3000 THEN
+			Timer[sReqNo] := Timer[sReqNo] + CYCLE_TIME;
+		ELSE
+			_Ctrl[sCtrlNo].Requests[sReqNo].enable := FALSE;
+			_Ctrl[sCtrlNo].Requests[sReqNo+1].enable := TRUE;
+			Timer[sReqNo] := 0;
+		END_IF;
+	ELSE
+		;
+	END_IF;
+END_IF;
+IF _Ctrl[sCtrlNo].Requests[sReqNo+1].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo+1].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo+1].status_request<>100 THEN
+		;
+		IF Timer[sReqNo+1]<3000 THEN
+			Timer[sReqNo+1] := Timer[sReqNo+1] + CYCLE_TIME;
+		ELSE
+			_Ctrl[sCtrlNo].Requests[sReqNo+1].enable := FALSE;
+			_Ctrl[sCtrlNo].Requests[sReqNo].enable := TRUE;
+			Timer[sReqNo+1] := 0;
+		END_IF;
+	ELSE
+		;
+	END_IF;
+END_IF;
+(* 23 write *)
+sReqNo := 7;
+IF _Ctrl[sCtrlNo].Requests[sReqNo].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>100 THEN
+		;
+		IF Timer[sReqNo]<3000 THEN
+			Timer[sReqNo] := Timer[sReqNo] + CYCLE_TIME;
+		ELSE
+			_Ctrl[sCtrlNo].Requests[sReqNo].enable := FALSE;
+			_Ctrl[sCtrlNo].Requests[sReqNo+1].enable := TRUE;
+			Timer[sReqNo] := 0;
+		END_IF;
+	ELSE
+		;
+	END_IF;
+END_IF;
+IF _Ctrl[sCtrlNo].Requests[sReqNo+1].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo+1].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo+1].status_request<>100 THEN
+		;
+		IF Timer[sReqNo+1]<3000 THEN
+			Timer[sReqNo+1] := Timer[sReqNo+1] + CYCLE_TIME;
+		ELSE
+			_Ctrl[sCtrlNo].Requests[sReqNo+1].enable := FALSE;
+			_Ctrl[sCtrlNo].Requests[sReqNo].enable := TRUE;
+			Timer[sReqNo+1] := 0;
+		END_IF;
+	ELSE
+		;
+	END_IF;
+END_IF;
+
+
+(* Пожар резервуаров 1/17..1/24 *)
+FOR i := 1 TO 8 DO
+	gFS[i].PRM.FIRE := _HR[0].regs[i+8*2];
+END_FOR;
+(* Состояние клапанов *)
+FOR i := 1 TO 8 DO
+	_HR[0].regs[i + 100] := gFS[i].PRM.VLVS;
+END_FOR;
+
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 07: _113_HMI_out *)
+
+PROGRAM _113_HMI_out
+
+(* Transfering to HMI *)
+hmiExch();
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 08: _113_LinkOutput *)
+
+PROGRAM _113_LinkOutput
+
+(* A4 *)
+_113_A4_DO[00].output := gVLV[01].in.IS_ON;		(* Задвижка Э-97 открыта *)
+_113_A4_DO[01].output := gVLV[01].in.IS_OFF;	(* Задвижка Э-97 закрыта *)
+_113_A4_DO[02].output := gVLV[02].in.IS_ON;		(* Задвижка Э-98 открыта *)
+_113_A4_DO[03].output := gVLV[02].in.IS_OFF;	(* Задвижка Э-98 закрыта *)
+_113_A4_DO[04].output := gVLV[03].in.IS_ON;		(* Задвижка Э-99 открыта *)
+_113_A4_DO[05].output := gVLV[03].in.IS_OFF;	(* Задвижка Э-99 закрыта *)
+_113_A4_DO[06].output := gVLV[04].in.IS_ON;		(* Задвижка Э-100 открыта *)
+_113_A4_DO[07].output := gVLV[04].in.IS_OFF;	(* Задвижка Э-100 закрыта *)
+_113_A4_DO[08].output := gVLV[05].in.IS_ON;		(* Задвижка Э-101 открыта *)
+_113_A4_DO[09].output := gVLV[05].in.IS_OFF;	(* Задвижка Э-101 закрыта *)
+_113_A4_DO[10].output := gVLV[06].in.IS_ON;		(* Задвижка Э-102 открыта *)
+_113_A4_DO[11].output := gVLV[06].in.IS_OFF;	(* Задвижка Э-102 закрыта *)
+_113_A4_DO[12].output := gVLV[07].in.IS_ON;		(* Задвижка Э-103 открыта *)
+_113_A4_DO[13].output := gVLV[07].in.IS_OFF;	(* Задвижка Э-103 закрыта *)
+_113_A4_DO[14].output := gVLV[08].in.IS_ON;		(* Задвижка Э-104 открыта *)
+_113_A4_DO[15].output := gVLV[08].in.IS_OFF;	(* Задвижка Э-104 закрыта *)
+_113_A4_DO[16].output := gVLV[09].in.IS_ON;		(* Задвижка Э-105 открыта *)
+_113_A4_DO[17].output := gVLV[09].in.IS_OFF;	(* Задвижка Э-105 закрыта *)
+_113_A4_DO[18].output := gVLV[10].in.IS_ON;		(* Задвижка Э-106 открыта *)
+_113_A4_DO[19].output := gVLV[10].in.IS_OFF;	(* Задвижка Э-106 закрыта *)
+_113_A4_DO[20].output := gVLV[11].in.IS_ON;		(* Задвижка Э-107 открыта *)
+_113_A4_DO[21].output := gVLV[11].in.IS_OFF;	(* Задвижка Э-107 закрыта *)
+_113_A4_DO[22].output := gVLV[12].in.IS_ON;		(* Задвижка Э-108 открыта *)
+_113_A4_DO[23].output := gVLV[12].in.IS_OFF;	(* Задвижка Э-108 закрыта *)
+_113_A4_DO[24].output := gVLV[13].in.IS_ON;		(* Задвижка Э-109 открыта *)
+_113_A4_DO[25].output := gVLV[13].in.IS_OFF;	(* Задвижка Э-109 закрыта *)
+_113_A4_DO[26].output := gVLV[14].in.IS_ON;		(* Задвижка Э-110 открыта *)
+_113_A4_DO[27].output := gVLV[14].in.IS_OFF;	(* Задвижка Э-110 закрыта *)
+_113_A4_DO[28].output := gVLV[15].in.IS_ON;		(* Задвижка Э-111 открыта *)
+_113_A4_DO[29].output := gVLV[15].in.IS_OFF;	(* Задвижка Э-111 закрыта *)
+_113_A4_DO[30].output := gVLV[16].in.IS_ON;		(* Задвижка Э-112 открыта *)
+_113_A4_DO[31].output := gVLV[16].in.IS_OFF;	(* Задвижка Э-112 закрыта *)
+(* A5 *)
+_113_A5_DO[00].output := gVLV[17].in.IS_ON;		(* Задвижка Э-113 открыта *)
+_113_A5_DO[01].output := gVLV[17].in.IS_OFF;	(* Задвижка Э-113 закрыта *)
+_113_A5_DO[02].output := gVLV[18].in.IS_ON;		(* Задвижка Э-114 открыта *)
+_113_A5_DO[03].output := gVLV[18].in.IS_OFF;	(* Задвижка Э-114 закрыта *)
+_113_A5_DO[04].output := gVLV[19].in.IS_ON;		(* Задвижка Э-115 открыта *)
+_113_A5_DO[05].output := gVLV[19].in.IS_OFF;	(* Задвижка Э-115 закрыта *)
+_113_A5_DO[06].output := gVLV[20].in.IS_ON;		(* Задвижка Э-116 открыта *)
+_113_A5_DO[07].output := gVLV[20].in.IS_OFF;	(* Задвижка Э-116 закрыта *)
+_113_A5_DO[08].output := gVLV[21].in.IS_ON;		(* Задвижка Э-117 открыта *)
+_113_A5_DO[09].output := gVLV[21].in.IS_OFF;	(* Задвижка Э-117 закрыта *)
+_113_A5_DO[10].output := gVLV[22].in.IS_ON;		(* Задвижка Э-118 открыта *)
+_113_A5_DO[11].output := gVLV[22].in.IS_OFF;	(* Задвижка Э-118 закрыта *)
+_113_A5_DO[12].output := gVLV[23].in.IS_ON;		(* Задвижка Э-119 открыта *)
+_113_A5_DO[13].output := gVLV[23].in.IS_OFF;	(* Задвижка Э-119 закрыта *)
+_113_A5_DO[14].output := gVLV[24].in.IS_ON;		(* Задвижка Э-120 открыта *)
+_113_A5_DO[15].output := gVLV[24].in.IS_OFF;	(* Задвижка Э-120 закрыта *)
+_113_A5_DO[16].output := gVLV[25].in.IS_ON;		(* Задвижка Э-121 открыта *)
+_113_A5_DO[17].output := gVLV[25].in.IS_OFF;	(* Задвижка Э-121 закрыта *)
+_113_A5_DO[18].output := gVLV[26].in.IS_ON;		(* Задвижка Э-122 открыта *)
+_113_A5_DO[19].output := gVLV[26].in.IS_OFF;	(* Задвижка Э-122 закрыта *)
+_113_A5_DO[20].output := gVLV[27].in.IS_ON;		(* Задвижка Э-123 открыта *)
+_113_A5_DO[21].output := gVLV[27].in.IS_OFF;	(* Задвижка Э-123 закрыта *)
+_113_A5_DO[22].output := gVLV[28].in.IS_ON;		(* Задвижка Э-124 открыта *)
+_113_A5_DO[23].output := gVLV[28].in.IS_OFF;	(* Задвижка Э-124 закрыта *)
+_113_A5_DO[24].output := gVLV[29].in.IS_ON;		(* Задвижка Э-125 открыта *)
+_113_A5_DO[25].output := gVLV[29].in.IS_OFF;	(* Задвижка Э-125 закрыта *)
+_113_A5_DO[26].output := gVLV[30].in.IS_ON;		(* Задвижка Э-126 открыта *)
+_113_A5_DO[27].output := gVLV[30].in.IS_OFF;	(* Задвижка Э-126 закрыта *)
+_113_A5_DO[28].output := gVLV[31].in.IS_ON;		(* Задвижка Э-127 открыта *)
+_113_A5_DO[29].output := gVLV[31].in.IS_OFF;	(* Задвижка Э-127 закрыта *)
+_113_A5_DO[30].output := gVLV[32].in.IS_ON;		(* Задвижка Э-128 открыта *)
+_113_A5_DO[31].output := gVLV[32].in.IS_OFF;	(* Задвижка Э-128 закрыта *)
+(* A8 *)
+_113_A8_DO[00].output := gVLV[33].in.IS_ON;		(* Задвижка Э-177 открыта *)
+_113_A8_DO[01].output := gVLV[33].in.IS_OFF;	(* Задвижка Э-177 закрыта *)
+_113_A8_DO[02].output := gVLV[34].in.IS_ON;		(* Задвижка Э-178 открыта *)
+_113_A8_DO[03].output := gVLV[34].in.IS_OFF;	(* Задвижка Э-178 закрыта *)
+_113_A8_DO[04].output := gVLV[35].in.IS_ON;		(* Задвижка Э-179 открыта *)
+_113_A8_DO[05].output := gVLV[35].in.IS_OFF;	(* Задвижка Э-179 закрыта *)
+_113_A8_DO[06].output := gVLV[36].in.IS_ON;		(* Задвижка Э-180 открыта *)
+_113_A8_DO[07].output := gVLV[36].in.IS_OFF;	(* Задвижка Э-180 закрыта *)
+_113_A8_DO[08].output := gVLV[37].in.IS_ON;		(* Задвижка Э-181 открыта *)
+_113_A8_DO[09].output := gVLV[37].in.IS_OFF;	(* Задвижка Э-181 закрыта *)
+_113_A8_DO[10].output := gVLV[38].in.IS_ON;		(* Задвижка Э-182 открыта *)
+_113_A8_DO[11].output := gVLV[38].in.IS_OFF;	(* Задвижка Э-182 закрыта *)
+_113_A8_DO[12].output := gVLV[39].in.IS_ON;		(* Задвижка Э-183 открыта *)
+_113_A8_DO[13].output := gVLV[39].in.IS_OFF;	(* Задвижка Э-183 закрыта *)
+_113_A8_DO[14].output := gVLV[40].in.IS_ON;		(* Задвижка Э-184 открыта *)
+_113_A8_DO[15].output := gVLV[40].in.IS_OFF;	(* Задвижка Э-184 закрыта *)
+_113_A8_DO[16].output := gVLV[41].in.IS_ON;		(* Задвижка Э-185 открыта *)
+_113_A8_DO[17].output := gVLV[41].in.IS_OFF;	(* Задвижка Э-185 закрыта *)
+_113_A8_DO[18].output := gVLV[42].in.IS_ON;		(* Задвижка Э-186 открыта *)
+_113_A8_DO[19].output := gVLV[42].in.IS_OFF;	(* Задвижка Э-186 закрыта *)
+_113_A8_DO[20].output := gVLV[43].in.IS_ON;		(* Задвижка Э-187 открыта *)
+_113_A8_DO[21].output := gVLV[43].in.IS_OFF;	(* Задвижка Э-187 закрыта *)
+_113_A8_DO[22].output := gVLV[44].in.IS_ON;		(* Задвижка Э-188 открыта *)
+_113_A8_DO[23].output := gVLV[44].in.IS_OFF;	(* Задвижка Э-188 закрыта *)
+_113_A8_DO[24].output := gVLV[45].in.IS_ON;		(* Задвижка Э-189 открыта *)
+_113_A8_DO[25].output := gVLV[45].in.IS_OFF;	(* Задвижка Э-189 закрыта *)
+_113_A8_DO[26].output := gVLV[46].in.IS_ON;		(* Задвижка Э-190 открыта *)
+_113_A8_DO[27].output := gVLV[46].in.IS_OFF;	(* Задвижка Э-190 закрыта *)
+_113_A8_DO[28].output := gVLV[47].in.IS_ON;		(* Задвижка Э-191 открыта *)
+_113_A8_DO[29].output := gVLV[47].in.IS_OFF;	(* Задвижка Э-191 закрыта *)
+_113_A8_DO[30].output := gVLV[48].in.IS_ON;		(* Задвижка Э-192 открыта *)
+_113_A8_DO[31].output := gVLV[48].in.IS_OFF;	(* Задвижка Э-192 закрыта *)
+(* A9 *)
+_113_A9_DO[00].output := _dis;	(*  *)
+_113_A9_DO[01].output := _dis;	(*  *)
+_113_A9_DO[02].output := _dis;	(*  *)
+_113_A9_DO[03].output := _dis;	(*  *)
+_113_A9_DO[04].output := _dis;	(*  *)
+_113_A9_DO[05].output := _dis;	(*  *)
+_113_A9_DO[06].output := _dis;	(*  *)
+_113_A9_DO[07].output := _dis;	(*  *)
+_113_A9_DO[08].output := _dis;	(*  *)
+_113_A9_DO[09].output := _dis;	(*  *)
+_113_A9_DO[10].output := _dis;	(*  *)
+_113_A9_DO[11].output := _dis;	(*  *)
+_113_A9_DO[12].output := _dis;	(*  *)
+_113_A9_DO[13].output := _dis;	(*  *)
+_113_A9_DO[14].output := _dis;	(*  *)
+_113_A9_DO[15].output := _dis;	(*  *)
+_113_A9_DO[16].output := _dis;	(*  *)
+_113_A9_DO[17].output := _dis;	(*  *)
+_113_A9_DO[18].output := _dis;	(*  *)
+_113_A9_DO[19].output := _dis;	(*  *)
+_113_A9_DO[20].output := _dis;	(*  *)
+_113_A9_DO[21].output := _dis;	(*  *)
+_113_A9_DO[22].output := _dis;	(*  *)
+_113_A9_DO[23].output := _dis;	(*  *)
+_113_A9_DO[24].output := _dis;	(*  *)
+_113_A9_DO[25].output := _dis;	(*  *)
+_113_A9_DO[26].output := _dis;	(*  *)
+_113_A9_DO[27].output := _dis;	(*  *)
+_113_A9_DO[28].output := _dis;	(*  *)
+_113_A9_DO[29].output := _dis;	(*  *)
+_113_A9_DO[30].output := _dis;	(*  *)
+_113_A9_DO[31].output := _dis;	(*  *)
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 10: _113_End *)
+
+PROGRAM _113_End
+
+(* First Cycle *)
+First := TRUE;
+END_PROGRAM
+(* -------------------- *)
+
+
+
+(*============================================================*)
+
+
+(*=== APT114 ===*)
+
+(* FUNCTION BLOCK: FB_HMI_EXCH *)
+
+FUNCTION_BLOCK FB_HMI_EXCH
+
+gI := 1;
+IF First THEN gD := NOT gD; END_IF;
+(* Valves *)
+FOR i := 1 TO 48 DO
+	exchV(i);
+	(* Задвижка Э-145..Э-192 *)
+END_FOR;
+(* Discretes *)
+FOR i := 2 TO 1 BY -1 DO
+	exchD(i);
+	(* Состояние двери АПТ 1.1.4 *)
+	(* Наличие питания на вводе *)
+END_FOR;
+(* Connection *)
+w := CON114_113;	exchWord(w);
+w := CON114_23;		exchWord(w);
+(* Diagnostics *)
+CPU_pri[1] := __SYSVA_FO_ISPRIMARY;
+CPU_act[1] := __SYSVA_FO_ISACTIVE;
+CPU_pri[2] := NOT __SYSVA_FO_ISPRIMARY;
+CPU_act[2] := NOT __SYSVA_FO_ISACTIVE;
+exchMdlPSU(	inMdl := _114_G2_1_MDL,	inCh := _114_G2_1_PSU);
+exchMdlPSU(	inMdl := _114_G2_2_MDL,	inCh := _114_G2_2_PSU);
+exchMdlCPU(	inMdl := _114_A1_1_MDL,	isPri := CPU_pri[1],	isAct := CPU_act[1]);
+exchMdlCPU(	inMdl := _114_A1_2_MDL,	isPri := CPU_pri[2],	isAct := CPU_act[2]);
+exchMdlDI(	inMdl := _114_A2_MDl,	inCh := _114_A2_DI);
+exchMdlDI(	inMdl := _114_A3_MDl,	inCh := _114_A3_DI);
+exchMdlDO(	inMdl := _114_A4_MDl,	inCh := _114_A4_DO);
+exchMdlDO(	inMdl := _114_A5_MDl,	inCh := _114_A5_DO);
+exchMdlDI(	inMdl := _114_A6_MDl,	inCh := _114_A6_DI);
+exchMdlDI(	inMdl := _114_A7_MDl,	inCh := _114_A7_DI);
+exchMdlDO(	inMdl := _114_A8_MDl,	inCh := _114_A8_DO);
+exchMdlDO(	inMdl := _114_A9_MDl,	inCh := _114_A9_DO);
+END_FUNCTION_BLOCK
+(* -------------------- *)
+
+
+(* ROUTINE 01: _114_LinkInput *)
+
+PROGRAM _114_LinkInput
+
+(* A2 *)
+_dis					:= _114_A2_DI[00].input;	(*  *)
+_dis					:= _114_A2_DI[01].input;	(*  *)
+_dis					:= _114_A2_DI[02].input;	(*  *)
+_dis					:= _114_A2_DI[03].input;	(*  *)
+_dis					:= _114_A2_DI[04].input;	(*  *)
+_dis					:= _114_A2_DI[05].input;	(*  *)
+_dis					:= _114_A2_DI[06].input;	(*  *)
+_dis					:= _114_A2_DI[07].input;	(*  *)
+_dis					:= _114_A2_DI[08].input;	(*  *)
+_dis					:= _114_A2_DI[09].input;	(*  *)
+_dis					:= _114_A2_DI[10].input;	(*  *)
+_dis					:= _114_A2_DI[11].input;	(*  *)
+_dis					:= _114_A2_DI[12].input;	(*  *)
+_dis					:= _114_A2_DI[13].input;	(*  *)
+_dis					:= _114_A2_DI[14].input;	(*  *)
+_dis					:= _114_A2_DI[15].input;	(*  *)
+gVLV[01].in.LOCAL		:= _114_A2_DI[16].input;	(* Задвижка Э-145 Ручной режим *)		
+gVLV[01].in.REMOTE		:= _114_A2_DI[17].input;	(* Задвижка Э-145 Дистанционный режим *)
+gVLV[02].in.LOCAL		:= _114_A2_DI[18].input;	(* Задвижка Э-146 Ручной режим *)		
+gVLV[02].in.REMOTE		:= _114_A2_DI[19].input;	(* Задвижка Э-146 Дистанционный режим *)
+gVLV[03].in.LOCAL		:= _114_A2_DI[20].input;	(* Задвижка Э-147 Ручной режим *)		
+gVLV[03].in.REMOTE		:= _114_A2_DI[21].input;	(* Задвижка Э-147 Дистанционный режим *)
+gVLV[04].in.LOCAL		:= _114_A2_DI[22].input;	(* Задвижка Э-148 Ручной режим *)		
+gVLV[04].in.REMOTE		:= _114_A2_DI[23].input;	(* Задвижка Э-148 Дистанционный режим *)
+gVLV[05].in.LOCAL		:= _114_A2_DI[24].input;	(* Задвижка Э-149 Ручной режим *)		
+gVLV[05].in.REMOTE		:= _114_A2_DI[25].input;	(* Задвижка Э-149 Дистанционный режим *)
+gVLV[06].in.LOCAL		:= _114_A2_DI[26].input;	(* Задвижка Э-150 Ручной режим *)		
+gVLV[06].in.REMOTE		:= _114_A2_DI[27].input;	(* Задвижка Э-150 Дистанционный режим *)
+gVLV[07].in.LOCAL		:= _114_A2_DI[28].input;	(* Задвижка Э-151 Ручной режим *)		
+gVLV[07].in.REMOTE		:= _114_A2_DI[29].input;	(* Задвижка Э-151 Дистанционный режим *)
+gVLV[08].in.LOCAL		:= _114_A2_DI[30].input;	(* Задвижка Э-152 Ручной режим *)		
+gVLV[08].in.REMOTE		:= _114_A2_DI[31].input;	(* Задвижка Э-152 Дистанционный режим *)
+(* A3 *)
+gVLV[09].in.LOCAL		:= _114_A3_DI[00].input;	(* Задвижка Э-153 Ручной режим *)		
+gVLV[09].in.REMOTE		:= _114_A3_DI[01].input;	(* Задвижка Э-153 Дистанционный режим *)
+gVLV[10].in.LOCAL		:= _114_A3_DI[02].input;	(* Задвижка Э-154 Ручной режим *)		
+gVLV[10].in.REMOTE		:= _114_A3_DI[03].input;	(* Задвижка Э-154 Дистанционный режим *)
+gVLV[11].in.LOCAL		:= _114_A3_DI[04].input;	(* Задвижка Э-155 Ручной режим *)		
+gVLV[11].in.REMOTE		:= _114_A3_DI[05].input;	(* Задвижка Э-155 Дистанционный режим *)
+gVLV[12].in.LOCAL		:= _114_A3_DI[06].input;	(* Задвижка Э-156 Ручной режим *)		
+gVLV[12].in.REMOTE		:= _114_A3_DI[07].input;	(* Задвижка Э-156 Дистанционный режим *)
+gVLV[13].in.LOCAL		:= _114_A3_DI[08].input;	(* Задвижка Э-157 Ручной режим *)		
+gVLV[13].in.REMOTE		:= _114_A3_DI[09].input;	(* Задвижка Э-157 Дистанционный режим *)
+gVLV[14].in.LOCAL		:= _114_A3_DI[10].input;	(* Задвижка Э-158 Ручной режим *)		
+gVLV[14].in.REMOTE		:= _114_A3_DI[11].input;	(* Задвижка Э-158 Дистанционный режим *)
+gVLV[15].in.LOCAL		:= _114_A3_DI[12].input;	(* Задвижка Э-159 Ручной режим *)		
+gVLV[15].in.REMOTE		:= _114_A3_DI[13].input;	(* Задвижка Э-159 Дистанционный режим *)
+gVLV[16].in.LOCAL		:= _114_A3_DI[14].input;	(* Задвижка Э-160 Ручной режим *)		
+gVLV[16].in.REMOTE		:= _114_A3_DI[15].input;	(* Задвижка Э-160 Дистанционный режим *)
+gVLV[17].in.LOCAL		:= _114_A3_DI[16].input;	(* Задвижка Э-161 Ручной режим *)		
+gVLV[17].in.REMOTE		:= _114_A3_DI[17].input;	(* Задвижка Э-161 Дистанционный режим *)
+gVLV[18].in.LOCAL		:= _114_A3_DI[18].input;	(* Задвижка Э-162 Ручной режим *)		
+gVLV[18].in.REMOTE		:= _114_A3_DI[19].input;	(* Задвижка Э-162 Дистанционный режим *)
+gVLV[19].in.LOCAL		:= _114_A3_DI[20].input;	(* Задвижка Э-163 Ручной режим *)		
+gVLV[19].in.REMOTE		:= _114_A3_DI[21].input;	(* Задвижка Э-163 Дистанционный режим *)
+gVLV[20].in.LOCAL		:= _114_A3_DI[22].input;	(* Задвижка Э-164 Ручной режим *)		
+gVLV[20].in.REMOTE		:= _114_A3_DI[23].input;	(* Задвижка Э-164 Дистанционный режим *)
+gVLV[21].in.LOCAL		:= _114_A3_DI[24].input;	(* Задвижка Э-165 Ручной режим *)		
+gVLV[21].in.REMOTE		:= _114_A3_DI[25].input;	(* Задвижка Э-165 Дистанционный режим *)
+gVLV[22].in.LOCAL		:= _114_A3_DI[26].input;	(* Задвижка Э-166 Ручной режим *)		
+gVLV[22].in.REMOTE		:= _114_A3_DI[27].input;	(* Задвижка Э-166 Дистанционный режим *)
+gVLV[23].in.LOCAL		:= _114_A3_DI[28].input;	(* Задвижка Э-167 Ручной режим *)		
+gVLV[23].in.REMOTE		:= _114_A3_DI[29].input;	(* Задвижка Э-167 Дистанционный режим *)
+gVLV[24].in.LOCAL		:= _114_A3_DI[30].input;	(* Задвижка Э-168 Ручной режим *)		
+gVLV[24].in.REMOTE		:= _114_A3_DI[31].input;	(* Задвижка Э-168 Дистанционный режим *)
+(* A6 *)
+gVLV[25].in.LOCAL		:= _114_A6_DI[00].input;	(* Задвижка Э-169 Ручной режим *)		
+gVLV[25].in.REMOTE		:= _114_A6_DI[01].input;	(* Задвижка Э-169 Дистанционный режим *)
+gVLV[26].in.LOCAL		:= _114_A6_DI[02].input;	(* Задвижка Э-170 Ручной режим *)		
+gVLV[26].in.REMOTE		:= _114_A6_DI[03].input;	(* Задвижка Э-170 Дистанционный режим *)
+gVLV[27].in.LOCAL		:= _114_A6_DI[04].input;	(* Задвижка Э-171 Ручной режим *)		
+gVLV[27].in.REMOTE		:= _114_A6_DI[05].input;	(* Задвижка Э-171 Дистанционный режим *)
+gVLV[28].in.LOCAL		:= _114_A6_DI[06].input;	(* Задвижка Э-172 Ручной режим *)		
+gVLV[28].in.REMOTE		:= _114_A6_DI[07].input;	(* Задвижка Э-172 Дистанционный режим *)
+gVLV[29].in.LOCAL		:= _114_A6_DI[08].input;	(* Задвижка Э-173 Ручной режим *)		
+gVLV[29].in.REMOTE		:= _114_A6_DI[09].input;	(* Задвижка Э-173 Дистанционный режим *)
+gVLV[30].in.LOCAL		:= _114_A6_DI[10].input;	(* Задвижка Э-174 Ручной режим *)		
+gVLV[30].in.REMOTE		:= _114_A6_DI[11].input;	(* Задвижка Э-174 Дистанционный режим *)
+gVLV[31].in.LOCAL		:= _114_A6_DI[12].input;	(* Задвижка Э-175 Ручной режим *)		
+gVLV[31].in.REMOTE		:= _114_A6_DI[13].input;	(* Задвижка Э-175 Дистанционный режим *)
+gVLV[32].in.LOCAL		:= _114_A6_DI[14].input;	(* Задвижка Э-176 Ручной режим *)		
+gVLV[32].in.REMOTE		:= _114_A6_DI[15].input;	(* Задвижка Э-176 Дистанционный режим *)
+gVLV[33].in.LOCAL		:= _114_A6_DI[16].input;	(* Задвижка Э-177 Ручной режим *)		
+gVLV[33].in.REMOTE		:= _114_A6_DI[17].input;	(* Задвижка Э-177 Дистанционный режим *)
+gVLV[34].in.LOCAL		:= _114_A6_DI[18].input;	(* Задвижка Э-178 Ручной режим *)		
+gVLV[34].in.REMOTE		:= _114_A6_DI[19].input;	(* Задвижка Э-178 Дистанционный режим *)
+gVLV[35].in.LOCAL		:= _114_A6_DI[20].input;	(* Задвижка Э-179 Ручной режим *)		
+gVLV[35].in.REMOTE		:= _114_A6_DI[21].input;	(* Задвижка Э-179 Дистанционный режим *)
+gVLV[36].in.LOCAL		:= _114_A6_DI[22].input;	(* Задвижка Э-180 Ручной режим *)		
+gVLV[36].in.REMOTE		:= _114_A6_DI[23].input;	(* Задвижка Э-180 Дистанционный режим *)
+gVLV[37].in.LOCAL		:= _114_A6_DI[24].input;	(* Задвижка Э-181 Ручной режим *)		
+gVLV[37].in.REMOTE		:= _114_A6_DI[25].input;	(* Задвижка Э-181 Дистанционный режим *)
+gVLV[38].in.LOCAL		:= _114_A6_DI[26].input;	(* Задвижка Э-182 Ручной режим *)		
+gVLV[38].in.REMOTE		:= _114_A6_DI[27].input;	(* Задвижка Э-182 Дистанционный режим *)
+gVLV[39].in.LOCAL		:= _114_A6_DI[28].input;	(* Задвижка Э-183 Ручной режим *)		
+gVLV[39].in.REMOTE		:= _114_A6_DI[29].input;	(* Задвижка Э-183 Дистанционный режим *)
+gVLV[40].in.LOCAL		:= _114_A6_DI[30].input;	(* Задвижка Э-184 Ручной режим *)		
+gVLV[40].in.REMOTE		:= _114_A6_DI[31].input;	(* Задвижка Э-184 Дистанционный режим *)
+(* A7 *)
+_mdl := MdlErr(_114_A7_MDL);
+gVLV[41].in.LOCAL		:= _114_A7_DI[00].input;	(* Задвижка Э-185 Ручной режим *)		
+gVLV[41].in.REMOTE		:= _114_A7_DI[01].input;	(* Задвижка Э-185 Дистанционный режим *)
+gVLV[42].in.LOCAL		:= _114_A7_DI[02].input;	(* Задвижка Э-186 Ручной режим *)		
+gVLV[42].in.REMOTE		:= _114_A7_DI[03].input;	(* Задвижка Э-186 Дистанционный режим *)
+gVLV[43].in.LOCAL		:= _114_A7_DI[04].input;	(* Задвижка Э-187 Ручной режим *)		
+gVLV[43].in.REMOTE		:= _114_A7_DI[05].input;	(* Задвижка Э-187 Дистанционный режим *)
+gVLV[44].in.LOCAL		:= _114_A7_DI[06].input;	(* Задвижка Э-188 Ручной режим *)		
+gVLV[44].in.REMOTE		:= _114_A7_DI[07].input;	(* Задвижка Э-188 Дистанционный режим *)
+gVLV[45].in.LOCAL		:= _114_A7_DI[08].input;	(* Задвижка Э-189 Ручной режим *)		
+gVLV[45].in.REMOTE		:= _114_A7_DI[09].input;	(* Задвижка Э-189 Дистанционный режим *)
+gVLV[46].in.LOCAL		:= _114_A7_DI[10].input;	(* Задвижка Э-190 Ручной режим *)		
+gVLV[46].in.REMOTE		:= _114_A7_DI[11].input;	(* Задвижка Э-190 Дистанционный режим *)
+gVLV[47].in.LOCAL		:= _114_A7_DI[12].input;	(* Задвижка Э-191 Ручной режим *)		
+gVLV[47].in.REMOTE		:= _114_A7_DI[13].input;	(* Задвижка Э-191 Дистанционный режим *)
+gVLV[48].in.LOCAL		:= _114_A7_DI[14].input;	(* Задвижка Э-192 Ручной режим *)		
+gVLV[48].in.REMOTE		:= _114_A7_DI[15].input;	(* Задвижка Э-192 Дистанционный режим *)
+gDI[1].IN				:= _114_A7_DI[16].input;	gDI[1].MDL := _mdl; (* Состояние двери АПТ 1.1.4 *)
+gDI[2].IN				:= _114_A7_DI[17].input;	gDI[2].MDL := _mdl; (* Наличие питания на вводе *)
+_dis					:= _114_A7_DI[18].input;	(*  *)
+_dis					:= _114_A7_DI[19].input;	(*  *)
+_dis					:= _114_A7_DI[20].input;	(*  *)
+_dis					:= _114_A7_DI[21].input;	(*  *)
+_dis					:= _114_A7_DI[22].input;	(*  *)
+_dis					:= _114_A7_DI[23].input;	(*  *)
+_dis					:= _114_A7_DI[24].input;	(*  *)
+_dis					:= _114_A7_DI[25].input;	(*  *)
+_dis					:= _114_A7_DI[26].input;	(*  *)
+_dis					:= _114_A7_DI[27].input;	(*  *)
+_dis					:= _114_A7_DI[28].input;	(*  *)
+_dis					:= _114_A7_DI[29].input;	(*  *)
+_dis					:= _114_A7_DI[30].input;	(*  *)
+_dis					:= _114_A7_DI[31].input;	(*  *)
+
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 02: _114_HMI_in *)
+
+PROGRAM _114_HMI_in
+
+(* Transfering from HMI *)
+hmiExch();
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 03: _114_Inst *)
+
+PROGRAM _114_Inst
+
+(* Valves *)
+FOR i := 1 TO 48 DO
+	_gVLV(i);
+	(* Задвижка Э-145..Э-192 *)
+END_FOR;
+
+(* Discretes *)
+FOR i := 1 TO 2 DO
+	_gDI(i);
+	(* Состояние двери АПТ 1.1.4 *)
+	(* Наличие питания на вводе *)
+END_FOR;
+
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 04: _114_Automatic *)
+
+PROGRAM _114_Automatic
+
+(* Пожар на резервуаре 1/25 *)
+i := 1;
+v[ 1] := 147	-48*3;
+v[ 2] := 148	-48*3;
+v[ 3] := 149	-48*3;
+v[ 4] := 150	-48*3;
+v[ 5] := 153	-48*3;
+v[ 6] := 154	-48*3;
+v[ 7] := 192	-48*3;
+v[ 8] := 189	-48*3;
+v[ 9] := 0		;
+v[10] := 0		;
+vr[1] := 146	-48*3;
+vr[2] := 145	-48*3;
+vr[3] := 187	-48*3;
+vr[4] := 188	-48*3;
+vlv(g := i,	v := v,	vr := vr); i:=i+1;
+(* Пожар на резервуаре 1/26 *)
+v[ 1] := 153	-48*3;
+v[ 2] := 154	-48*3;
+v[ 3] := 155	-48*3;
+v[ 4] := 156	-48*3;
+v[ 5] := 149	-48*3;
+v[ 6] := 150	-48*3;
+v[ 7] := 159	-48*3;
+v[ 8] := 160	-48*3;
+v[ 9] := 186	-48*3;
+v[10] := 183	-48*3;
+vr[1] := 152	-48*3;
+vr[2] := 151	-48*3;
+vr[3] := 181	-48*3;
+vr[4] := 182	-48*3;
+vlv(g := i,	v := v,	vr := vr); i:=i+1;
+(* Пожар на резервуаре 1/27 *)
+v[ 1] := 159	-48*3;
+v[ 2] := 160	-48*3;
+v[ 3] := 161	-48*3;
+v[ 4] := 162	-48*3;
+v[ 5] := 155	-48*3;
+v[ 6] := 156	-48*3;
+v[ 7] := 165	-48*3;
+v[ 8] := 166	-48*3;
+v[ 9] := 180	-48*3;
+v[10] := 177	-48*3;
+vr[1] := 158	-48*3;
+vr[2] := 157	-48*3;
+vr[3] := 175	-48*3;
+vr[4] := 176	-48*3;
+vlv(g := i,	v := v,	vr := vr); i:=i+1;
+(* Пожар на резервуаре 1/28 *)
+v[ 1] := 189	-48*3;
+v[ 2] := 190	-48*3;
+v[ 3] := 191	-48*3;
+v[ 4] := 192	-48*3;
+v[ 5] := 185	-48*3;
+v[ 6] := 186	-48*3;
+v[ 7] := 147	-48*3;
+v[ 8] := 150	-48*3;
+v[ 9] := 0		;
+v[10] := 0		;
+vr[1] := 145	-48*3;
+vr[2] := 146	-48*3;
+vr[3] := 188	-48*3;
+vr[4] := 187	-48*3;
+vlv(g := i,	v := v,	vr := vr); i:=i+1;
+(* Пожар на резервуаре 1/29 *)
+v[ 1] := 183	-48*3;
+v[ 2] := 184	-48*3;
+v[ 3] := 185	-48*3;
+v[ 4] := 186	-48*3;
+v[ 5] := 189	-48*3;
+v[ 6] := 190	-48*3;
+v[ 7] := 153	-48*3;
+v[ 8] := 156	-48*3;
+v[ 9] := 179	-48*3;
+v[10] := 180	-48*3;
+vr[1] := 151	-48*3;
+vr[2] := 152	-48*3;
+vr[3] := 182	-48*3;
+vr[4] := 181	-48*3;
+vlv(g := i,	v := v,	vr := vr); i:=i+1;
+(* Пожар на резервуаре 1/30 *)
+v[ 1] := 177	-48*3;
+v[ 2] := 178	-48*3;
+v[ 3] := 179	-48*3;
+v[ 4] := 180	-48*3;
+v[ 5] := 183	-48*3;
+v[ 6] := 184	-48*3;
+v[ 7] := 159	-48*3;
+v[ 8] := 162	-48*3;
+v[ 9] := 173	-48*3;
+v[10] := 174	-48*3;
+vr[1] := 157	-48*3;
+vr[2] := 158	-48*3;
+vr[3] := 176	-48*3;
+vr[4] := 175	-48*3;
+vlv(g := i,	v := v,	vr := vr); i:=i+1;
+(* Пожар на резервуаре 1/31 *)
+v[ 1] := 165	-48*3;
+v[ 2] := 166	-48*3;
+v[ 3] := 167	-48*3;
+v[ 4] := 168	-48*3;
+v[ 5] := 161	-48*3;
+v[ 6] := 162	-48*3;
+v[ 7] := 174	-48*3;
+v[ 8] := 171	-48*3;
+v[ 9] := 0		;
+v[10] := 0		;
+vr[1] := 164	-48*3;
+vr[2] := 163	-48*3;
+vr[3] := 169	-48*3;
+vr[4] := 170	-48*3;
+vlv(g := i,	v := v,	vr := vr); i:=i+1;
+(* Пожар на резервуаре 1/32 *)
+v[ 1] := 171	-48*3;
+v[ 2] := 172	-48*3;
+v[ 3] := 173	-48*3;
+v[ 4] := 174	-48*3;
+v[ 5] := 177	-48*3;
+v[ 6] := 178	-48*3;
+v[ 7] := 165	-48*3;
+v[ 8] := 168	-48*3;
+v[ 9] := 0		;
+v[10] := 0		;
+vr[1] := 163	-48*3;
+vr[2] := 164	-48*3;
+vr[3] := 170	-48*3;
+vr[4] := 169	-48*3;
+vlv(g := i,	v := v,	vr := vr); i:=i+1;
+(* Автоматическое управление задвижками *)
+b := VlvAut(v :=  1, fs1 := 1, fs2 := 28-8*3);
+b := VlvAut(v :=  2, fs1 := 1, fs2 := 28-8*3);
+b := VlvAut(v :=  3, fs1 := 1, fs2 := 0);
+b := VlvAut(v :=  4, fs1 := 1, fs2 := 0);
+b := VlvAut(v :=  5, fs1 := 1, fs2 := 0);
+b := VlvAut(v :=  6, fs1 := 1, fs2 := 0);
+b := VlvAut(v :=  7, fs1 := 2, fs2 := 29-8*3);
+b := VlvAut(v :=  8, fs1 := 2, fs2 := 29-8*3);
+b := VlvAut(v :=  9, fs1 := 2, fs2 := 0);
+b := VlvAut(v := 10, fs1 := 2, fs2 := 0);
+b := VlvAut(v := 11, fs1 := 2, fs2 := 0);
+b := VlvAut(v := 12, fs1 := 2, fs2 := 0);
+b := VlvAut(v := 13, fs1 := 3, fs2 := 30-8*3);
+b := VlvAut(v := 14, fs1 := 3, fs2 := 30-8*3);
+b := VlvAut(v := 15, fs1 := 3, fs2 := 0);
+b := VlvAut(v := 16, fs1 := 3, fs2 := 0);
+b := VlvAut(v := 17, fs1 := 3, fs2 := 0);
+b := VlvAut(v := 18, fs1 := 3, fs2 := 0);
+b := VlvAut(v := 19, fs1 := 7, fs2 := 32-8*3);
+b := VlvAut(v := 20, fs1 := 7, fs2 := 32-8*3);
+b := VlvAut(v := 21, fs1 := 7, fs2 := 0);
+b := VlvAut(v := 22, fs1 := 7, fs2 := 0);
+b := VlvAut(v := 23, fs1 := 7, fs2 := 0);
+b := VlvAut(v := 24, fs1 := 7, fs2 := 0);
+b := VlvAut(v := 25, fs1 := 8, fs2 := 31-8*3);
+b := VlvAut(v := 26, fs1 := 8, fs2 := 31-8*3);
+b := VlvAut(v := 27, fs1 := 8, fs2 := 0);
+b := VlvAut(v := 28, fs1 := 8, fs2 := 0);
+b := VlvAut(v := 29, fs1 := 8, fs2 := 0);
+b := VlvAut(v := 30, fs1 := 8, fs2 := 0);
+b := VlvAut(v := 31, fs1 := 6, fs2 := 27-8*3);
+b := VlvAut(v := 32, fs1 := 6, fs2 := 27-8*3);
+b := VlvAut(v := 33, fs1 := 6, fs2 := 0);
+b := VlvAut(v := 34, fs1 := 6, fs2 := 0);
+b := VlvAut(v := 35, fs1 := 6, fs2 := 0);
+b := VlvAut(v := 36, fs1 := 6, fs2 := 0);
+b := VlvAut(v := 37, fs1 := 5, fs2 := 26-8*3);
+b := VlvAut(v := 38, fs1 := 5, fs2 := 26-8*3);
+b := VlvAut(v := 39, fs1 := 5, fs2 := 0);
+b := VlvAut(v := 40, fs1 := 5, fs2 := 0);
+b := VlvAut(v := 41, fs1 := 5, fs2 := 0);
+b := VlvAut(v := 42, fs1 := 5, fs2 := 0);
+b := VlvAut(v := 43, fs1 := 4, fs2 := 25-8*3);
+b := VlvAut(v := 44, fs1 := 4, fs2 := 25-8*3);
+b := VlvAut(v := 45, fs1 := 4, fs2 := 0);
+b := VlvAut(v := 46, fs1 := 4, fs2 := 0);
+b := VlvAut(v := 47, fs1 := 4, fs2 := 0);
+b := VlvAut(v := 48, fs1 := 4, fs2 := 0);
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 05: _114_RTU_Master *)
+
+PROGRAM _114_RTU_Master
+
+(* First Cycle *)
+IF NOT First OR sInit THEN
+	sInit := FALSE;
+	
+	(* 48 identical valves on 2 ports; 24 valves on each port; 2 requests for each valve: read, write; 48 requests on each port *)
+	(* available: 8 request groups on each port, 16 requests in each group *)
+	sMaxReqs := 16;
+	sMaxCtrls := (24 * 2) / sMaxReqs; (* 24 = Number of Modbus Devices *)
+	(* Preparing configs for requests *)
+	FOR i := 1 TO 24 DO
+		(* reading *)
+		cfg_SID[i*2 - 1] := ANY_TO_BYTE(i);
+		cfg_FUN[i*2 - 1] := 3;
+		cfg_ADR[i*2 - 1] := 4; (* 40004; *)
+		cfg_LEN[i*2 - 1] := 4;
+		(* writing *)
+		cfg_SID[i*2 - 0] := ANY_TO_BYTE(i);
+		cfg_FUN[i*2 - 0] := 16;
+		cfg_ADR[i*2 - 0] := 2; (* 40002; *)
+		cfg_LEN[i*2 - 0] := 2;
+	END_FOR;
+	sOffset := 0;
+	sReqNo := 1;
+	sCtrlNo := 0;
+	(* Configuring requests *)
+	FOR i := 1 TO 48 DO
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].enable := TRUE;
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].single_request := FALSE;
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].on_modify_request := FALSE;
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].do_single_req := FALSE;
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].command.timeout_ms := 1000;
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].command.repeat_over_scan := TRUE;
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].command.slave_id 			:= cfg_SID[i];
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].command.func_code 		:= cfg_FUN[i];
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].command.slave_data_addr	:= cfg_ADR[i];
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].command.slave_data_length	:= cfg_LEN[i];
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].command.offset := sOffset;
+		sOffset := sOffset + cfg_LEN[i];
+		sReqNo := sReqNo + 1;
+		IF sReqNo > sMaxReqs THEN 
+			sReqNo := 1;
+			sCtrlNo := sCtrlNo + 1;
+			IF sCtrlNo > sMaxCtrls THEN 
+				sCtrlNo := 0;
+			END_IF;
+		END_IF;
+	END_FOR;
+	_Ctrl_2 := _Ctrl_1;
+	_Control_1 := 1;
+	_Control_2 := 1;
+END_IF;
+
+(* Every Cycle *)
+sCtrlNo := 0;
+sReqNo := 1;
+FOR i := 1 TO 24 DO
+	(* 24 valves on Port 1 *)
+	j:=i;
+	sCOBA(
+		iReqStatus	:= _Diag_1[sCtrlNo].RequestsAndStats[sReqNo].status_request,
+		i40004 	:= _HR_1[0].regs[(i-1)*6 + 1],
+		i40005 	:= _HR_1[0].regs[(i-1)*6 + 2],
+		i40006 	:= _HR_1[0].regs[(i-1)*6 + 3],
+		i40007 	:= _HR_1[0].regs[(i-1)*6 + 4],
+		g		:= j,
+		o40002	=> _HR_1[0].regs[(i-1)*6 + 5],
+		o40003	=> _HR_1[0].regs[(i-1)*6 + 6]
+	);
+	(* 24 valves on Port 2 *)
+	j:=i+24;
+	sCOBA(
+		iReqStatus	:= _Diag_2[sCtrlNo].RequestsAndStats[sReqNo].status_request,
+		i40004 	:= _HR_2[0].regs[(i-1)*6 + 1],
+		i40005 	:= _HR_2[0].regs[(i-1)*6 + 2],
+		i40006 	:= _HR_2[0].regs[(i-1)*6 + 3],
+		i40007 	:= _HR_2[0].regs[(i-1)*6 + 4],
+		g		:= j,
+		o40002	=> _HR_2[0].regs[(i-1)*6 + 5],
+		o40003	=> _HR_2[0].regs[(i-1)*6 + 6]
+	);
+	sReqNo := sReqNo + 1;
+	IF sReqNo > sMaxReqs THEN 
+		sReqNo := 1;
+		sCtrlNo := sCtrlNo + 1;
+		IF sCtrlNo > sMaxCtrls THEN 
+			sCtrlNo := 0;
+		END_IF;
+	END_IF;
+END_FOR;
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 06: _114_TCP_Master *)
+
+PROGRAM _114_TCP_Master
+
+(* First Cycle *)
+IF NOT First THEN
+	_Control := 1;
+	(*	En	IP					Port	ID	Func	RegNo			Len		Offset in _HR	Timeout	*)
+	rq01(1,	'192.168.0.3'	,	502	,	1,	3	,	1			,	1	,	2000			,	1000);	_Ctrl[0].Requests[ 1] := rq01.out;	(* АПТ 1.1.3 основной *)
+	rq02(0,	'192.168.1.3'	,	502	,	1,	3	,	1			,	1	,	2000			,	1000);	_Ctrl[0].Requests[ 2] := rq02.out;	(* АПТ 1.1.3 резервный *)
+	rq03(1,	'192.168.0.5'	,	502	,	1,	3	,	1001		,	43	,	0				,	1000);	_Ctrl[0].Requests[ 5] := rq03.out;	(* АПТ 2.3 основной *)
+	rq04(0,	'192.168.1.5'	,	502	,	1,	3	,	1001		,	43	,	0				,	1000);	_Ctrl[0].Requests[ 6] := rq04.out;	(* АПТ 2.3 резервный *)
+	rq05(1,	'192.168.0.5'	,	502	,	1,	16	,	1101+8*3	,	8	,	100				,	1000);	_Ctrl[0].Requests[ 7] := rq05.out;	(* АПТ 2.3 основной *)
+	rq06(0,	'192.168.1.5'	,	502	,	1,	16	,	1101+8*3	,	8	,	100				,	1000);	_Ctrl[0].Requests[ 8] := rq06.out;	(* АПТ 2.3 резервный *)
+END_IF;
+
+sCtrlNo := 0;
+(* 113 *)
+sReqNo := 1;
+IF _Ctrl[sCtrlNo].Requests[sReqNo].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>100 THEN
+		CON114_113 := 0;
+		IF Timer[sReqNo]<3000 THEN
+			Timer[sReqNo] := Timer[sReqNo] + CYCLE_TIME;
+		ELSE
+			_Ctrl[sCtrlNo].Requests[sReqNo].enable := FALSE;
+			_Ctrl[sCtrlNo].Requests[sReqNo+1].enable := TRUE;
+			Timer[sReqNo] := 0;
+		END_IF;
+	ELSE
+		CON114_113 := 1;
+	END_IF;
+END_IF;
+IF _Ctrl[sCtrlNo].Requests[sReqNo+1].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo+1].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo+1].status_request<>100 THEN
+		CON114_113 := 0;
+		IF Timer[sReqNo+1]<3000 THEN
+			Timer[sReqNo+1] := Timer[sReqNo+1] + CYCLE_TIME;
+		ELSE
+			_Ctrl[sCtrlNo].Requests[sReqNo+1].enable := FALSE;
+			_Ctrl[sCtrlNo].Requests[sReqNo].enable := TRUE;
+			Timer[sReqNo+1] := 0;
+		END_IF;
+	ELSE
+		CON114_113 := 1;
+	END_IF;
+END_IF;
+(* 23 read *)
+sReqNo := 5;
+IF _Ctrl[sCtrlNo].Requests[sReqNo].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>100 THEN
+		CON114_23 := 0;
+		IF Timer[sReqNo]<3000 THEN
+			Timer[sReqNo] := Timer[sReqNo] + CYCLE_TIME;
+		ELSE
+			_Ctrl[sCtrlNo].Requests[sReqNo].enable := FALSE;
+			_Ctrl[sCtrlNo].Requests[sReqNo+1].enable := TRUE;
+			Timer[sReqNo] := 0;
+		END_IF;
+	ELSE
+		CON114_23 := 1;
+	END_IF;
+END_IF;
+IF _Ctrl[sCtrlNo].Requests[sReqNo+1].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo+1].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo+1].status_request<>100 THEN
+		CON114_23 := 0;
+		IF Timer[sReqNo+1]<3000 THEN
+			Timer[sReqNo+1] := Timer[sReqNo+1] + CYCLE_TIME;
+		ELSE
+			_Ctrl[sCtrlNo].Requests[sReqNo+1].enable := FALSE;
+			_Ctrl[sCtrlNo].Requests[sReqNo].enable := TRUE;
+			Timer[sReqNo+1] := 0;
+		END_IF;
+	ELSE
+		CON114_23 := 1;
+	END_IF;
+END_IF;
+(* 23 write *)
+sReqNo := 7;
+IF _Ctrl[sCtrlNo].Requests[sReqNo].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>100 THEN
+		;
+		IF Timer[sReqNo]<3000 THEN
+			Timer[sReqNo] := Timer[sReqNo] + CYCLE_TIME;
+		ELSE
+			_Ctrl[sCtrlNo].Requests[sReqNo].enable := FALSE;
+			_Ctrl[sCtrlNo].Requests[sReqNo+1].enable := TRUE;
+			Timer[sReqNo] := 0;
+		END_IF;
+	ELSE
+		;
+	END_IF;
+END_IF;
+IF _Ctrl[sCtrlNo].Requests[sReqNo+1].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo+1].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo+1].status_request<>100 THEN
+		;
+		IF Timer[sReqNo+1]<3000 THEN
+			Timer[sReqNo+1] := Timer[sReqNo+1] + CYCLE_TIME;
+		ELSE
+			_Ctrl[sCtrlNo].Requests[sReqNo+1].enable := FALSE;
+			_Ctrl[sCtrlNo].Requests[sReqNo].enable := TRUE;
+			Timer[sReqNo+1] := 0;
+		END_IF;
+	ELSE
+		;
+	END_IF;
+END_IF;
+
+
+(* Пожар резервуаров 1/25..1/32 *)
+FOR i := 1 TO 8 DO
+	gFS[i].PRM.FIRE := _HR[0].regs[i+8*3];
+END_FOR;
+(* Состояние клапанов *)
+FOR i := 1 TO 8 DO
+	_HR[0].regs[i + 100] := gFS[i].PRM.VLVS;
+END_FOR;
+
+
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 07: _114_HMI_out *)
+
+PROGRAM _114_HMI_out
+
+(* Transfering to HMI *)
+hmiExch();
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 08: _114_LinkOutput *)
+
+PROGRAM _114_LinkOutput
+
+(* A4 *)
+_114_A4_DO[00].output := gVLV[01].in.IS_ON;		(* Задвижка Э-145 открыта *)
+_114_A4_DO[01].output := gVLV[01].in.IS_OFF;	(* Задвижка Э-145 закрыта *)
+_114_A4_DO[02].output := gVLV[02].in.IS_ON;		(* Задвижка Э-146 открыта *)
+_114_A4_DO[03].output := gVLV[02].in.IS_OFF;	(* Задвижка Э-146 закрыта *)
+_114_A4_DO[04].output := gVLV[03].in.IS_ON;		(* Задвижка Э-147 открыта *)
+_114_A4_DO[05].output := gVLV[03].in.IS_OFF;	(* Задвижка Э-147 закрыта *)
+_114_A4_DO[06].output := gVLV[04].in.IS_ON;		(* Задвижка Э-148 открыта *)
+_114_A4_DO[07].output := gVLV[04].in.IS_OFF;	(* Задвижка Э-148 закрыта *)
+_114_A4_DO[08].output := gVLV[05].in.IS_ON;		(* Задвижка Э-149 открыта *)
+_114_A4_DO[09].output := gVLV[05].in.IS_OFF;	(* Задвижка Э-149 закрыта *)
+_114_A4_DO[10].output := gVLV[06].in.IS_ON;		(* Задвижка Э-150 открыта *)
+_114_A4_DO[11].output := gVLV[06].in.IS_OFF;	(* Задвижка Э-150 закрыта *)
+_114_A4_DO[12].output := gVLV[07].in.IS_ON;		(* Задвижка Э-151 открыта *)
+_114_A4_DO[13].output := gVLV[07].in.IS_OFF;	(* Задвижка Э-151 закрыта *)
+_114_A4_DO[14].output := gVLV[08].in.IS_ON;		(* Задвижка Э-152 открыта *)
+_114_A4_DO[15].output := gVLV[08].in.IS_OFF;	(* Задвижка Э-152 закрыта *)
+_114_A4_DO[16].output := gVLV[09].in.IS_ON;		(* Задвижка Э-153 открыта *)
+_114_A4_DO[17].output := gVLV[09].in.IS_OFF;	(* Задвижка Э-153 закрыта *)
+_114_A4_DO[18].output := gVLV[10].in.IS_ON;		(* Задвижка Э-154 открыта *)
+_114_A4_DO[19].output := gVLV[10].in.IS_OFF;	(* Задвижка Э-154 закрыта *)
+_114_A4_DO[20].output := gVLV[11].in.IS_ON;		(* Задвижка Э-155 открыта *)
+_114_A4_DO[21].output := gVLV[11].in.IS_OFF;	(* Задвижка Э-155 закрыта *)
+_114_A4_DO[22].output := gVLV[12].in.IS_ON;		(* Задвижка Э-156 открыта *)
+_114_A4_DO[23].output := gVLV[12].in.IS_OFF;	(* Задвижка Э-156 закрыта *)
+_114_A4_DO[24].output := gVLV[13].in.IS_ON;		(* Задвижка Э-157 открыта *)
+_114_A4_DO[25].output := gVLV[13].in.IS_OFF;	(* Задвижка Э-157 закрыта *)
+_114_A4_DO[26].output := gVLV[14].in.IS_ON;		(* Задвижка Э-158 открыта *)
+_114_A4_DO[27].output := gVLV[14].in.IS_OFF;	(* Задвижка Э-158 закрыта *)
+_114_A4_DO[28].output := gVLV[15].in.IS_ON;		(* Задвижка Э-159 открыта *)
+_114_A4_DO[29].output := gVLV[15].in.IS_OFF;	(* Задвижка Э-159 закрыта *)
+_114_A4_DO[30].output := gVLV[16].in.IS_ON;		(* Задвижка Э-160 открыта *)
+_114_A4_DO[31].output := gVLV[16].in.IS_OFF;	(* Задвижка Э-160 закрыта *)
+(* A5 *)
+_114_A5_DO[00].output := gVLV[17].in.IS_ON;		(* Задвижка Э-161 открыта *)
+_114_A5_DO[01].output := gVLV[17].in.IS_OFF;	(* Задвижка Э-161 закрыта *)
+_114_A5_DO[02].output := gVLV[18].in.IS_ON;		(* Задвижка Э-162 открыта *)
+_114_A5_DO[03].output := gVLV[18].in.IS_OFF;	(* Задвижка Э-162 закрыта *)
+_114_A5_DO[04].output := gVLV[19].in.IS_ON;		(* Задвижка Э-163 открыта *)
+_114_A5_DO[05].output := gVLV[19].in.IS_OFF;	(* Задвижка Э-163 закрыта *)
+_114_A5_DO[06].output := gVLV[20].in.IS_ON;		(* Задвижка Э-164 открыта *)
+_114_A5_DO[07].output := gVLV[20].in.IS_OFF;	(* Задвижка Э-164 закрыта *)
+_114_A5_DO[08].output := gVLV[21].in.IS_ON;		(* Задвижка Э-165 открыта *)
+_114_A5_DO[09].output := gVLV[21].in.IS_OFF;	(* Задвижка Э-165 закрыта *)
+_114_A5_DO[10].output := gVLV[22].in.IS_ON;		(* Задвижка Э-166 открыта *)
+_114_A5_DO[11].output := gVLV[22].in.IS_OFF;	(* Задвижка Э-166 закрыта *)
+_114_A5_DO[12].output := gVLV[23].in.IS_ON;		(* Задвижка Э-167 открыта *)
+_114_A5_DO[13].output := gVLV[23].in.IS_OFF;	(* Задвижка Э-167 закрыта *)
+_114_A5_DO[14].output := gVLV[24].in.IS_ON;		(* Задвижка Э-168 открыта *)
+_114_A5_DO[15].output := gVLV[24].in.IS_OFF;	(* Задвижка Э-168 закрыта *)
+_114_A5_DO[16].output := gVLV[25].in.IS_ON;		(* Задвижка Э-169 открыта *)
+_114_A5_DO[17].output := gVLV[25].in.IS_OFF;	(* Задвижка Э-169 закрыта *)
+_114_A5_DO[18].output := gVLV[26].in.IS_ON;		(* Задвижка Э-170 открыта *)
+_114_A5_DO[19].output := gVLV[26].in.IS_OFF;	(* Задвижка Э-170 закрыта *)
+_114_A5_DO[20].output := gVLV[27].in.IS_ON;		(* Задвижка Э-171 открыта *)
+_114_A5_DO[21].output := gVLV[27].in.IS_OFF;	(* Задвижка Э-171 закрыта *)
+_114_A5_DO[22].output := gVLV[28].in.IS_ON;		(* Задвижка Э-172 открыта *)
+_114_A5_DO[23].output := gVLV[28].in.IS_OFF;	(* Задвижка Э-172 закрыта *)
+_114_A5_DO[24].output := gVLV[29].in.IS_ON;		(* Задвижка Э-173 открыта *)
+_114_A5_DO[25].output := gVLV[29].in.IS_OFF;	(* Задвижка Э-173 закрыта *)
+_114_A5_DO[26].output := gVLV[30].in.IS_ON;		(* Задвижка Э-174 открыта *)
+_114_A5_DO[27].output := gVLV[30].in.IS_OFF;	(* Задвижка Э-174 закрыта *)
+_114_A5_DO[28].output := gVLV[31].in.IS_ON;		(* Задвижка Э-175 открыта *)
+_114_A5_DO[29].output := gVLV[31].in.IS_OFF;	(* Задвижка Э-175 закрыта *)
+_114_A5_DO[30].output := gVLV[32].in.IS_ON;		(* Задвижка Э-176 открыта *)
+_114_A5_DO[31].output := gVLV[32].in.IS_OFF;	(* Задвижка Э-176 закрыта *)
+(* A8 *)
+_114_A8_DO[00].output := gVLV[33].in.IS_ON;		(* Задвижка Э-177 открыта *)
+_114_A8_DO[01].output := gVLV[33].in.IS_OFF;	(* Задвижка Э-177 закрыта *)
+_114_A8_DO[02].output := gVLV[34].in.IS_ON;		(* Задвижка Э-178 открыта *)
+_114_A8_DO[03].output := gVLV[34].in.IS_OFF;	(* Задвижка Э-178 закрыта *)
+_114_A8_DO[04].output := gVLV[35].in.IS_ON;		(* Задвижка Э-179 открыта *)
+_114_A8_DO[05].output := gVLV[35].in.IS_OFF;	(* Задвижка Э-179 закрыта *)
+_114_A8_DO[06].output := gVLV[36].in.IS_ON;		(* Задвижка Э-180 открыта *)
+_114_A8_DO[07].output := gVLV[36].in.IS_OFF;	(* Задвижка Э-180 закрыта *)
+_114_A8_DO[08].output := gVLV[37].in.IS_ON;		(* Задвижка Э-181 открыта *)
+_114_A8_DO[09].output := gVLV[37].in.IS_OFF;	(* Задвижка Э-181 закрыта *)
+_114_A8_DO[10].output := gVLV[38].in.IS_ON;		(* Задвижка Э-182 открыта *)
+_114_A8_DO[11].output := gVLV[38].in.IS_OFF;	(* Задвижка Э-182 закрыта *)
+_114_A8_DO[12].output := gVLV[39].in.IS_ON;		(* Задвижка Э-183 открыта *)
+_114_A8_DO[13].output := gVLV[39].in.IS_OFF;	(* Задвижка Э-183 закрыта *)
+_114_A8_DO[14].output := gVLV[40].in.IS_ON;		(* Задвижка Э-184 открыта *)
+_114_A8_DO[15].output := gVLV[40].in.IS_OFF;	(* Задвижка Э-184 закрыта *)
+_114_A8_DO[16].output := gVLV[41].in.IS_ON;		(* Задвижка Э-185 открыта *)
+_114_A8_DO[17].output := gVLV[41].in.IS_OFF;	(* Задвижка Э-185 закрыта *)
+_114_A8_DO[18].output := gVLV[42].in.IS_ON;		(* Задвижка Э-186 открыта *)
+_114_A8_DO[19].output := gVLV[42].in.IS_OFF;	(* Задвижка Э-186 закрыта *)
+_114_A8_DO[20].output := gVLV[43].in.IS_ON;		(* Задвижка Э-187 открыта *)
+_114_A8_DO[21].output := gVLV[43].in.IS_OFF;	(* Задвижка Э-187 закрыта *)
+_114_A8_DO[22].output := gVLV[44].in.IS_ON;		(* Задвижка Э-188 открыта *)
+_114_A8_DO[23].output := gVLV[44].in.IS_OFF;	(* Задвижка Э-188 закрыта *)
+_114_A8_DO[24].output := gVLV[45].in.IS_ON;		(* Задвижка Э-189 открыта *)
+_114_A8_DO[25].output := gVLV[45].in.IS_OFF;	(* Задвижка Э-189 закрыта *)
+_114_A8_DO[26].output := gVLV[46].in.IS_ON;		(* Задвижка Э-190 открыта *)
+_114_A8_DO[27].output := gVLV[46].in.IS_OFF;	(* Задвижка Э-190 закрыта *)
+_114_A8_DO[28].output := gVLV[47].in.IS_ON;		(* Задвижка Э-191 открыта *)
+_114_A8_DO[29].output := gVLV[47].in.IS_OFF;	(* Задвижка Э-191 закрыта *)
+_114_A8_DO[30].output := gVLV[48].in.IS_ON;		(* Задвижка Э-192 открыта *)
+_114_A8_DO[31].output := gVLV[48].in.IS_OFF;	(* Задвижка Э-192 закрыта *)
+(* A9 *)
+_114_A9_DO[00].output := _dis;	(*  *)
+_114_A9_DO[01].output := _dis;	(*  *)
+_114_A9_DO[02].output := _dis;	(*  *)
+_114_A9_DO[03].output := _dis;	(*  *)
+_114_A9_DO[04].output := _dis;	(*  *)
+_114_A9_DO[05].output := _dis;	(*  *)
+_114_A9_DO[06].output := _dis;	(*  *)
+_114_A9_DO[07].output := _dis;	(*  *)
+_114_A9_DO[08].output := _dis;	(*  *)
+_114_A9_DO[09].output := _dis;	(*  *)
+_114_A9_DO[10].output := _dis;	(*  *)
+_114_A9_DO[11].output := _dis;	(*  *)
+_114_A9_DO[12].output := _dis;	(*  *)
+_114_A9_DO[13].output := _dis;	(*  *)
+_114_A9_DO[14].output := _dis;	(*  *)
+_114_A9_DO[15].output := _dis;	(*  *)
+_114_A9_DO[16].output := _dis;	(*  *)
+_114_A9_DO[17].output := _dis;	(*  *)
+_114_A9_DO[18].output := _dis;	(*  *)
+_114_A9_DO[19].output := _dis;	(*  *)
+_114_A9_DO[20].output := _dis;	(*  *)
+_114_A9_DO[21].output := _dis;	(*  *)
+_114_A9_DO[22].output := _dis;	(*  *)
+_114_A9_DO[23].output := _dis;	(*  *)
+_114_A9_DO[24].output := _dis;	(*  *)
+_114_A9_DO[25].output := _dis;	(*  *)
+_114_A9_DO[26].output := _dis;	(*  *)
+_114_A9_DO[27].output := _dis;	(*  *)
+_114_A9_DO[28].output := _dis;	(*  *)
+_114_A9_DO[29].output := _dis;	(*  *)
+_114_A9_DO[30].output := _dis;	(*  *)
+_114_A9_DO[31].output := _dis;	(*  *)
+
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 10: _114_End *)
+
+PROGRAM _114_End
+
+(* First Cycle *)
+First := TRUE;
+END_PROGRAM
+(* -------------------- *)
+
+
+
+(*============================================================*)
+
+
+(*=== APT23 ===*)
+
+(* FUNCTION BLOCK: FB_HMI_EXCH *)
+
+FUNCTION_BLOCK FB_HMI_EXCH
+
+gI := 1;
+IF First THEN gD := NOT gD; END_IF;
+(* Valves *)
+FOR i := 1 TO 11 DO
+	exchV(i);
+	(* Задвижка Э-193..Э-203 *)
+END_FOR;
+(* Discretes *)
+FOR i := 1 TO 47 DO
+	exchD(i);
+	(* 1	Наличие питания на вводе 1 *)
+	(* 2	Наличие питания на вводе 2 *)
+	(* 3	Состояние двери АПТ 2.3 *)
+	(* 4	01 A10.K1	Пожар резервуара 1/1 *)
+	(* 5	02 A10.K2	Пожар резервуара 1/2 *)
+	(* 6	03 A10.K3	Пожар резервуара 1/3 *)
+	(* 7	04 A10.K4	Пожар резервуара 1/4 *)
+	(* 8	05 A10.K5	Пожар резервуара 1/5 *)
+	(* 9	06 A10.K6	Пожар резервуара 1/6 *)
+	(* 10	07 A10.K7	Пожар резервуара 1/7 *)
+	(* 11	08 A10.K8	Пожар резервуара 1/8 *)
+	(* 12	09 A10.K9	Пожар резервуара 1/9 *)
+	(* 13	10 A10.K10	Пожар резервуара 1/10 *)
+	(* 14	11 A10.K11	Пожар резервуара 1/11 *)
+	(* 15	12 A10.K12	Пожар резервуара 1/12 *)
+	(* 16	13 A11.K1	Пожар резервуара 1/13 *)
+	(* 17	14 A11.K2	Пожар резервуара 1/14 *)
+	(* 18	15 A11.K3	Пожар резервуара 1/15 *)
+	(* 19	16 A11.K4	Пожар резервуара 1/16 *)
+	(* 20	17 A11.K5	Пожар резервуара 1/17 *)
+	(* 21	18 A11.K6	Пожар резервуара 1/18 *)
+	(* 22	19 A11.K7	Пожар резервуара 1/19 *)
+	(* 23	20 A11.K8	Пожар резервуара 1/20 *)
+	(* 24	21 A11.K9	Пожар резервуара 1/21 *)
+	(* 25	22 A11.K10	Пожар резервуара 1/22 *)
+	(* 26	23 A11.K11	Пожар резервуара 1/23 *)
+	(* 27	24 A11.K12	Пожар резервуара 1/24 *)
+	(* 28	25 A12.K1	Пожар резервуара 1/25 *)
+	(* 29	26 A12.K2	Пожар резервуара 1/26 *)
+	(* 30	27 A12.K3	Пожар резервуара 1/27 *)
+	(* 31	28 A12.K4	Пожар резервуара 1/28 *)
+	(* 32	29 A12.K5	Пожар резервуара 1/29 *)
+	(* 33	30 A12.K6	Пожар резервуара 1/30 *)
+	(* 34	31 A12.K7	Пожар резервуара 1/31 *)
+	(* 35	32 A12.K8	Пожар резервуара 1/32 *)
+	(* 36	33 A12.K9	Пожар общий *)
+	(* 37	34 A12.K10	Пожар на резервуарах *)
+	(* 38	35 A12.K11	Пожар в ПНС *)
+	(* 39	36 A12.K12	Пожар на площадках *)
+	(* 40	37 A13.K1	Пожар на эстакаде *)
+	(* 41	38 A13.K2	Пожар на эстакаде поз 3.1-н1 *)
+	(* 42	39 A13.K3	Пожар на эстакаде поз 3.1-н2 *)
+	(* 43	40 A13.K4	Пожар на эстакаде поз 3.1-н3 *)
+	(* 44	41 A13.K5	Пожар на эстакаде поз 3.1-н4 *)
+	(* 45	42 A13.K6	Пожар на эстакаде поз 3.1-н5 *)
+	(* 46	43 A13.K7	Пожар в СНТП *)
+	(* 47	44 A13.K8	Неисправность ПС *)
+	(* 48	45 A13.K9	++РЕЗЕРВ++ *)
+	(* 49	46 A13.K10	++РЕЗЕРВ++ *)
+	(* 50	47 A13.K11	++РЕЗЕРВ++ *)
+	(* 51	48 A13.K12	++РЕЗЕРВ++ *)
+END_FOR;
+(* Connection *)
+w := CON23_114;	exchWord(w);
+w := CON23_5;	exchWord(w);
+(* Fire System *)
+FOR i := 1 TO 43 DO
+	exchF(i);
+	(* 01 A10.K1	Пожар резервуара 1/1 *)
+	(* 02 A10.K2	Пожар резервуара 1/2 *)
+	(* 03 A10.K3	Пожар резервуара 1/3 *)
+	(* 04 A10.K4	Пожар резервуара 1/4 *)
+	(* 05 A10.K5	Пожар резервуара 1/5 *)
+	(* 06 A10.K6	Пожар резервуара 1/6 *)
+	(* 07 A10.K7	Пожар резервуара 1/7 *)
+	(* 08 A10.K8	Пожар резервуара 1/8 *)
+	(* 09 A10.K9	Пожар резервуара 1/9 *)
+	(* 10 A10.K10	Пожар резервуара 1/10 *)
+	(* 11 A10.K11	Пожар резервуара 1/11 *)
+	(* 12 A10.K12	Пожар резервуара 1/12 *)
+	(* 13 A11.K1	Пожар резервуара 1/13 *)
+	(* 14 A11.K2	Пожар резервуара 1/14 *)
+	(* 15 A11.K3	Пожар резервуара 1/15 *)
+	(* 16 A11.K4	Пожар резервуара 1/16 *)
+	(* 17 A11.K5	Пожар резервуара 1/17 *)
+	(* 18 A11.K6	Пожар резервуара 1/18 *)
+	(* 19 A11.K7	Пожар резервуара 1/19 *)
+	(* 20 A11.K8	Пожар резервуара 1/20 *)
+	(* 21 A11.K9	Пожар резервуара 1/21 *)
+	(* 22 A11.K10	Пожар резервуара 1/22 *)
+	(* 23 A11.K11	Пожар резервуара 1/23 *)
+	(* 24 A11.K12	Пожар резервуара 1/24 *)
+	(* 25 A12.K1	Пожар резервуара 1/25 *)
+	(* 26 A12.K2	Пожар резервуара 1/26 *)
+	(* 27 A12.K3	Пожар резервуара 1/27 *)
+	(* 28 A12.K4	Пожар резервуара 1/28 *)
+	(* 29 A12.K5	Пожар резервуара 1/29 *)
+	(* 30 A12.K6	Пожар резервуара 1/30 *)
+	(* 31 A12.K7	Пожар резервуара 1/31 *)
+	(* 32 A12.K8	Пожар резервуара 1/32 *)
+	(* 33 A12.K9	Пожар общий *)
+	(* 34 A12.K10	Пожар на резервуарах *)
+	(* 35 A12.K11	Пожар в ПНС *)
+	(* 36 A12.K12	Пожар на площадках *)
+	(* 37 A13.K1	Пожар на эстакаде *)
+	(* 38 A13.K2	Пожар на эстакаде поз 3.1-н1 *)
+	(* 39 A13.K3	Пожар на эстакаде поз 3.1-н2 *)
+	(* 40 A13.K4	Пожар на эстакаде поз 3.1-н3 *)
+	(* 41 A13.K5	Пожар на эстакаде поз 3.1-н4 *)
+	(* 42 A13.K6	Пожар на эстакаде поз 3.1-н5 *)
+	(* 43 A13.K7	Пожар в СНТП *)
+END_FOR;
+(* Diagnostics *)
+CPU_pri[1] := __SYSVA_FO_ISPRIMARY;
+CPU_act[1] := __SYSVA_FO_ISACTIVE;
+CPU_pri[2] := NOT __SYSVA_FO_ISPRIMARY;
+CPU_act[2] := NOT __SYSVA_FO_ISACTIVE;
+exchMdlPSU(	inMdl := _023_G2_1_MDL,	inCh := _023_G2_1_PSU);
+exchMdlPSU(	inMdl := _023_G2_2_MDL,	inCh := _023_G2_2_PSU);
+exchMdlCPU(	inMdl := _023_A1_1_MDL,	isPri := CPU_pri[1],	isAct := CPU_act[1]);
+exchMdlCPU(	inMdl := _023_A1_2_MDL,	isPri := CPU_pri[2],	isAct := CPU_act[2]);
+exchMdlDI(	inMdl := _023_A2_MDl,	inCh := _023_A2_DI);
+exchMdlDI(	inMdl := _023_A3_MDl,	inCh := _023_A3_DI);
+exchMdlDI(	inMdl := _023_A4_MDl,	inCh := _023_A4_DI);
+exchMdlDO(	inMdl := _023_A5_MDl,	inCh := _023_A5_DO);
+
+(* Interconnections *)
+gI := 1001;
+FOR i := 1 TO 43 DO
+	exchFF(i);	(* Fire *)
+END_FOR;
+gI := 1101;
+FOR i := 1 TO 43 DO
+	exchFV(i);	(* Valves *)
+END_FOR;
+gI := 1201;
+FOR i := 1 TO 43 DO
+	exchFP(i);	(* PCC *)
+END_FOR;
+END_FUNCTION_BLOCK
+(* -------------------- *)
+
+
+(* ROUTINE 01: _23_LinkInput *)
+
+PROGRAM _23_LinkInput
+
+(* A2 *)
+_dis					:= _023_A2_DI[0].input;		(*  *)
+_dis					:= _023_A2_DI[1].input;		(*  *)
+_dis					:= _023_A2_DI[2].input;		(*  *)
+_dis					:= _023_A2_DI[3].input;		(*  *)
+_dis					:= _023_A2_DI[4].input;		(*  *)
+_dis					:= _023_A2_DI[5].input;		(*  *)
+_dis					:= _023_A2_DI[6].input;		(*  *)
+_dis					:= _023_A2_DI[7].input;		(*  *)
+_dis					:= _023_A2_DI[8].input;		(*  *)
+_dis					:= _023_A2_DI[9].input;		(*  *)
+_dis					:= _023_A2_DI[10].input;	(*  *)
+_dis					:= _023_A2_DI[11].input;	(*  *)
+_dis					:= _023_A2_DI[12].input;	(*  *)
+_dis					:= _023_A2_DI[13].input;	(*  *)
+_dis					:= _023_A2_DI[14].input;	(*  *)
+_dis					:= _023_A2_DI[15].input;	(*  *)
+_dis					:= _023_A2_DI[16].input;	(*  *)
+_dis					:= _023_A2_DI[17].input;	(*  *)
+_dis					:= _023_A2_DI[18].input;	(*  *)
+_dis					:= _023_A2_DI[19].input;	(*  *)
+_dis					:= _023_A2_DI[20].input;	(*  *)
+_dis					:= _023_A2_DI[21].input;	(*  *)
+_dis					:= _023_A2_DI[22].input;	(*  *)
+_dis					:= _023_A2_DI[23].input;	(*  *)
+_dis					:= _023_A2_DI[24].input;	(*  *)
+_dis					:= _023_A2_DI[25].input;	(*  *)
+_dis					:= _023_A2_DI[26].input;	(*  *)
+_dis					:= _023_A2_DI[27].input;	(*  *)
+_dis					:= _023_A2_DI[28].input;	(*  *)
+_dis					:= _023_A2_DI[29].input;	(*  *)
+_dis					:= _023_A2_DI[30].input;	(*  *)
+_dis					:= _023_A2_DI[31].input;	(*  *)
+(* A3 *)
+_mdl := MdlErr(_023_A3_MDL);
+_dis					:= _023_A3_DI[0].input;		(*  *)
+_dis					:= _023_A3_DI[1].input;		(*  *)
+_dis					:= _023_A3_DI[2].input;		(*  *)
+_dis					:= _023_A3_DI[3].input;		(*  *)
+_dis					:= _023_A3_DI[4].input;		(*  *)
+_dis					:= _023_A3_DI[5].input;		(*  *)
+_dis					:= _023_A3_DI[6].input;		(*  *)
+_dis					:= _023_A3_DI[7].input;		(*  *)
+_dis					:= _023_A3_DI[8].input;		(*  *)
+gVLV[01].in.LOCAL  		:= _023_A3_DI[9].input;		(* Зд Э-193 Ручной режим *)
+gVLV[01].in.REMOTE 		:= _023_A3_DI[10].input;	(* Зд Э-193 Дистанционный режим *)
+gVLV[02].in.LOCAL  		:= _023_A3_DI[11].input;	(* Зд Э-194 Ручной режим *)
+gVLV[02].in.REMOTE 		:= _023_A3_DI[12].input;	(* Зд Э-194 Дистанционный режим *)
+gVLV[03].in.LOCAL  		:= _023_A3_DI[13].input;	(* Зд Э-195 Ручной режим *)
+gVLV[03].in.REMOTE 		:= _023_A3_DI[14].input;	(* Зд Э-195 Дистанционный режим *)
+gVLV[04].in.LOCAL  		:= _023_A3_DI[15].input;	(* Зд Э-196 Ручной режим *)
+gVLV[04].in.REMOTE 		:= _023_A3_DI[16].input;	(* Зд Э-196 Дистанционный режим *)
+gVLV[05].in.LOCAL  		:= _023_A3_DI[17].input;	(* Зд Э-197 Ручной режим *)
+gVLV[05].in.REMOTE 		:= _023_A3_DI[18].input;	(* Зд Э-197 Дистанционный режим *)
+gVLV[06].in.LOCAL  		:= _023_A3_DI[19].input;	(* Зд Э-198 Ручной режим *)
+gVLV[06].in.REMOTE 		:= _023_A3_DI[20].input;	(* Зд Э-198 Дистанционный режим *)
+gVLV[07].in.LOCAL  		:= _023_A3_DI[21].input;	(* Зд Э-199 Ручной режим *)
+gVLV[07].in.REMOTE 		:= _023_A3_DI[22].input;	(* Зд Э-199 Дистанционный режим *)
+gVLV[08].in.LOCAL  		:= _023_A3_DI[23].input;	(* Зд Э-200 Ручной режим *)
+gVLV[08].in.REMOTE 		:= _023_A3_DI[24].input;	(* Зд Э-200 Дистанционный режим *)
+gVLV[09].in.LOCAL  		:= _023_A3_DI[25].input;	(* Зд Э-201 Ручной режим *)
+gVLV[09].in.REMOTE 		:= _023_A3_DI[26].input;	(* Зд Э-201 Дистанционный режим *)
+gVLV[10].in.LOCAL  		:= _023_A3_DI[27].input;	(* Зд Э-202 Ручной режим *)
+gVLV[10].in.REMOTE 		:= _023_A3_DI[30].input;	(* Зд Э-202 Дистанционный режим *)
+gVLV[11].in.LOCAL  		:= _023_A3_DI[28].input;	(* Зд Э-203 Ручной режим *)
+gVLV[11].in.REMOTE 		:= _023_A3_DI[29].input;	(* Зд Э-203 Дистанционный режим *)
+gDI[3].IN				:= _023_A3_DI[31].input;	gDI[3].MDL := _mdl; (* Состояние двери АПТ 2.3 *)
+(* A4 *)
+_mdl := MdlErr(_023_A4_MDL);
+gDI[1].IN 				:= _023_A4_DI[0].input;		gDI[1].MDL := _mdl; (* Наличие питания на вводе 1 *)
+gDI[2].IN 				:= _023_A4_DI[1].input;		gDI[2].MDL := _mdl; (* Наличие питания на вводе 2 *)
+_dis					:= _023_A4_DI[2].input;		(*  *)
+_dis					:= _023_A4_DI[3].input;		(*  *)
+_dis					:= _023_A4_DI[4].input;		(*  *)
+_dis					:= _023_A4_DI[5].input;		(*  *)
+_dis					:= _023_A4_DI[6].input;		(*  *)
+_dis					:= _023_A4_DI[7].input;		(*  *)
+_dis					:= _023_A4_DI[8].input;		(*  *)
+_dis					:= _023_A4_DI[9].input;		(*  *)
+_dis					:= _023_A4_DI[10].input;	(*  *)
+_dis					:= _023_A4_DI[11].input;	(*  *)
+_dis					:= _023_A4_DI[12].input;	(*  *)
+_dis					:= _023_A4_DI[13].input;	(*  *)
+_dis					:= _023_A4_DI[14].input;	(*  *)
+_dis					:= _023_A4_DI[15].input;	(*  *)
+_dis					:= _023_A4_DI[16].input;	(*  *)
+_dis					:= _023_A4_DI[17].input;	(*  *)
+_dis					:= _023_A4_DI[18].input;	(*  *)
+_dis					:= _023_A4_DI[19].input;	(*  *)
+_dis					:= _023_A4_DI[20].input;	(*  *)
+_dis					:= _023_A4_DI[21].input;	(*  *)
+_dis					:= _023_A4_DI[22].input;	(*  *)
+_dis					:= _023_A4_DI[23].input;	(*  *)
+_dis					:= _023_A4_DI[24].input;	(*  *)
+_dis					:= _023_A4_DI[25].input;	(*  *)
+_dis					:= _023_A4_DI[26].input;	(*  *)
+_dis					:= _023_A4_DI[27].input;	(*  *)
+_dis					:= _023_A4_DI[28].input;	(*  *)
+_dis					:= _023_A4_DI[29].input;	(*  *)
+_dis					:= _023_A4_DI[30].input;	(*  *)
+_dis					:= _023_A4_DI[31].input;	(*  *)
+
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 02: _23_HMI_in *)
+
+PROGRAM _23_HMI_in
+
+(* Transfering from HMI *)
+hmiExch();
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 03: _23_Inst *)
+
+PROGRAM _23_Inst
+(* Valves *)
+FOR i := 1 TO 11 DO
+	_gVLV(i);
+	(* 01 Задвижка Э-193 *)
+	(* 02 Задвижка Э-194 *)
+	(* 03 Задвижка Э-195 *)
+	(* 04 Задвижка Э-196 *)
+	(* 05 Задвижка Э-197 *)
+	(* 06 Задвижка Э-198 *)
+	(* 07 Задвижка Э-199 *)
+	(* 08 Задвижка Э-200 *)
+	(* 09 Задвижка Э-201 *)
+	(* 10 Задвижка Э-202 *)
+	(* 11 Задвижка Э-203 *)
+END_FOR;
+(* Discrete inputs *)
+FOR i := 1 TO 47 DO
+	_gDI(i);
+	(* 1	Наличие питания на вводе 1 *)
+	(* 2	Наличие питания на вводе 2 *)
+	(* 3	Состояние двери АПТ 2.3 *)
+	(* 4	01 A10.K1	Пожар резервуара 1/1 *)
+	(* 5	02 A10.K2	Пожар резервуара 1/2 *)
+	(* 6	03 A10.K3	Пожар резервуара 1/3 *)
+	(* 7	04 A10.K4	Пожар резервуара 1/4 *)
+	(* 8	05 A10.K5	Пожар резервуара 1/5 *)
+	(* 9	06 A10.K6	Пожар резервуара 1/6 *)
+	(* 10	07 A10.K7	Пожар резервуара 1/7 *)
+	(* 11	08 A10.K8	Пожар резервуара 1/8 *)
+	(* 12	09 A10.K9	Пожар резервуара 1/9 *)
+	(* 13	10 A10.K10	Пожар резервуара 1/10 *)
+	(* 14	11 A10.K11	Пожар резервуара 1/11 *)
+	(* 15	12 A10.K12	Пожар резервуара 1/12 *)
+	(* 16	13 A11.K1	Пожар резервуара 1/13 *)
+	(* 17	14 A11.K2	Пожар резервуара 1/14 *)
+	(* 18	15 A11.K3	Пожар резервуара 1/15 *)
+	(* 19	16 A11.K4	Пожар резервуара 1/16 *)
+	(* 20	17 A11.K5	Пожар резервуара 1/17 *)
+	(* 21	18 A11.K6	Пожар резервуара 1/18 *)
+	(* 22	19 A11.K7	Пожар резервуара 1/19 *)
+	(* 23	20 A11.K8	Пожар резервуара 1/20 *)
+	(* 24	21 A11.K9	Пожар резервуара 1/21 *)
+	(* 25	22 A11.K10	Пожар резервуара 1/22 *)
+	(* 26	23 A11.K11	Пожар резервуара 1/23 *)
+	(* 27	24 A11.K12	Пожар резервуара 1/24 *)
+	(* 28	25 A12.K1	Пожар резервуара 1/25 *)
+	(* 29	26 A12.K2	Пожар резервуара 1/26 *)
+	(* 30	27 A12.K3	Пожар резервуара 1/27 *)
+	(* 31	28 A12.K4	Пожар резервуара 1/28 *)
+	(* 32	29 A12.K5	Пожар резервуара 1/29 *)
+	(* 33	30 A12.K6	Пожар резервуара 1/30 *)
+	(* 34	31 A12.K7	Пожар резервуара 1/31 *)
+	(* 35	32 A12.K8	Пожар резервуара 1/32 *)
+	(* 36	33 A12.K9	Пожар общий *)
+	(* 37	34 A12.K10	Пожар на резервуарах *)
+	(* 38	35 A12.K11	Пожар в ПНС *)
+	(* 39	36 A12.K12	Пожар на площадках *)
+	(* 40	37 A13.K1	Пожар на эстакаде *)
+	(* 41	38 A13.K2	Пожар на эстакаде поз 3.1-н1 *)
+	(* 42	39 A13.K3	Пожар на эстакаде поз 3.1-н2 *)
+	(* 43	40 A13.K4	Пожар на эстакаде поз 3.1-н3 *)
+	(* 44	41 A13.K5	Пожар на эстакаде поз 3.1-н4 *)
+	(* 45	42 A13.K6	Пожар на эстакаде поз 3.1-н5 *)
+	(* 46	43 A13.K7	Пожар в СНТП *)
+	(* 47	44 A13.K8	Неисправность ПС *)
+END_FOR;
+FOR i := 1 TO 2 DO
+	_gDO(i);
+	(* Неисправность пожаротушения *)
+	(* Общая неисправность *)
+END_FOR;
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 04: _23_Automatic *)
+
+PROGRAM _23_Automatic
+
+(* Fire System *)
+FOR i := 1 TO 43 DO
+	_gFS(g := i, fire := i);
+	(* 01 A10.K1	Пожар резервуара 1/1 *)
+	(* 02 A10.K2	Пожар резервуара 1/2 *)
+	(* 03 A10.K3	Пожар резервуара 1/3 *)
+	(* 04 A10.K4	Пожар резервуара 1/4 *)
+	(* 05 A10.K5	Пожар резервуара 1/5 *)
+	(* 06 A10.K6	Пожар резервуара 1/6 *)
+	(* 07 A10.K7	Пожар резервуара 1/7 *)
+	(* 08 A10.K8	Пожар резервуара 1/8 *)
+	(* 09 A10.K9	Пожар резервуара 1/9 *)
+	(* 10 A10.K10	Пожар резервуара 1/10 *)
+	(* 11 A10.K11	Пожар резервуара 1/11 *)
+	(* 12 A10.K12	Пожар резервуара 1/12 *)
+	(* 13 A11.K1	Пожар резервуара 1/13 *)
+	(* 14 A11.K2	Пожар резервуара 1/14 *)
+	(* 15 A11.K3	Пожар резервуара 1/15 *)
+	(* 16 A11.K4	Пожар резервуара 1/16 *)
+	(* 17 A11.K5	Пожар резервуара 1/17 *)
+	(* 18 A11.K6	Пожар резервуара 1/18 *)
+	(* 19 A11.K7	Пожар резервуара 1/19 *)
+	(* 20 A11.K8	Пожар резервуара 1/20 *)
+	(* 21 A11.K9	Пожар резервуара 1/21 *)
+	(* 22 A11.K10	Пожар резервуара 1/22 *)
+	(* 23 A11.K11	Пожар резервуара 1/23 *)
+	(* 24 A11.K12	Пожар резервуара 1/24 *)
+	(* 25 A12.K1	Пожар резервуара 1/25 *)
+	(* 26 A12.K2	Пожар резервуара 1/26 *)
+	(* 27 A12.K3	Пожар резервуара 1/27 *)
+	(* 28 A12.K4	Пожар резервуара 1/28 *)
+	(* 29 A12.K5	Пожар резервуара 1/29 *)
+	(* 30 A12.K6	Пожар резервуара 1/30 *)
+	(* 31 A12.K7	Пожар резервуара 1/31 *)
+	(* 32 A12.K8	Пожар резервуара 1/32 *)
+	(* 33 A12.K9	Пожар общий *)
+	(* 34 A12.K10	Пожар на резервуарах *)
+	(* 35 A12.K11	Пожар в ПНС *)
+	(* 36 A12.K12	Пожар на площадках *)
+	(* 37 A13.K1	Пожар на эстакаде *)
+	(* 38 A13.K2	Пожар на эстакаде поз 3.1-н1 *)
+	(* 39 A13.K3	Пожар на эстакаде поз 3.1-н2 *)
+	(* 40 A13.K4	Пожар на эстакаде поз 3.1-н3 *)
+	(* 41 A13.K5	Пожар на эстакаде поз 3.1-н4 *)
+	(* 42 A13.K6	Пожар на эстакаде поз 3.1-н5 *)
+	(* 43 A13.K7	Пожар в СНТП *)
+END_FOR;
+
+(* Задвижка Э-193..Э-203 *)
+(* 35 A12.K11	Пожар в ПНС *)
+i := 35;
+v[1] := 11;
+v[2] := 0;
+v[3] := 0;
+v[4] := 0;
+v[5] := 0;
+v[6] := 0;
+v[7] := 0;
+v[8] := 0;
+v[9] := 0;
+v[10] := 0;
+vr[1] := 0;
+vr[2] := 0;
+vr[3] := 0;
+vr[4] := 0;
+vlv(g := i,	v := v,	vr := vr);
+(* 38 A13.K2	Пожар на эстакаде поз 3.1-н1 *)
+i := 38;
+v[1] := 5;
+v[2] := 6;
+v[3] := 4;
+v[4] := 7;
+v[5] := 0;
+v[6] := 0;
+v[7] := 0;
+v[8] := 0;
+v[9] := 0;
+v[10] := 0;
+vr[1] := 0;
+vr[2] := 0;
+vr[3] := 0;
+vr[4] := 0;
+vlv(g := i,	v := v,	vr := vr);
+(* 39 A13.K3	Пожар на эстакаде поз 3.1-н2 *)
+i := 39;
+v[1] := 4;
+v[2] := 7;
+v[3] := 5;
+v[4] := 6;
+v[5] := 3;
+v[6] := 8;
+v[7] := 0;
+v[8] := 0;
+v[9] := 0;
+v[10] := 0;
+vr[1] := 0;
+vr[2] := 0;
+vr[3] := 0;
+vr[4] := 0;
+vlv(g := i,	v := v,	vr := vr);
+(* 40 A13.K4	Пожар на эстакаде поз 3.1-н3 *)
+i := 40;
+v[1] := 3;
+v[2] := 8;
+v[3] := 4;
+v[4] := 7;
+v[5] := 2;
+v[6] := 9;
+v[7] := 0;
+v[8] := 0;
+v[9] := 0;
+v[10] := 0;
+vr[1] := 0;
+vr[2] := 0;
+vr[3] := 0;
+vr[4] := 0;
+vlv(g := i,	v := v,	vr := vr);
+(* 41 A13.K5	Пожар на эстакаде поз 3.1-н4 *)
+i := 41;
+v[1] := 2;
+v[2] := 9;
+v[3] := 3;
+v[4] := 8;
+v[5] := 1;
+v[6] := 10;
+v[7] := 0;
+v[8] := 0;
+v[9] := 0;
+v[10] := 0;
+vr[1] := 0;
+vr[2] := 0;
+vr[3] := 0;
+vr[4] := 0;
+vlv(g := i,	v := v,	vr := vr);
+(* 42 A13.K6	Пожар на эстакаде поз 3.1-н5 *)
+i := 42;
+v[1] := 1;
+v[2] := 10;
+v[3] := 2;
+v[4] := 9;
+v[5] := 0;
+v[6] := 0;
+v[7] := 0;
+v[8] := 0;
+v[9] := 0;
+v[10] := 0;
+vr[1] := 0;
+vr[2] := 0;
+vr[3] := 0;
+vr[4] := 0;
+vlv(g := i,	v := v,	vr := vr);
+
+(* Свето-звуковая сигнализация *)
+(* Неисправность ПС *)
+gDO[1].PRM.PV.0 := gDI[47].PRM.PV<>0;
+(* Общая неисправность *)
+gDO[2].PRM.PV.0 := FALSE;
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 05: _23_RTU_Master *)
+
+PROGRAM _23_RTU_Master
+
+(* First Cycle *)
+IF NOT First OR sInit THEN
+	sInit := FALSE;
+	
+	(* 11 identical valves on Port 1; 4 12-channel COBA on Port 2 *)
+	(* available: 8 request groups on each port, 16 requests in each group *)
+	sMaxReqs := 16;
+	sMaxCtrls := (11 * 2) / sMaxReqs; (* 24 = Number of Modbus Devices *)
+	(* Preparing configs for requests *)
+	FOR i := 1 TO 11 DO
+		(* reading *)
+		cfg_SID[i*2 - 1] := ANY_TO_BYTE(i);
+		cfg_FUN[i*2 - 1] := 3;
+		cfg_ADR[i*2 - 1] := 4; (* 40004; *)
+		cfg_LEN[i*2 - 1] := 4;
+		(* writing *)
+		cfg_SID[i*2 - 0] := ANY_TO_BYTE(i);
+		cfg_FUN[i*2 - 0] := 16;
+		cfg_ADR[i*2 - 0] := 2; (* 40002; *)
+		cfg_LEN[i*2 - 0] := 2;
+	END_FOR;
+	FOR i := 1 TO 4 DO
+		(* reading *)
+		cfg2_SID[i*2 - 1] := ANY_TO_BYTE(i);
+		cfg2_FUN[i*2 - 1] := 3;
+		cfg2_ADR[i*2 - 1] := 3; (* 40003..40014; *)
+		cfg2_LEN[i*2 - 1] := 12;
+		(* writing *)
+		cfg2_SID[i*2 - 0] := ANY_TO_BYTE(i);
+		cfg2_FUN[i*2 - 0] := 16;
+		cfg2_ADR[i*2 - 0] := 2; (* 40002; *)
+		cfg2_LEN[i*2 - 0] := 1;
+	END_FOR;
+	(* Configuring requests *)
+	sOffset := 0;
+	sReqNo := 1;
+	sCtrlNo := 0;
+	FOR i := 1 TO 22 DO
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].enable := TRUE;
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].single_request := FALSE;
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].on_modify_request := FALSE;
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].do_single_req := FALSE;
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].command.timeout_ms := 1000;
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].command.repeat_over_scan := TRUE;
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].command.slave_id 			:= cfg_SID[i];
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].command.func_code 		:= cfg_FUN[i];
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].command.slave_data_addr	:= cfg_ADR[i];
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].command.slave_data_length	:= cfg_LEN[i];
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].command.offset := sOffset;
+		sOffset := sOffset + cfg_LEN[i];
+		sReqNo := sReqNo + 1;
+		IF sReqNo > sMaxReqs THEN 
+			sReqNo := 1;
+			sCtrlNo := sCtrlNo + 1;
+			IF sCtrlNo > sMaxCtrls THEN 
+				sCtrlNo := 0;
+			END_IF;
+		END_IF;
+	END_FOR;
+	sOffset := 0;
+	sReqNo := 1;
+	sCtrlNo := 0;
+	FOR i := 1 TO 8 DO
+		_Ctrl_2[sCtrlNo].Requests[sReqNo].enable := TRUE;
+		_Ctrl_2[sCtrlNo].Requests[sReqNo].single_request := FALSE;
+		_Ctrl_2[sCtrlNo].Requests[sReqNo].on_modify_request := FALSE;
+		_Ctrl_2[sCtrlNo].Requests[sReqNo].do_single_req := FALSE;
+		_Ctrl_2[sCtrlNo].Requests[sReqNo].command.timeout_ms := 1000;
+		_Ctrl_2[sCtrlNo].Requests[sReqNo].command.repeat_over_scan := TRUE;
+		_Ctrl_2[sCtrlNo].Requests[sReqNo].command.slave_id 			:= cfg_SID[i];
+		_Ctrl_2[sCtrlNo].Requests[sReqNo].command.func_code 		:= cfg_FUN[i];
+		_Ctrl_2[sCtrlNo].Requests[sReqNo].command.slave_data_addr	:= cfg_ADR[i];
+		_Ctrl_2[sCtrlNo].Requests[sReqNo].command.slave_data_length	:= cfg_LEN[i];
+		_Ctrl_2[sCtrlNo].Requests[sReqNo].command.offset := sOffset;
+		sOffset := sOffset + cfg_LEN[i];
+		sReqNo := sReqNo + 1;
+		IF sReqNo > sMaxReqs THEN 
+			sReqNo := 1;
+			sCtrlNo := sCtrlNo + 1;
+			IF sCtrlNo > sMaxCtrls THEN 
+				sCtrlNo := 0;
+			END_IF;
+		END_IF;
+	END_FOR;
+	_Control_1 := 1;
+	_Control_2 := 1;
+END_IF;
+
+(* Every Cycle *)
+sCtrlNo := 0;
+sReqNo := 1;
+(* 11 valves on Port 1 *)
+FOR i := 1 TO 11 DO
+	j:=i;
+	sCOBA_VLV(
+		iReqStatus	:= _Diag_1[sCtrlNo].RequestsAndStats[sReqNo].status_request,
+		i40004 	:= _HR_1[0].regs[(i-1)*6 + 1],
+		i40005 	:= _HR_1[0].regs[(i-1)*6 + 2],
+		i40006 	:= _HR_1[0].regs[(i-1)*6 + 3],
+		i40007 	:= _HR_1[0].regs[(i-1)*6 + 4],
+		g		:= j,
+		o40002	=> _HR_1[0].regs[(i-1)*6 + 5],
+		o40003	=> _HR_1[0].regs[(i-1)*6 + 6]
+	);
+	sReqNo := sReqNo + 1;
+	IF sReqNo > sMaxReqs THEN 
+		sReqNo := 1;
+		sCtrlNo := sCtrlNo + 1;
+		IF sCtrlNo > sMaxCtrls THEN 
+			sCtrlNo := 0;
+		END_IF;
+	END_IF;
+END_FOR;
+(* 4 12-channel COBA on Port 2 *)
+FOR i := 1 TO 4 DO
+	FOR j := 1 TO 12 DO
+		IF i=4 AND j>8 THEN EXIT; END_IF;
+		sCOBA_DIS(
+			iReqStatus	:= _Diag_2[sCtrlNo].RequestsAndStats[sReqNo].status_request,
+			iBit		:= j-1,
+			iStatus 	:= _HR_2[0].regs[(i-1)*13 + j],
+			g			:= i*j + 3,
+			o40002		=> _HR_2[0].regs[(i-1)*13 + 13]
+		);
+	END_FOR;
+	sReqNo := sReqNo + 1;
+	IF sReqNo > sMaxReqs THEN 
+		sReqNo := 1;
+		sCtrlNo := sCtrlNo + 1;
+		IF sCtrlNo > sMaxCtrls THEN 
+			sCtrlNo := 0;
+		END_IF;
+	END_IF;
+END_FOR;
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 06: _23_TCP_Master *)
+
+PROGRAM _23_TCP_Master
+
+(* First Cycle *)
+IF NOT First THEN
+	_Control := 1;
+	(*	En	IP					Port	ID	Func	RegNo			Len		Offset in _HR	Timeout	*)
+	rq01(1,	'192.168.0.4'	,	502	,	1,	3	,	1			,	1	,	2000			,	1000);	_Ctrl[0].Requests[ 1] := rq01.out;	(* АПТ 1.1.4 основной *)
+	rq02(0,	'192.168.1.4'	,	502	,	1,	3	,	1			,	1	,	2000			,	1000);	_Ctrl[0].Requests[ 2] := rq02.out;	(* АПТ 1.1.4 резервный *)
+	rq03(1,	'192.168.0.6'	,	502	,	1,	3	,	1			,	1	,	2000			,	1000);	_Ctrl[0].Requests[ 3] := rq03.out;	(* АПТ 5 основной *)
+	rq04(0,	'192.168.1.6'	,	502	,	1,	3	,	1			,	1	,	2000			,	1000);	_Ctrl[0].Requests[ 4] := rq04.out;	(* АПТ 5 резервный *)
+END_IF;
+
+sCtrlNo := 0;
+(* 114 *)
+sReqNo := 1;
+IF _Ctrl[sCtrlNo].Requests[sReqNo].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>100 THEN
+		CON23_114 := 0;
+		IF Timer[sReqNo]<3000 THEN
+			Timer[sReqNo] := Timer[sReqNo] + CYCLE_TIME;
+		ELSE
+			_Ctrl[sCtrlNo].Requests[sReqNo].enable := FALSE;
+			_Ctrl[sCtrlNo].Requests[sReqNo+1].enable := TRUE;
+			Timer[sReqNo] := 0;
+		END_IF;
+	ELSE
+		CON23_114 := 1;
+	END_IF;
+END_IF;
+IF _Ctrl[sCtrlNo].Requests[sReqNo+1].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo+1].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo+1].status_request<>100 THEN
+		CON23_114 := 0;
+		IF Timer[sReqNo+1]<3000 THEN
+			Timer[sReqNo+1] := Timer[sReqNo+1] + CYCLE_TIME;
+		ELSE
+			_Ctrl[sCtrlNo].Requests[sReqNo+1].enable := FALSE;
+			_Ctrl[sCtrlNo].Requests[sReqNo].enable := TRUE;
+			Timer[sReqNo+1] := 0;
+		END_IF;
+	ELSE
+		CON23_114 := 1;
+	END_IF;
+END_IF;
+(* 5 *)
+sReqNo := 3;
+IF _Ctrl[sCtrlNo].Requests[sReqNo].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>100 THEN
+		CON23_5 := 0;
+		IF Timer[sReqNo]<3000 THEN
+			Timer[sReqNo] := Timer[sReqNo] + CYCLE_TIME;
+		ELSE
+			_Ctrl[sCtrlNo].Requests[sReqNo].enable := FALSE;
+			_Ctrl[sCtrlNo].Requests[sReqNo+1].enable := TRUE;
+			Timer[sReqNo] := 0;
+		END_IF;
+	ELSE
+		CON23_5 := 1;
+	END_IF;
+END_IF;
+IF _Ctrl[sCtrlNo].Requests[sReqNo+1].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo+1].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo+1].status_request<>100 THEN
+		CON23_5 := 0;
+		IF Timer[sReqNo+1]<3000 THEN
+			Timer[sReqNo+1] := Timer[sReqNo+1] + CYCLE_TIME;
+		ELSE
+			_Ctrl[sCtrlNo].Requests[sReqNo+1].enable := FALSE;
+			_Ctrl[sCtrlNo].Requests[sReqNo].enable := TRUE;
+			Timer[sReqNo+1] := 0;
+		END_IF;
+	ELSE
+		CON23_5 := 1;
+	END_IF;
+END_IF;
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 07: _23_HMI_out *)
+
+PROGRAM _23_HMI_out
+
+(* Transfering data to HMI *)
+hmiExch();
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 08: _23_LinkOutput *)
+
+PROGRAM _23_LinkOutput
+(* A5 *)
+_mdl := MdlErr(_023_A5_MDL);
+_023_A5_DO[00].output := gVLV[01].in.IS_ON; 		(* Задвижка Э-193 открыта *)
+_023_A5_DO[01].output := gVLV[01].in.IS_OFF; 		(* Задвижка Э-193 закрыта *)
+_023_A5_DO[02].output := gVLV[02].in.IS_ON; 		(* Задвижка Э-194 открыта *)
+_023_A5_DO[03].output := gVLV[02].in.IS_OFF; 		(* Задвижка Э-194 закрыта *)
+_023_A5_DO[04].output := gVLV[03].in.IS_ON; 		(* Задвижка Э-195 открыта *)
+_023_A5_DO[05].output := gVLV[03].in.IS_OFF; 		(* Задвижка Э-195 закрыта *)
+_023_A5_DO[06].output := gVLV[04].in.IS_ON; 		(* Задвижка Э-196 открыта *)
+_023_A5_DO[07].output := gVLV[04].in.IS_OFF; 		(* Задвижка Э-196 закрыта *)
+_023_A5_DO[08].output := gVLV[05].in.IS_ON; 		(* Задвижка Э-197 закрыта *)
+_023_A5_DO[09].output := gVLV[05].in.IS_OFF; 		(* Задвижка Э-197 открыта *)
+_023_A5_DO[10].output := gVLV[06].in.IS_ON; 		(* Задвижка Э-198 закрыта *)
+_023_A5_DO[11].output := gVLV[06].in.IS_OFF; 		(* Задвижка Э-198 открыта *)
+_023_A5_DO[12].output := gVLV[07].in.IS_ON; 		(* Задвижка Э-199 закрыта *)
+_023_A5_DO[13].output := gVLV[07].in.IS_OFF; 		(* Задвижка Э-199 открыта *)
+_023_A5_DO[14].output := gVLV[08].in.IS_ON; 		(* Задвижка Э-200 закрыта *)
+_023_A5_DO[15].output := gVLV[08].in.IS_OFF; 		(* Задвижка Э-200 открыта *)
+_023_A5_DO[16].output := gVLV[09].in.IS_ON; 		(* Задвижка Э-201 открыта *)
+_023_A5_DO[17].output := gVLV[09].in.IS_OFF; 		(* Задвижка Э-201 закрыта *)
+_023_A5_DO[18].output := gVLV[10].in.IS_ON; 		(* Задвижка Э-202 открыта *)
+_023_A5_DO[19].output := gVLV[10].in.IS_OFF; 		(* Задвижка Э-202 закрыта *)
+_023_A5_DO[20].output := gVLV[11].in.IS_ON; 		(* Задвижка Э-203 открыта *)
+_023_A5_DO[21].output := gVLV[11].in.IS_OFF; 		(* Задвижка Э-203 закрыта *)
+_023_A5_DO[22].output := _dis;						(*  *)
+_023_A5_DO[23].output := _dis;						(*  *)
+_023_A5_DO[24].output := _dis;						(*  *)
+_023_A5_DO[25].output := _dis;						(*  *)
+_023_A5_DO[26].output := _dis;						(*  *)
+_023_A5_DO[27].output := _dis;						(*  *)
+_023_A5_DO[28].output := _dis;						(*  *)
+_023_A5_DO[29].output := _dis;						(*  *)
+_023_A5_DO[30].output := gDO[1].OUT;				gDO[1].MDL := _mdl; (* Неисправность пожаротушения *)
+_023_A5_DO[31].output := gDO[2].OUT;				gDO[2].MDL := _mdl; (* Общая неисправность *)
+
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 10: _23_End *)
+
+PROGRAM _23_End
+
+(* First Cycle *)
+First := TRUE;
+END_PROGRAM
+(* -------------------- *)
+
+
+
+(*============================================================*)
+
+
+(*=== APT5 ===*)
+
+(* FUNCTION BLOCK: FB_HMI_EXCH *)
+
+FUNCTION_BLOCK FB_HMI_EXCH
+
+gI := 1;
+IF First THEN gD := NOT gD; END_IF;
+(* Valves *)
+FOR i := 1 TO 10 DO
+	exchV(i);
+	(* 1	Задвижка Э-1 *)
+	(* 2	Задвижка Э-2 *)
+	(* 3	Задвижка Э-3 *)
+	(* 4	Задвижка Э-4 *)
+	(* 5	Задвижка Э-5 *)
+	(* 6	Задвижка Э-6 *)
+	(* 7	Задвижка Э-7 *)
+	(* 8	Задвижка Э-8 *)
+	(* 9	Задвижка Э-9 *)
+	(* 10	Задвижка Э-10 *)
+END_FOR;
+(* ШУПН *)
+FOR i := 1 TO 3 DO
+	exchC(i);
+	(* 1	ШУПН 1 *)
+	(* 2	ШУПН 2 *)
+	(* 3	ШУПН 3 *)
+END_FOR;
+(* Pumps *)
+FOR i := 1 TO 7 DO
+	exchP(i);
+	(* 1	Насос Н-1/1 *)
+	(* 2	Насос Н-1/2 *)
+	(* 3	Насос Н-2/1 *)
+	(* 4	Насос Н-2/2 *)
+	(* 5	Насос Н-3/1 *)
+	(* 6	Насос Н-3/2 *)
+	(* 7	БДП *)
+END_FOR;
+(* Analog parameters *)
+FOR i := 1 TO 35 DO
+	exchT(i);
+	(* 1	LT01 В пож резервуаре ПР1 *)
+	(* 2	TT01 В пож резервуаре ПР1 *)
+	(* 3	LT02 В пож резервуаре ПР2 *)
+	(* 4	TT02 В пож резервуаре ПР2 *)
+	(* 5	PT01 после насосов Н1.1/Н1.2 В2 *)
+	(* 6	PT02 после насосов Н2.1/Н2.2 В10 *)
+	(* 7	PT03 после насосов Н3.1/Н3.2 В2 *)
+	(* 8	PT04 в сети B10 после задвижки Э-07 *)
+	(* 9	PT05 в сети B10 после задвижки Э-08 *)
+	(* 10	PT06 в сети B10 после задвижки Э-09 *)
+	(* 11	PT07 в сети B10 после задвижки Э-10 *)
+	(* 12	N11_TT_B1 подшипника №1 Н1.1 *)
+	(* 13	N11_TT_B2 подшипника №2 Н1.1 *)
+	(* 14	N12_TT_B1 подшипника №1 Н1.2 *)
+	(* 15	N12_TT_B2 подшипника №2 Н1.2 *)
+	(* 16	N21_TT_B1 подшипника №1 Н2.1 *)
+	(* 17	N21_TT_B2 подшипника №2 Н2.1 *)
+	(* 18	N22_TT_B1 подшипника №1 Н2.2 *)
+	(* 19	N22_TT_B2 подшипника №2 Н2.2 *)
+	(* 20	N31_TT_B1 подшипника №1 Н3.1 *)
+	(* 21	N31_TT_B2 подшипника №2 Н3.1 *)
+	(* 22	N32_TT_B1 подшипника №1 Н3.2 *)
+	(* 23	N32_TT_B2 подшипника №2 Н3.2 *)
+	(* 24	N11_TE_BM1 подшипника эд №1 Н1.1 *)
+	(* 25	N11_TE_BM2 подшипника эд №2 Н1.1 *)
+	(* 26	N12_TE_BM1 подшипника эд №1 Н1.2 *)
+	(* 27	N12_TE_BM2 подшипника эд №2 Н1.2 *)
+	(* 28	N21_TE_BM1 подшипника эд №1 Н2.1 *)
+	(* 29	N21_TE_BM2 подшипника эд №2 Н2.1 *)
+	(* 30	N22_TE_BM1 подшипника эд №1 Н2.2 *)
+	(* 31	N22_TE_BM2 подшипника эд №2 Н2.2 *)
+	(* 32	N31_TE_BM1 подшипника эд №1 Н3.1 *)
+	(* 33	N31_TE_BM2 подшипника эд №2 Н3.1 *)
+	(* 34	N32_TE_BM1 подшипника эд №1 Н3.2 *)
+	(* 35	N32_TE_BM2 подшипника эд №2 Н3.2 *)
+END_FOR;
+(* Discretes *)
+FOR i := 1 TO 35 DO
+	exchD(i);
+	(* 1	Наличие питания на вводе 1 *)
+	(* 2	Наличие питания на вводе 2 *)
+	(* 3	Состояние двери АПТ 5 *)
+	(* 4	LS01.1 Мин ур в пожарн резервуаре ПР1 *)
+	(* 5	LS01.2 Норм ур в пожарн резервуаре ПР1 *)
+	(* 6	LS01.3 Макс ур в пожарн резервуаре ПР1 *)
+	(* 7	LS02.1 Мин ур в пожарн резервуаре ПР2 *)
+	(* 8	LS02.2 Норм ур в пожарн резервуаре ПР2 *)
+	(* 9	LS02.3 Макс ур в пожарн резервуаре ПР2 *)
+	(* 10	Перегрев обмоток э-д насоса Н1.1 *)
+	(* 11	Перегрев обмоток э-д насоса Н1.2 *)
+	(* 12	Перегрев обмоток э-д насоса Н2.1 *)
+	(* 13	Перегрев обмоток э-д насоса Н2.2 *)
+	(* 14	Перегрев обмоток э-д насоса Н3.1 *)
+	(* 15	Перегрев обмоток э-д насоса Н3.2 *)
+	(* 16	Пожар в резервуарном парке *)
+	(* 17	Пожар на эстакаде *)
+	(* 18	Пожар в ПНС *)
+	(* 19	Пожар общий *)
+	(* 20	Неисправность ПС *)
+	(* ШУПН 1 *)
+	(* 21	Реле защиты от сухого хода *)
+	(* 22	Реле давления основное *)
+	(* 23	Реле давления резервное *)
+	(* 24	Реле перепада давления основное *)
+	(* 25	Реле перепада давления резервное *)
+	(* ШУПН 2 *)
+	(* 26	Реле защиты от сухого хода *)
+	(* 27	Реле давления основное *)
+	(* 28	Реле давления резервное *)
+	(* 29	Реле перепада давления основное *)
+	(* 30	Реле перепада давления резервное *)
+	(* ШУПН 3 *)
+	(* 31	Реле защиты от сухого хода *)
+	(* 32	Реле давления основное *)
+	(* 33	Реле давления резервное *)
+	(* 34	Реле перепада давления основное *)
+	(* 35	Реле перепада давления резервное *)
+END_FOR;
+(* Discrete outputs *)
+FOR i := 1 TO 3 DO
+	exchO(i);
+	(* 1	HL01 Св-зв сигнализ на ПГСК-02-24 *)
+	(* 2	HL02 Св-зв сигнализ на ПГСК-02-24 *)
+	(* 3	HL03 Св-зв сигнализ на ПГСК-02-24 *)
+END_FOR;
+(* Connection *)
+w := CON5_23;	exchWord(w);
+w := CON5_111;	exchWord(w);
+w := CON5_PCC1;	exchWord(w);
+w := CON5_PCC2;	exchWord(w);
+w := CON5_PCC3;	exchWord(w);
+(* Diagnostics *)
+exchMdlPSU(	inMdl := _005_G2_1_MDL,	inCh := _005_G2_1_PSU);
+exchMdlPSU(	inMdl := _005_G2_2_MDL,	inCh := _005_G2_2_PSU);
+exchMdlCPU(	inMdl := _005_A1_1_MDL,	isPri := CPU_pri[1],	isAct := CPU_act[1]);
+exchMdlCPU(	inMdl := _005_A1_2_MDL,	isPri := CPU_pri[2],	isAct := CPU_act[2]);
+exchMdlDI(	inMdl := _005_A2_MDl,	inCh := _005_A2_DI);
+exchMdlDI(	inMdl := _005_A3_MDl,	inCh := _005_A3_DI);
+exchMdlDO(	inMdl := _005_A4_MDl,	inCh := _005_A4_DO);
+exchMdlAI(	inMdl := _005_A5_MDl,	inCh := _005_A5_AI);
+exchMdlAI(	inMdl := _005_A6_MDl,	inCh := _005_A6_AI);
+exchMdlAI(	inMdl := _005_A7_MDl,	inCh := _005_A7_AI);
+exchMdlAI(	inMdl := _005_A8_MDl,	inCh := _005_A8_AI);
+
+
+(* Interconnections *)
+END_FUNCTION_BLOCK
+(* -------------------- *)
+
+
+(* ROUTINE 01: _5_LinkInput *)
+
+PROGRAM _5_LinkInput
+
+(* A2 *)
+_mdl := MdlErr(_005_A2_MDL);
+_dis					:= _005_A2_DI[0].input;		(*  *)
+_dis					:= _005_A2_DI[1].input;		(*  *)
+_dis					:= _005_A2_DI[2].input;		(*  *)
+_dis					:= _005_A2_DI[3].input;		(*  *)
+_dis					:= _005_A2_DI[4].input;		(*  *)
+_dis					:= _005_A2_DI[5].input;		(*  *)
+_dis					:= _005_A2_DI[6].input;		(*  *)
+_dis					:= _005_A2_DI[7].input;		(*  *)
+_dis					:= _005_A2_DI[8].input;		(*  *)
+_dis					:= _005_A2_DI[9].input;		(*  *)
+_dis					:= _005_A2_DI[10].input;	(*  *)
+_dis					:= _005_A2_DI[11].input;	(*  *)
+_dis					:= _005_A2_DI[12].input;	(*  *)
+_dis					:= _005_A2_DI[13].input;	(*  *)
+_dis					:= _005_A2_DI[14].input;	(*  *)
+_dis					:= _005_A2_DI[15].input;	(*  *)
+gDI[5].IN				:= _005_A2_DI[16].input;	gDI[5].MDL := _mdl; (* LS01.2 Норм ур в пожарн резервуаре ПР1 *)
+gDI[8].IN				:= _005_A2_DI[17].input;	gDI[8].MDL := _mdl; (* LS02.2 Норм ур в пожарн резервуаре ПР2 *)
+gDI[6].IN				:= _005_A2_DI[18].input;	gDI[6].MDL := _mdl; (* LS01.3 Макс ур в пожарн резервуаре ПР1 *)
+gDI[9].IN				:= _005_A2_DI[19].input;	gDI[9].MDL := _mdl; (* LS02.3 Макс ур в пожарн резервуаре ПР2 *)
+gACT[7].in.IS_ON		:= _005_A2_DI[20].input;	(* БДП Работа *)
+gACT[7].in.IS_OFF		:= NOT _005_A2_DI[20].input;(* БДП Работа *)
+gACT[7].in.FLT			:= _005_A2_DI[21].input;	(* БДП Авария *)
+gDI[3].IN				:= _005_A2_DI[22].input;	gDI[3].MDL := _mdl; (* Состояние двери АПТ 5 *)
+gDI[1].IN				:= _005_A2_DI[23].input;	gDI[1].MDL := _mdl; (* Наличие питания на вводе 1 *)
+gDI[2].IN				:= _005_A2_DI[24].input;	gDI[2].MDL := _mdl; (* Наличие питания на вводе 2 *)
+gDI[4].IN				:= _005_A2_DI[25].input;	gDI[4].MDL := _mdl; (* LS01.1 Мин ур в пожарн резервуаре ПР1 *)
+gDI[7].IN				:= _005_A2_DI[26].input;	gDI[7].MDL := _mdl; (* LS02.1 Мин ур в пожарн резервуаре ПР2 *)
+_dis					:= _005_A2_DI[27].input;	(*  *)
+_dis					:= _005_A2_DI[28].input;	(*  *)
+_dis					:= _005_A2_DI[29].input;	(*  *)
+_dis					:= _005_A2_DI[30].input;	(*  *)
+_dis					:= _005_A2_DI[31].input;	(*  *)
+(* A3 *)
+_mdl := MdlErr(_005_A3_MDL);
+gVLV[7].in.REMOTE		:= _005_A3_DI[0].input;		(* Зд Э-7 Дистанционный режим *)
+gVLV[7].in.LOCAL		:= _005_A3_DI[1].input;		(* Зд Э-7 Ручной режим *)
+gVLV[8].in.REMOTE		:= _005_A3_DI[2].input;		(* Зд Э-8 Дистанционный режим *)
+gVLV[8].in.LOCAL		:= _005_A3_DI[3].input;		(* Зд Э-8 Ручной режим *)
+gVLV[9].in.REMOTE		:= _005_A3_DI[4].input;		(* Зд Э-9 Дистанционный режим *)
+gVLV[9].in.LOCAL		:= _005_A3_DI[5].input;		(* Зд Э-9 Ручной режим *)
+gVLV[10].in.REMOTE		:= _005_A3_DI[6].input;		(* Зд Э-10 Дистанционный режим *)
+gVLV[10].in.LOCAL		:= _005_A3_DI[7].input;		(* Зд Э-10 Ручной режим *)
+gDI[10].IN				:= _005_A3_DI[8].input;		gDI[10].MDL := _mdl; (* Перегрев обмоток э-д насоса Н1.1 *)
+gDI[11].IN				:= _005_A3_DI[9].input;		gDI[11].MDL := _mdl; (* Перегрев обмоток э-д насоса Н1.2 *)
+gDI[12].IN				:= _005_A3_DI[10].input;	gDI[12].MDL := _mdl; (* Перегрев обмоток э-д насоса Н2.1 *)
+gDI[13].IN				:= _005_A3_DI[11].input;	gDI[13].MDL := _mdl; (* Перегрев обмоток э-д насоса Н2.2 *)
+gDI[14].IN				:= _005_A3_DI[12].input;	gDI[14].MDL := _mdl; (* Перегрев обмоток э-д насоса Н3.1 *)
+gDI[15].IN				:= _005_A3_DI[13].input;	gDI[15].MDL := _mdl; (* Перегрев обмоток э-д насоса Н3.2 *)
+_dis					:= _005_A3_DI[14].input;	(*  *)
+_dis					:= _005_A3_DI[15].input;	(*  *)
+_dis					:= _005_A3_DI[16].input;	(*  *)
+_dis					:= _005_A3_DI[17].input;	(*  *)
+_dis					:= _005_A3_DI[18].input;	(*  *)
+_dis					:= _005_A3_DI[19].input;	(*  *)
+_dis					:= _005_A3_DI[20].input;	(*  *)
+_dis					:= _005_A3_DI[21].input;	(*  *)
+_dis					:= _005_A3_DI[22].input;	(*  *)
+_dis					:= _005_A3_DI[23].input;	(*  *)
+_dis					:= _005_A3_DI[24].input;	(*  *)
+_dis					:= _005_A3_DI[25].input;	(*  *)
+_dis					:= _005_A3_DI[26].input;	(*  *)
+_dis					:= _005_A3_DI[27].input;	(*  *)
+_dis					:= _005_A3_DI[28].input;	(*  *)
+_dis					:= _005_A3_DI[29].input;	(*  *)
+_dis					:= _005_A3_DI[30].input;	(*  *)
+_dis					:= _005_A3_DI[31].input;	(*  *)
+(* A5 *)
+_mdl := MdlErr(_005_A5_MDL);
+gAI[ 1].IN				:= _005_A5_AI[0];			gAI[ 1].MDL := _mdl; (* LT01 В пож резервуаре ПР1 *)
+gAI[ 2].IN				:= _005_A5_AI[1];			gAI[ 2].MDL := _mdl; (* TT01 В пож резервуаре ПР1 *)
+gAI[ 3].IN				:= _005_A5_AI[2];			gAI[ 3].MDL := _mdl; (* LT02 В пож резервуаре ПР2 *)
+gAI[ 4].IN				:= _005_A5_AI[3];			gAI[ 4].MDL := _mdl; (* TT02 В пож резервуаре ПР2 *)
+gAI[ 5].IN				:= _005_A5_AI[4];			gAI[ 5].MDL := _mdl; (* PT01 после насосов Н1.1/Н1.2 В2 *)
+gAI[ 6].IN				:= _005_A5_AI[5];			gAI[ 6].MDL := _mdl; (* PT02 после насосов Н2.1/Н2.2 В10 *)
+gAI[ 7].IN				:= _005_A5_AI[6];			gAI[ 7].MDL := _mdl; (* PT03 после насосов Н3.1/Н3.2 В2 *)
+gAI[ 8].IN				:= _005_A5_AI[7];			gAI[ 8].MDL := _mdl; (* PT04 в сети B10 после задвижки Э-07 *)
+gAI[ 9].IN				:= _005_A5_AI[8];			gAI[ 9].MDL := _mdl; (* PT05 в сети B10 после задвижки Э-08 *)
+gAI[10].IN				:= _005_A5_AI[9];			gAI[10].MDL := _mdl; (* PT06 в сети B10 после задвижки Э-09 *)
+gAI[11].IN				:= _005_A5_AI[10];			gAI[11].MDL := _mdl; (* PT07 в сети B10 после задвижки Э-10 *)
+gAI[12].IN				:= _005_A5_AI[11];			gAI[12].MDL := _mdl; (* N11_TT_B1 подшипника №1 Н1.1 *)
+gAI[13].IN				:= _005_A5_AI[12];			gAI[13].MDL := _mdl; (* N11_TT_B2 подшипника №2 Н1.1 *)
+gAI[14].IN				:= _005_A5_AI[13];			gAI[14].MDL := _mdl; (* N12_TT_B1 подшипника №1 Н1.2 *)
+gAI[15].IN				:= _005_A5_AI[14];			gAI[15].MDL := _mdl; (* N12_TT_B2 подшипника №2 Н1.2 *)
+gAI[16].IN				:= _005_A5_AI[15];			gAI[16].MDL := _mdl; (* N21_TT_B1 подшипника №1 Н2.1 *)
+(* A6 *)
+_mdl := MdlErr(_005_A6_MDL);
+gAI[17].IN				:= _005_A6_AI[0];			gAI[17].MDL := _mdl; (* N21_TT_B2 подшипника №2 Н2.1 *)
+gAI[18].IN				:= _005_A6_AI[1];			gAI[18].MDL := _mdl; (* N22_TT_B1 подшипника №1 Н2.2 *)
+gAI[19].IN				:= _005_A6_AI[2];			gAI[19].MDL := _mdl; (* N22_TT_B2 подшипника №2 Н2.2 *)
+gAI[20].IN				:= _005_A6_AI[3];			gAI[20].MDL := _mdl; (* N31_TT_B1 подшипника №1 Н3.1 *)
+gAI[21].IN				:= _005_A6_AI[4];			gAI[21].MDL := _mdl; (* N31_TT_B2 подшипника №2 Н3.1 *)
+gAI[22].IN				:= _005_A6_AI[5];			gAI[22].MDL := _mdl; (* N32_TT_B1 подшипника №1 Н3.2 *)
+gAI[23].IN				:= _005_A6_AI[6];			gAI[23].MDL := _mdl; (* N32_TT_B2 подшипника №2 Н3.2 *)
+gAI[24].IN				:= _005_A6_AI[7];			gAI[24].MDL := _mdl; (* N11_TE_BM1 подшипника эд №1 Н1.1 *)
+gAI[25].IN				:= _005_A6_AI[8];			gAI[25].MDL := _mdl; (* N11_TE_BM2 подшипника эд №2 Н1.1 *)
+gAI[26].IN				:= _005_A6_AI[9];			gAI[26].MDL := _mdl; (* N12_TE_BM1 подшипника эд №1 Н1.2 *)
+gAI[27].IN				:= _005_A6_AI[10];			gAI[27].MDL := _mdl; (* N12_TE_BM2 подшипника эд №2 Н1.2 *)
+gAI[28].IN				:= _005_A6_AI[11];			gAI[28].MDL := _mdl; (* N21_TE_BM1 подшипника эд №1 Н2.1 *)
+gAI[29].IN				:= _005_A6_AI[12];			gAI[29].MDL := _mdl; (* N21_TE_BM2 подшипника эд №2 Н2.1 *)
+gAI[30].IN				:= _005_A6_AI[13];			gAI[30].MDL := _mdl; (* N22_TE_BM1 подшипника эд №1 Н2.2 *)
+gAI[31].IN				:= _005_A6_AI[14];			gAI[31].MDL := _mdl; (* N22_TE_BM2 подшипника эд №2 Н2.2 *)
+gAI[32].IN				:= _005_A6_AI[15];			gAI[32].MDL := _mdl; (* N31_TE_BM1 подшипника эд №1 Н3.1 *)
+(* A7 *)
+_mdl := MdlErr(_005_A7_MDL);
+gAI[33].IN				:= _005_A7_AI[0];			gAI[33].MDL := _mdl; (* N31_TE_BM2 подшипника эд №2 Н3.1 *)
+gAI[34].IN				:= _005_A7_AI[1];			gAI[34].MDL := _mdl; (* N32_TE_BM1 подшипника эд №1 Н3.2 *)
+gAI[35].IN				:= _005_A7_AI[2];			gAI[35].MDL := _mdl; (* N32_TE_BM2 подшипника эд №2 Н3.2 *)
+_ana					:= _005_A7_AI[3];			(*  *)
+_ana					:= _005_A7_AI[4];			(*  *)
+_ana					:= _005_A7_AI[5];			(*  *)
+_ana					:= _005_A7_AI[6];			(*  *)
+_ana					:= _005_A7_AI[7];			(*  *)
+_ana					:= _005_A7_AI[8];			(*  *)
+_ana					:= _005_A7_AI[9];			(*  *)
+_ana					:= _005_A7_AI[10];			(*  *)
+_ana					:= _005_A7_AI[11];			(*  *)
+_ana					:= _005_A7_AI[12];			(*  *)
+_ana					:= _005_A7_AI[13];			(*  *)
+_ana					:= _005_A7_AI[14];			(*  *)
+_ana					:= _005_A7_AI[15];			(*  *)
+(* A8 *)
+_mdl := MdlErr(_005_A8_MDL);
+_ana					:= _005_A8_AI[0];		(*  *)
+_ana					:= _005_A8_AI[1];		(*  *)
+_ana					:= _005_A8_AI[2];		(*  *)
+_ana					:= _005_A8_AI[3];		(*  *)
+_ana					:= _005_A8_AI[4];		(*  *)
+_ana					:= _005_A8_AI[5];		(*  *)
+_ana					:= _005_A8_AI[6];		(*  *)
+_ana					:= _005_A8_AI[7];		(*  *)
+_ana					:= _005_A8_AI[8];		(*  *)
+_ana					:= _005_A8_AI[9];		(*  *)
+_ana					:= _005_A8_AI[10];		(*  *)
+_ana					:= _005_A8_AI[11];		(*  *)
+_ana					:= _005_A8_AI[12];		(*  *)
+_ana					:= _005_A8_AI[13];		(*  *)
+_ana					:= _005_A8_AI[14];		(*  *)
+_ana					:= _005_A8_AI[15];		(*  *)
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 02: _5_HMI_in *)
+
+PROGRAM _5_HMI_in
+
+(* Transfering data from HMI *)
+hmiExch();
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 03: _5_Automatic *)
+
+PROGRAM _5_Automatic
+
+(* 33 A12.K9	Пожар общий *)
+i 		:= 33;
+pcc1 	:= 1;
+pcc2 	:= 3;
+foam	:= 0;
+pmp10	:= 1;
+pmp11	:= 2;
+pmp20	:= 5;
+pmp21	:= 6;
+pcc(g:=i, pcc1:=pcc1, pcc2:=pcc2, foam:=foam, pmp10:=pmp10, pmp11:=pmp11, pmp20:=pmp20, pmp21:=pmp21);
+(* 34 A12.K10	Пожар на резервуарах *)
+i 		:= 34;
+pcc1 	:= 1;
+pcc2 	:= 2;
+foam	:= 1;
+pmp10	:= 1;
+pmp11	:= 2;
+pmp20	:= 3;
+pmp21	:= 4;
+pcc(g:=i, pcc1:=pcc1, pcc2:=pcc2, foam:=foam, pmp10:=pmp10, pmp11:=pmp11, pmp20:=pmp20, pmp21:=pmp21);
+v[ 1] := 7;
+v[ 2] := 8;
+v[ 3] := 0;
+v[ 4] := 0;
+v[ 5] := 0;
+v[ 6] := 0;
+v[ 7] := 0;
+v[ 8] := 0;
+v[ 9] := 0;
+v[10] := 0;
+vr[1] := 0;
+vr[2] := 0;
+vr[3] := 0;
+vr[4] := 0;
+vlv(g := i,	v := v,	vr := vr);
+(* 35 A12.K11	Пожар в ПНС *)
+i 		:= 35;
+pcc1 	:= 2;
+pcc2 	:= 3;
+foam	:= 1;
+pmp10	:= 3;
+pmp11	:= 4;
+pmp20	:= 5;
+pmp21	:= 6;
+pcc(g:=i, pcc1:=pcc1, pcc2:=pcc2, foam:=foam, pmp10:=pmp10, pmp11:=pmp11, pmp20:=pmp20, pmp21:=pmp21);
+v[ 1] := 9;
+v[ 2] := 10;
+v[ 3] := 0;
+v[ 4] := 0;
+v[ 5] := 0;
+v[ 6] := 0;
+v[ 7] := 0;
+v[ 8] := 0;
+v[ 9] := 0;
+v[10] := 0;
+vr[1] := 0;
+vr[2] := 0;
+vr[3] := 0;
+vr[4] := 0;
+vlv(g := i,	v := v,	vr := vr);
+(* 36 A12.K12	Пожар на площадках *)
+i 		:= 36;
+pcc1 	:= 1;
+pcc2 	:= 3;
+foam	:= 0;
+pmp10	:= 1;
+pmp11	:= 2;
+pmp20	:= 5;
+pmp21	:= 6;
+pcc(g:=i, pcc1:=pcc1, pcc2:=pcc2, foam:=foam, pmp10:=pmp10, pmp11:=pmp11, pmp20:=pmp20, pmp21:=pmp21);
+(* 37 A13.K1	Пожар на эстакаде *)
+i 		:= 37;
+pcc1 	:= 2;
+pcc2 	:= 3;
+foam	:= 1;
+pmp10	:= 3;
+pmp11	:= 4;
+pmp20	:= 5;
+pmp21	:= 6;
+pcc(g:=i, pcc1:=pcc1, pcc2:=pcc2, foam:=foam, pmp10:=pmp10, pmp11:=pmp11, pmp20:=pmp20, pmp21:=pmp21);
+v[ 1] := 9;
+v[ 2] := 10;
+v[ 3] := 0;
+v[ 4] := 0;
+v[ 5] := 0;
+v[ 6] := 0;
+v[ 7] := 0;
+v[ 8] := 0;
+v[ 9] := 0;
+v[10] := 0;
+vr[1] := 0;
+vr[2] := 0;
+vr[3] := 0;
+vr[4] := 0;
+vlv(g := i,	v := v,	vr := vr);
+(* 38 A13.K2	Пожар на эстакаде поз 3.1-н1 *)
+(* 39 A13.K3	Пожар на эстакаде поз 3.1-н2 *)
+(* 40 A13.K4	Пожар на эстакаде поз 3.1-н3 *)
+(* 41 A13.K5	Пожар на эстакаде поз 3.1-н4 *)
+(* 42 A13.K6	Пожар на эстакаде поз 3.1-н5 *)
+(* 43 A13.K7	Пожар в СНТП *)
+i 		:= 43;
+pcc1 	:= 3;
+pcc2 	:= 0;
+foam	:= 0;
+pmp10	:= 5;
+pmp11	:= 6;
+pmp20	:= 0;
+pmp21	:= 0;
+pcc(g:=i, pcc1:=pcc1, pcc2:=pcc2, foam:=foam, pmp10:=pmp10, pmp11:=pmp11, pmp20:=pmp20, pmp21:=pmp21);
+
+(* Свето-звуковая сигнализация *)
+(* Противопожарный резервуар ПР1 *)
+gDO[1].PRM.PV.0 := gDI[4].PRM.PV<>0;
+(* Противопожарный резервуар ПР2 *)
+gDO[2].PRM.PV.0 := gDI[7].PRM.PV<>0;
+(* НСПТ *)
+IF gFS[33].PRM.FIRE<>0 OR gFS[34].PRM.FIRE<>0 OR gFS[35].PRM.FIRE<>0 OR gFS[36].PRM.FIRE<>0 OR gFS[37].PRM.FIRE<>0 THEN
+	IF Timer<30000 THEN
+		Timer := Timer + CYCLE_TIME;
+	END_IF;
+ELSE
+	Timer := 0;
+END_IF;
+gDO[3].PRM.PV.0 := Timer>0 AND Timer<3000 OR gDI[20].PRM.PV<>0;
+
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 04: _5_Inst *)
+
+PROGRAM _5_Inst
+(* Valves *)
+FOR i := 7 TO 10 DO
+	_gVLV(i);
+	(* 7	Задвижка Э-7 *)
+	(* 8	Задвижка Э-8 *)
+	(* 9	Задвижка Э-9 *)
+	(* 10	Задвижка Э-10 *)
+END_FOR;
+(* Pumps *)
+i := 7;
+_gACT(i);
+(* 7	БДП *)
+
+(* Analog parameters *)
+FOR i := 1 TO 35 DO
+	_gAI(i);
+	(* 1	LT01 В пож резервуаре ПР1 *)
+	(* 2	TT01 В пож резервуаре ПР1 *)
+	(* 3	LT02 В пож резервуаре ПР2 *)
+	(* 4	TT02 В пож резервуаре ПР2 *)
+	(* 5	PT01 после насосов Н1.1/Н1.2 В2 *)
+	(* 6	PT02 после насосов Н2.1/Н2.2 В10 *)
+	(* 7	PT03 после насосов Н3.1/Н3.2 В2 *)
+	(* 8	PT04 в сети B10 после задвижки Э-07 *)
+	(* 9	PT05 в сети B10 после задвижки Э-08 *)
+	(* 10	PT06 в сети B10 после задвижки Э-09 *)
+	(* 11	PT07 в сети B10 после задвижки Э-10 *)
+	(* 12	N11_TT_B1 подшипника №1 Н1.1 *)
+	(* 13	N11_TT_B2 подшипника №2 Н1.1 *)
+	(* 14	N12_TT_B1 подшипника №1 Н1.2 *)
+	(* 15	N12_TT_B2 подшипника №2 Н1.2 *)
+	(* 16	N21_TT_B1 подшипника №1 Н2.1 *)
+	(* 17	N21_TT_B2 подшипника №2 Н2.1 *)
+	(* 18	N22_TT_B1 подшипника №1 Н2.2 *)
+	(* 19	N22_TT_B2 подшипника №2 Н2.2 *)
+	(* 20	N31_TT_B1 подшипника №1 Н3.1 *)
+	(* 21	N31_TT_B2 подшипника №2 Н3.1 *)
+	(* 22	N32_TT_B1 подшипника №1 Н3.2 *)
+	(* 23	N32_TT_B2 подшипника №2 Н3.2 *)
+	(* 24	N11_TE_BM1 подшипника эд №1 Н1.1 *)
+	(* 25	N11_TE_BM2 подшипника эд №2 Н1.1 *)
+	(* 26	N12_TE_BM1 подшипника эд №1 Н1.2 *)
+	(* 27	N12_TE_BM2 подшипника эд №2 Н1.2 *)
+	(* 28	N21_TE_BM1 подшипника эд №1 Н2.1 *)
+	(* 29	N21_TE_BM2 подшипника эд №2 Н2.1 *)
+	(* 30	N22_TE_BM1 подшипника эд №1 Н2.2 *)
+	(* 31	N22_TE_BM2 подшипника эд №2 Н2.2 *)
+	(* 32	N31_TE_BM1 подшипника эд №1 Н3.1 *)
+	(* 33	N31_TE_BM2 подшипника эд №2 Н3.1 *)
+	(* 34	N32_TE_BM1 подшипника эд №1 Н3.2 *)
+	(* 35	N32_TE_BM2 подшипника эд №2 Н3.2 *)
+END_FOR;
+(* Discretes *)
+FOR i := 1 TO 35 DO
+	_gDI(i);
+	(* 1	Наличие питания на вводе 1 *)
+	(* 2	Наличие питания на вводе 2 *)
+	(* 3	Состояние двери АПТ 5 *)
+	(* 4	LS01.1 Мин ур в пожарн резервуаре ПР1 *)
+	(* 5	LS01.2 Норм ур в пожарн резервуаре ПР1 *)
+	(* 6	LS01.3 Макс ур в пожарн резервуаре ПР1 *)
+	(* 7	LS02.1 Мин ур в пожарн резервуаре ПР2 *)
+	(* 8	LS02.2 Норм ур в пожарн резервуаре ПР2 *)
+	(* 9	LS02.3 Макс ур в пожарн резервуаре ПР2 *)
+	(* 10	Перегрев обмоток э-д насоса Н1.1 *)
+	(* 11	Перегрев обмоток э-д насоса Н1.2 *)
+	(* 12	Перегрев обмоток э-д насоса Н2.1 *)
+	(* 13	Перегрев обмоток э-д насоса Н2.2 *)
+	(* 14	Перегрев обмоток э-д насоса Н3.1 *)
+	(* 15	Перегрев обмоток э-д насоса Н3.2 *)
+	(* 16	Пожар в резервуарном парке *)
+	(* 17	Пожар на эстакаде *)
+	(* 18	Пожар в ПНС *)
+	(* 19	Пожар общий *)
+	(* 20	Неисправность ПС *)
+	(* ШУПН 1 *)
+	(* 21	Реле защиты от сухого хода *)
+	(* 22	Реле давления основное *)
+	(* 23	Реле давления резервное *)
+	(* 24	Реле перепада давления основное *)
+	(* 25	Реле перепада давления резервное *)
+	(* ШУПН 2 *)
+	(* 26	Реле защиты от сухого хода *)
+	(* 27	Реле давления основное *)
+	(* 28	Реле давления резервное *)
+	(* 29	Реле перепада давления основное *)
+	(* 30	Реле перепада давления резервное *)
+	(* ШУПН 3 *)
+	(* 31	Реле защиты от сухого хода *)
+	(* 32	Реле давления основное *)
+	(* 33	Реле давления резервное *)
+	(* 34	Реле перепада давления основное *)
+	(* 35	Реле перепада давления резервное *)
+END_FOR;
+(* Discrete outputs *)
+FOR i := 1 TO 3 DO
+	_gDO(i);
+	(* 1	HL01 Св-зв сигнализ на ПГСК-02-24 *)
+	(* 2	HL02 Св-зв сигнализ на ПГСК-02-24 *)
+	(* 3	HL03 Св-зв сигнализ на ПГСК-02-24 *)
+END_FOR;
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 05: _5_RTU_Master *)
+
+PROGRAM _5_RTU_Master
+
+(* First Cycle *)
+IF NOT First OR sInit THEN
+	sInit := FALSE;
+	
+	(* 4 identical valves on Port 1; 1 6-channel COBA on Port 2 *)
+	(* available: 8 request groups on each port, 16 requests in each group *)
+	sMaxReqs := 16;
+	sMaxCtrls := (4 * 2) / sMaxReqs; (* 24 = Number of Modbus Devices *)
+	(* Preparing configs for requests *)
+	FOR i := 1 TO 4 DO
+		(* reading *)
+		cfg_SID[i*2 - 1] := ANY_TO_BYTE(i);
+		cfg_FUN[i*2 - 1] := 3;
+		cfg_ADR[i*2 - 1] := 4; (* 40004; *)
+		cfg_LEN[i*2 - 1] := 4;
+		(* writing *)
+		cfg_SID[i*2 - 0] := ANY_TO_BYTE(i);
+		cfg_FUN[i*2 - 0] := 16;
+		cfg_ADR[i*2 - 0] := 2; (* 40002; *)
+		cfg_LEN[i*2 - 0] := 2;
+	END_FOR;
+	FOR i := 1 TO 1 DO
+		(* reading *)
+		cfg2_SID[i*2 - 1] := ANY_TO_BYTE(i);
+		cfg2_FUN[i*2 - 1] := 3;
+		cfg2_ADR[i*2 - 1] := 3; (* 40003..40014; *)
+		cfg2_LEN[i*2 - 1] := 6;
+		(* writing *)
+		cfg2_SID[i*2 - 0] := ANY_TO_BYTE(i);
+		cfg2_FUN[i*2 - 0] := 16;
+		cfg2_ADR[i*2 - 0] := 2; (* 40002; *)
+		cfg2_LEN[i*2 - 0] := 1;
+	END_FOR;
+	(* Configuring requests *)
+	sOffset := 0;
+	sReqNo := 1;
+	sCtrlNo := 0;
+	FOR i := 1 TO 4 DO
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].enable := TRUE;
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].single_request := FALSE;
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].on_modify_request := FALSE;
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].do_single_req := FALSE;
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].command.timeout_ms := 1000;
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].command.repeat_over_scan := TRUE;
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].command.slave_id 			:= cfg_SID[i];
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].command.func_code 		:= cfg_FUN[i];
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].command.slave_data_addr	:= cfg_ADR[i];
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].command.slave_data_length	:= cfg_LEN[i];
+		_Ctrl_1[sCtrlNo].Requests[sReqNo].command.offset := sOffset;
+		sOffset := sOffset + cfg_LEN[i];
+		sReqNo := sReqNo + 1;
+		IF sReqNo > sMaxReqs THEN 
+			sReqNo := 1;
+			sCtrlNo := sCtrlNo + 1;
+			IF sCtrlNo > sMaxCtrls THEN 
+				sCtrlNo := 0;
+			END_IF;
+		END_IF;
+	END_FOR;
+	sOffset := 0;
+	sReqNo := 1;
+	sCtrlNo := 0;
+	FOR i := 1 TO 2 DO
+		_Ctrl_2[sCtrlNo].Requests[sReqNo].enable := TRUE;
+		_Ctrl_2[sCtrlNo].Requests[sReqNo].single_request := FALSE;
+		_Ctrl_2[sCtrlNo].Requests[sReqNo].on_modify_request := FALSE;
+		_Ctrl_2[sCtrlNo].Requests[sReqNo].do_single_req := FALSE;
+		_Ctrl_2[sCtrlNo].Requests[sReqNo].command.timeout_ms := 1000;
+		_Ctrl_2[sCtrlNo].Requests[sReqNo].command.repeat_over_scan := TRUE;
+		_Ctrl_2[sCtrlNo].Requests[sReqNo].command.slave_id 			:= cfg_SID[i];
+		_Ctrl_2[sCtrlNo].Requests[sReqNo].command.func_code 		:= cfg_FUN[i];
+		_Ctrl_2[sCtrlNo].Requests[sReqNo].command.slave_data_addr	:= cfg_ADR[i];
+		_Ctrl_2[sCtrlNo].Requests[sReqNo].command.slave_data_length	:= cfg_LEN[i];
+		_Ctrl_2[sCtrlNo].Requests[sReqNo].command.offset := sOffset;
+		sOffset := sOffset + cfg_LEN[i];
+		sReqNo := sReqNo + 1;
+		IF sReqNo > sMaxReqs THEN 
+			sReqNo := 1;
+			sCtrlNo := sCtrlNo + 1;
+			IF sCtrlNo > sMaxCtrls THEN 
+				sCtrlNo := 0;
+			END_IF;
+		END_IF;
+	END_FOR;
+	_Control_1 := 1;
+	_Control_2 := 1;
+END_IF;
+
+(* Every Cycle *)
+sCtrlNo := 0;
+sReqNo := 1;
+(* 11 valves on Port 1 *)
+FOR i := 1 TO 4 DO
+	j:=i;
+	sCOBA_VLV(
+		iReqStatus	:= _Diag_1[sCtrlNo].RequestsAndStats[sReqNo].status_request,
+		i40004 	:= _HR_1[0].regs[(i-1)*6 + 1],
+		i40005 	:= _HR_1[0].regs[(i-1)*6 + 2],
+		i40006 	:= _HR_1[0].regs[(i-1)*6 + 3],
+		i40007 	:= _HR_1[0].regs[(i-1)*6 + 4],
+		g		:= j,
+		o40002	=> _HR_1[0].regs[(i-1)*6 + 5],
+		o40003	=> _HR_1[0].regs[(i-1)*6 + 6]
+	);
+	sReqNo := sReqNo + 1;
+	IF sReqNo > sMaxReqs THEN 
+		sReqNo := 1;
+		sCtrlNo := sCtrlNo + 1;
+		IF sCtrlNo > sMaxCtrls THEN 
+			sCtrlNo := 0;
+		END_IF;
+	END_IF;
+END_FOR;
+(* 1 6-channel COBA on Port 2 *)
+FOR i := 1 TO 1 DO
+	FOR j := 1 TO 6 DO
+		sCOBA_DIS(
+			iReqStatus	:= _Diag_2[sCtrlNo].RequestsAndStats[sReqNo].status_request,
+			iBit		:= j-1,
+			iStatus 	:= _HR_2[0].regs[(i-1)*13 + j],
+			g			:= i*j + 15,
+			o40002		=> _HR_2[0].regs[(i-1)*13 + 13]
+		);
+	END_FOR;
+	sReqNo := sReqNo + 1;
+	IF sReqNo > sMaxReqs THEN 
+		sReqNo := 1;
+		sCtrlNo := sCtrlNo + 1;
+		IF sCtrlNo > sMaxCtrls THEN 
+			sCtrlNo := 0;
+		END_IF;
+	END_IF;
+END_FOR;
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 06: _5_TCP_Master *)
+
+PROGRAM _5_TCP_Master
+
+(* First Cycle *)
+IF NOT First THEN
+	_Control := 1;
+	(*	En	IP					Port	ID	Func	RegNo			Len		Offset in _HR	Timeout	*)
+	rq01(1,	'192.168.0.1'	,	502	,	1,	3	,	1			,	1	,	2000			,	1000);	_Ctrl[0].Requests[ 3] := rq01.out;	(* АПТ 1.1.1 основной *)
+	rq02(0,	'192.168.1.1'	,	502	,	1,	3	,	1			,	1	,	2000			,	1000);	_Ctrl[0].Requests[ 4] := rq02.out;	(* АПТ 1.1.1 резервный *)
+	rq03(1,	'192.168.0.5'	,	502	,	1,	3	,	1001		,	43	,	0				,	1000);	_Ctrl[0].Requests[ 5] := rq03.out;	(* АПТ 2.3 основной пожары*)
+	rq04(0,	'192.168.1.5'	,	502	,	1,	3	,	1001		,	43	,	0				,	1000);	_Ctrl[0].Requests[ 6] := rq04.out;	(* АПТ 2.3 резервный пожары*)
+	rq05(1,	'192.168.0.5'	,	502	,	1,	16	,	1001+100+32	,	11	,	100+32			,	1000);	_Ctrl[0].Requests[ 7] := rq05.out;	(* АПТ 2.3 основной задвижки*)
+	rq06(0,	'192.168.1.5'	,	502	,	1,	16	,	1001+100+32	,	11	,	100+32			,	1000);	_Ctrl[0].Requests[ 8] := rq06.out;	(* АПТ 2.3 резервный задвижки*)
+	rq07(1,	'192.168.0.5'	,	502	,	1,	16	,	1001+200+32	,	11	,	200+32			,	1000);	_Ctrl[0].Requests[ 9] := rq07.out;	(* АПТ 2.3 основной насосы*)
+	rq08(0,	'192.168.1.5'	,	502	,	1,	16	,	1001+200+32	,	11	,	200+32			,	1000);	_Ctrl[0].Requests[10] := rq08.out;	(* АПТ 2.3 резервный насосы*)
+	rq09(1,	'192.168.1.125'	,	502	,	1,	3	,	1			,	12	,	500				,	1000);	_Ctrl[0].Requests[11] := rq09.out;	(* ШУПН 1 *)
+	rq10(1,	'192.168.1.125'	,	502	,	1,	13	,	13			,	1	,	500+12			,	1000);	_Ctrl[0].Requests[12] := rq10.out;	(* ШУПН 1 *)
+	rq11(1,	'192.168.1.126'	,	502	,	1,	3	,	1			,	12	,	500+12+1		,	1000);	_Ctrl[0].Requests[13] := rq11.out;	(* ШУПН 2 *)
+	rq12(1,	'192.168.1.126'	,	502	,	1,	13	,	13			,	1	,	500+12+1+12		,	1000);	_Ctrl[0].Requests[14] := rq12.out;	(* ШУПН 2 *)
+	rq13(1,	'192.168.1.127'	,	502	,	1,	3	,	1			,	12	,	500+12+1+12+1	,	1000);	_Ctrl[0].Requests[15] := rq13.out;	(* ШУПН 3 *)
+	rq14(1,	'192.168.1.127'	,	502	,	1,	13	,	13			,	1	,	500+12+1+12+1+12,	1000);	_Ctrl[0].Requests[16] := rq14.out;	(* ШУПН 3 *)
+END_IF;
+
+sCtrlNo := 0;
+(* 111 *)
+sReqNo := 3;
+IF _Ctrl[sCtrlNo].Requests[sReqNo].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>100 THEN
+		CON5_111 := 0;
+		IF Timer[sReqNo]<3000 THEN
+			Timer[sReqNo] := Timer[sReqNo] + CYCLE_TIME;
+		ELSE
+			_Ctrl[sCtrlNo].Requests[sReqNo].enable := FALSE;
+			_Ctrl[sCtrlNo].Requests[sReqNo+1].enable := TRUE;
+			Timer[sReqNo] := 0;
+		END_IF;
+	ELSE
+		CON5_111 := 1;
+	END_IF;
+END_IF;
+IF _Ctrl[sCtrlNo].Requests[sReqNo+1].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo+1].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo+1].status_request<>100 THEN
+		CON5_111 := 0;
+		IF Timer[sReqNo+1]<3000 THEN
+			Timer[sReqNo+1] := Timer[sReqNo+1] + CYCLE_TIME;
+		ELSE
+			_Ctrl[sCtrlNo].Requests[sReqNo+1].enable := FALSE;
+			_Ctrl[sCtrlNo].Requests[sReqNo].enable := TRUE;
+			Timer[sReqNo+1] := 0;
+		END_IF;
+	ELSE
+		CON5_111 := 1;
+	END_IF;
+END_IF;
+(* 23 read *)
+sReqNo := 5;
+IF _Ctrl[sCtrlNo].Requests[sReqNo].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>100 THEN
+		CON5_23 := 0;
+		IF Timer[sReqNo]<3000 THEN
+			Timer[sReqNo] := Timer[sReqNo] + CYCLE_TIME;
+		ELSE
+			_Ctrl[sCtrlNo].Requests[sReqNo].enable := FALSE;
+			_Ctrl[sCtrlNo].Requests[sReqNo+1].enable := TRUE;
+			Timer[sReqNo] := 0;
+		END_IF;
+	ELSE
+		CON5_23 := 1;
+	END_IF;
+END_IF;
+IF _Ctrl[sCtrlNo].Requests[sReqNo+1].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo+1].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo+1].status_request<>100 THEN
+		CON5_23 := 0;
+		IF Timer[sReqNo+1]<3000 THEN
+			Timer[sReqNo+1] := Timer[sReqNo+1] + CYCLE_TIME;
+		ELSE
+			_Ctrl[sCtrlNo].Requests[sReqNo+1].enable := FALSE;
+			_Ctrl[sCtrlNo].Requests[sReqNo].enable := TRUE;
+			Timer[sReqNo+1] := 0;
+		END_IF;
+	ELSE
+		CON5_23 := 1;
+	END_IF;
+END_IF;
+(* 23 write *)
+sReqNo := 7;
+IF _Ctrl[sCtrlNo].Requests[sReqNo].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>100 THEN
+		;
+		IF Timer[sReqNo]<3000 THEN
+			Timer[sReqNo] := Timer[sReqNo] + CYCLE_TIME;
+		ELSE
+			_Ctrl[sCtrlNo].Requests[sReqNo].enable := FALSE;
+			_Ctrl[sCtrlNo].Requests[sReqNo+1].enable := TRUE;
+			Timer[sReqNo] := 0;
+		END_IF;
+	ELSE
+		;
+	END_IF;
+END_IF;
+IF _Ctrl[sCtrlNo].Requests[sReqNo+1].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo+1].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo+1].status_request<>100 THEN
+		;
+		IF Timer[sReqNo+1]<3000 THEN
+			Timer[sReqNo+1] := Timer[sReqNo+1] + CYCLE_TIME;
+		ELSE
+			_Ctrl[sCtrlNo].Requests[sReqNo+1].enable := FALSE;
+			_Ctrl[sCtrlNo].Requests[sReqNo].enable := TRUE;
+			Timer[sReqNo+1] := 0;
+		END_IF;
+	ELSE
+		;
+	END_IF;
+END_IF;
+(* PCC1 *)
+sReqNo := 11;
+IF _Ctrl[sCtrlNo].Requests[sReqNo].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>100 THEN
+		CON5_PCC1 := 0;
+	ELSE
+		CON5_PCC1 := 1;
+	END_IF;
+END_IF;
+(* PCC2 *)
+sReqNo := 12;
+IF _Ctrl[sCtrlNo].Requests[sReqNo].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>100 THEN
+		CON5_PCC2 := 0;
+	ELSE
+		CON5_PCC2 := 1;
+	END_IF;
+END_IF;
+(* PCC3 *)
+sReqNo := 13;
+IF _Ctrl[sCtrlNo].Requests[sReqNo].enable THEN
+	IF _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>0 OR _Diag[sCtrlNo].RequestsAndStats[sReqNo].status_request<>100 THEN
+		CON5_PCC3 := 0;
+	ELSE
+		CON5_PCC3 := 1;
+	END_IF;
+END_IF;
+
+(* Пожар *)
+FOR i := 1 TO 43 DO
+	gFS[i].PRM.FIRE := _HR[0].regs[i];
+END_FOR;
+(* Состояние клапанов *)
+FOR i := 1 TO 8 DO
+	_HR[0].regs[i + 100 + 32] := gFS[i+32].PRM.VLVS;
+END_FOR;
+(* Состояние насосов *)
+FOR i := 1 TO 8 DO
+	_HR[0].regs[i + 200 + 32] := gFS[i+32].PRM.PCC;
+END_FOR;
+
+(* ШУПН *)
+FOR j := 0 TO 2 DO
+	_mdl := NOT (_Diag[0].RequestsAndStats[10 + j+1].status_request=0 OR _Diag[0].RequestsAndStats[10 + j+1].status_request=100);
+	(* ШУПН *)
+	_gPCC1(
+		g		:= j+1,
+		m		:= 1,
+		iState	:= _HR[0].regs[500 + j*13 + 4],
+		iAlm_00 := _HR[0].regs[500 + j*13 + 10].0,
+		iAlm_01 := _HR[0].regs[500 + j*13 + 10].9,
+		iAlm_02 := _HR[0].regs[500 + j*13 + 11].4,
+		iAlm_03 := _HR[0].regs[500 + j*13 + 11].5,
+		iAlm_04 := _HR[0].regs[500 + j*13 + 11].6,
+		iAlm_15 := _mdl
+	);
+	_HR[0].regs[500+ j*13 + 13].0 := _gPCC1.oStart;
+	_HR[0].regs[500+ j*13 + 13].1 := _gPCC1.oReset;
+	(* PMP *)
+	(* 1	Насос Н-1/1 *)
+	(* 2	Насос Н-1/2 *)
+	(* 3	Насос Н-2/1 *)
+	(* 4	Насос Н-2/2 *)
+	(* 5	Насос Н-3/1 *)
+	(* 6	Насос Н-3/2 *)
+	_gPCC2(
+		g		:= j*2 + 1,
+		m		:= 2,
+		iMode	:= _HR[0].regs[500 + j*13 + 12].0,
+		iState	:= _HR[0].regs[500 + j*13 + 5],
+		iAlm_00 := _HR[0].regs[500 + j*13 + 10].7,
+		iAlm_01 := _HR[0].regs[500 + j*13 + 10].10,
+		iAlm_02 := _HR[0].regs[500 + j*13 + 10].12,
+		iAlm_03 := _HR[0].regs[500 + j*13 + 10].14,
+		iAlm_04 := _HR[0].regs[500 + j*13 + 11].2
+	);
+	_gPCC2(
+		g		:= j*2 + 2,
+		m		:= 2,
+		iMode	:= _HR[0].regs[500 + j*13 + 12].1,
+		iState	:= _HR[0].regs[500 + j*13 + 6],
+		iAlm_00 := _HR[0].regs[500 + j*13 + 10].8,
+		iAlm_01 := _HR[0].regs[500 + j*13 + 10].11,
+		iAlm_02 := _HR[0].regs[500 + j*13 + 10].13,
+		iAlm_03 := _HR[0].regs[500 + j*13 + 10].15,
+		iAlm_04 := _HR[0].regs[500 + j*13 + 11].3
+	);
+	(* VLV *)
+	(* 1	Задвижка Э-1 *)
+	(* 2	Задвижка Э-2 *)
+	(* 3	Задвижка Э-3 *)
+	(* 4	Задвижка Э-4 *)
+	(* 5	Задвижка Э-5 *)
+	(* 6	Задвижка Э-6 *)
+	_gPCC3(
+		g		:= j*2 + 1,
+		m		:= 3,
+		iState	:= _HR[0].regs[500 + j*13 + 7],
+		iAlm_00 := _HR[0].regs[500 + j*13 + 9].0,
+		iAlm_01 := _HR[0].regs[500 + j*13 + 9].2,
+		iAlm_02 := _HR[0].regs[500 + j*13 + 9].4,
+		iAlm_03 := _HR[0].regs[500 + j*13 + 9].6,
+		iAlm_04 := _HR[0].regs[500 + j*13 + 9].8,
+		iAlm_05 := _HR[0].regs[500 + j*13 + 9].10,
+		iAlm_06 := _HR[0].regs[500 + j*13 + 9].12,
+		iAlm_07 := _HR[0].regs[500 + j*13 + 9].14,
+		iAlm_08 := _HR[0].regs[500 + j*13 + 10].1,
+		iAlm_09 := _HR[0].regs[500 + j*13 + 10].3,
+		iAlm_10 := _HR[0].regs[500 + j*13 + 10].5,
+		iAlm_11 := _HR[0].regs[500 + j*13 + 11].0
+	);
+	_gPCC3(
+		g		:= j*2 + 2,
+		m		:= 3,
+		iState	:= _HR[0].regs[500 + j*13 + 8],
+		iAlm_00 := _HR[0].regs[500 + j*13 + 9].1,
+		iAlm_01 := _HR[0].regs[500 + j*13 + 9].3,
+		iAlm_02 := _HR[0].regs[500 + j*13 + 9].5,
+		iAlm_03 := _HR[0].regs[500 + j*13 + 9].7,
+		iAlm_04 := _HR[0].regs[500 + j*13 + 9].9,
+		iAlm_05 := _HR[0].regs[500 + j*13 + 9].11,
+		iAlm_06 := _HR[0].regs[500 + j*13 + 9].13,
+		iAlm_07 := _HR[0].regs[500 + j*13 + 9].15,
+		iAlm_08 := _HR[0].regs[500 + j*13 + 10].2,
+		iAlm_09 := _HR[0].regs[500 + j*13 + 10].4,
+		iAlm_10 := _HR[0].regs[500 + j*13 + 10].6,
+		iAlm_11 := _HR[0].regs[500 + j*13 + 11].1
+	);
+	gDI[j*5 + 21].IN := _HR[0].regs[500 + j*13 + 3].0;	gDI[j*5 + 21].MDL := _mdl;	(* Реле защиты от сухого хода *)
+	gDI[j*5 + 22].IN := _HR[0].regs[500 + j*13 + 3].1;	gDI[j*5 + 22].MDL := _mdl;	(* Реле давления основное *)
+	gDI[j*5 + 23].IN := _HR[0].regs[500 + j*13 + 3].2;	gDI[j*5 + 23].MDL := _mdl;	(* Реле давления резервное *)
+	gDI[j*5 + 24].IN := _HR[0].regs[500 + j*13 + 3].3;	gDI[j*5 + 24].MDL := _mdl;	(* Реле перепада давления основное *)
+	gDI[j*5 + 25].IN := _HR[0].regs[500 + j*13 + 3].4;	gDI[j*5 + 25].MDL := _mdl;	(* Реле перепада давления резервное *)
+END_FOR;
+
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 07: _5_HMI_out *)
+
+PROGRAM _5_HMI_out
+
+(* Transfering data to HMI *)
+hmiExch();
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 08: _5_LinkOutput *)
+
+PROGRAM _5_LinkOutput
+
+(* A4 *)
+_mdl := MdlErr(_005_A4_MDL);
+_005_A4_DO[0].output 		:= _dis;
+_005_A4_DO[1].output 		:= _dis;
+_005_A4_DO[2].output 		:= _dis;
+_005_A4_DO[3].output 		:= _dis;
+_005_A4_DO[4].output 		:= _dis;
+_005_A4_DO[5].output 		:= _dis;
+_005_A4_DO[6].output 		:= _dis;
+_005_A4_DO[7].output 		:= _dis;
+_005_A4_DO[8].output 		:= _dis;
+_005_A4_DO[9].output 		:= _dis;
+_005_A4_DO[10].output 		:= _dis;
+_005_A4_DO[11].output 		:= _dis;
+_005_A4_DO[12].output 		:= _dis;
+_005_A4_DO[13].output 		:= _dis;
+_005_A4_DO[14].output 		:= _dis;
+_005_A4_DO[15].output 		:= _dis;
+_005_A4_DO[16].output 		:= gACT[1].out.TO_ON; 		(* Пуск БДП *)
+_005_A4_DO[17].output 		:= gDO[1].OUT; 				gDO[1].MDL := _mdl; (* HL01 Св-зв сигнализ на ПГСК-02-24 *)
+_005_A4_DO[18].output 		:= gDO[2].OUT; 				gDO[2].MDL := _mdl; (* HL02 Св-зв сигнализ на ПГСК-02-24 *)
+_005_A4_DO[19].output 		:= gDO[3].OUT; 				gDO[3].MDL := _mdl; (* HL03 Св-зв сигнализ на ПГСК-02-24 *)
+_005_A4_DO[20].output 		:= gVLV[7].in.IS_ON; 		(* Задвижка Э-7 открыта *)
+_005_A4_DO[21].output 		:= gVLV[7].in.IS_OFF; 		(* Задвижка Э-7 закрыта *)
+_005_A4_DO[22].output 		:= gVLV[8].in.IS_ON; 		(* Задвижка Э-7 открыта *)
+_005_A4_DO[23].output 		:= gVLV[8].in.IS_OFF; 		(* Задвижка Э-8 закрыта *)
+_005_A4_DO[24].output 		:= gVLV[9].in.IS_ON; 		(* Задвижка Э-9 открыта *)
+_005_A4_DO[25].output 		:= gVLV[9].in.IS_OFF; 		(* Задвижка Э-9 закрыта *)
+_005_A4_DO[26].output 		:= gVLV[10].in.IS_ON; 		(* Задвижка Э-10 открыта *)
+_005_A4_DO[27].output 		:= gVLV[10].in.IS_OFF; 		(* Задвижка Э-10 закрыта *)
+_005_A4_DO[28].output 		:= _dis;
+_005_A4_DO[29].output 		:= _dis;
+_005_A4_DO[30].output 		:= _dis;
+_005_A4_DO[31].output 		:= _dis;
+END_PROGRAM
+(* -------------------- *)
+
+
+(* ROUTINE 10: _5_End *)
+
+PROGRAM _5_End
+
+(* First Cycle *)
+First := TRUE;
+END_PROGRAM
+(* -------------------- *)
+
+
